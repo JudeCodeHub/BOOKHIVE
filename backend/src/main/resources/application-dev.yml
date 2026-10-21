@@ -1,0 +1,11 @@
+# Local development. Defaults match infra/docker-compose.yml; override them in backend/.env.
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bookhive}
+    username: ${DB_USERNAME:bookhive}
+    password: ${DB_PASSWORD:bookhive}
+
+logging:
+  level:
+    lk.bookhive: debug
