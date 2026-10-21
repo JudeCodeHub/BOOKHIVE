@@ -1,0 +1,11 @@
+# Production. No defaults on purpose: the app fails to start if a secret is missing.
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+logging:
+  level:
+    root: info

@@ -4,6 +4,7 @@
 
 # ---------- Local docs (PRD & notes stay on this machine) ----------
 docs/
+CHECKLIST.md
 
 # ---------- Secrets & environment ----------
 .env

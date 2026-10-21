@@ -1,0 +1,5 @@
+# Automated tests. The database will come from Testcontainers (step 82).
+
+logging:
+  level:
+    lk.bookhive: debug

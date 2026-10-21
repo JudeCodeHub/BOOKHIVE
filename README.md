@@ -36,9 +36,7 @@ bookhive/
 
 ## Status
 
-🚧 **Phase 0: Setup & Tooling.** Nothing runs yet.
-
-Progress is tracked step by step in [CHECKLIST.md](CHECKLIST.md).
+🚧 **Phase 2: Backend Foundation.** The backend skeleton runs; no features yet.
 
 | Milestone | Scope | Status |
 |---|---|---|

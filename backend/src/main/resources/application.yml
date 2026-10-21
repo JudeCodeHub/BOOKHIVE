@@ -1,0 +1,30 @@
+# Shared settings for every profile.
+# Profile files (application-dev.yml, -test.yml, -prod.yml) override these.
+
+spring:
+  application:
+    name: bookhive
+  profiles:
+    # Used when no profile is set (e.g. ./gradlew bootRun). Prod sets SPRING_PROFILES_ACTIVE=prod.
+    default: dev
+  config:
+    # Optional local secrets file (backend/.env, git-ignored). See .env.example.
+    import: optional:file:.env[.properties]
+
+  jpa:
+    # Flyway owns the schema; Hibernate only checks that entities match it.
+    hibernate:
+      ddl-auto: validate
+    # Don't keep the DB session open while rendering the response (avoids hidden lazy-loading queries).
+    open-in-view: false
+
+  flyway:
+    locations: classpath:db/migration
+
+  mvc:
+    # Spring's built-in errors use RFC 7807 ProblemDetail, like ours.
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
