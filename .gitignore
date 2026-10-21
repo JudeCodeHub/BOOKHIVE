@@ -1,0 +1,139 @@
+# =========================================================
+#  BookHive — .gitignore (monorepo: backend / frontend / infra)
+# =========================================================
+
+# ---------- Local docs (PRD & notes stay on this machine) ----------
+docs/
+
+# ---------- Secrets & environment ----------
+.env
+.env.*
+!.env.example
+!**/.env.example
+!**/.env.local.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+!**/src/test/resources/**/*.pem
+secrets/
+**/jwt-keys/
+
+# ---------- OS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*~
+
+# ---------- Editors / IDEs ----------
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+.factorypath
+bin/
+.history/
+
+# ---------- Logs ----------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+hs_err_pid*
+replay_pid*
+
+# =========================================================
+#  BACKEND — Java / Spring Boot / Gradle / Maven
+# =========================================================
+backend/.gradle/
+backend/build/
+backend/**/build/
+!backend/gradle/wrapper/gradle-wrapper.jar
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+*.war
+*.ear
+*.nar
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-local.properties
+
+# =========================================================
+#  FRONTEND — Next.js / Node / pnpm
+# =========================================================
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.turbo/
+frontend/.vercel/
+frontend/next-env.d.ts
+*.tsbuildinfo
+.pnpm-store/
+.npm/
+.eslintcache
+.stylelintcache
+
+# ---------- Test output ----------
+coverage/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
+backend/jacoco/
+*.lcov
+
+# =========================================================
+#  INFRA — Docker / Terraform / k6
+# =========================================================
+infra/data/
+infra/volumes/
+**/postgres-data/
+**/redis-data/
+**/minio-data/
+docker-compose.override.yml
+
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+infra/k6/results/
+
+# ---------- Misc ----------
+*.tmp
+*.bak
+*.orig
+.cache/
+tmp/
+uploads/

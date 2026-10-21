@@ -1,0 +1,54 @@
+# BookHive local development services
+# Start:  docker compose -f infra/docker-compose.yml up -d
+# Stop:   docker compose -f infra/docker-compose.yml down
+# The passwords below are for local development only, never for production.
+
+name: bookhive
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bookhive-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bookhive}
+      POSTGRES_USER: ${POSTGRES_USER:-bookhive}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bookhive}
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    container_name: bookhive-redis
+    # Append-only file so cached data survives a container restart
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:v1.31.6
+    container_name: bookhive-mailpit
+    ports:
+      - "1025:1025" # SMTP: the backend sends emails here
+      - "8025:8025" # Web UI: open http://localhost:8025 to read them
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
