@@ -1,39 +1,77 @@
+"use client";
+
+import { Suspense } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
 // Each language is always shown in its own script, so these names are not translated
-const LANGUAGES = [
+const LANGUAGES: { code: Locale; label: string; name: string }[] = [
   { code: "en", label: "EN", name: "English" },
   { code: "si", label: "සිං", name: "සිංහල" },
   { code: "ta", label: "தமி", name: "தமிழ்" },
-] as const;
+];
 
 /**
- * English / Sinhala / Tamil switcher. Display only for now: clicking to switch comes in
- * checklist step 78.
+ * English / Sinhala / Tamil switcher: links to the same page in another language, e.g.
+ * /en/search?q=x -> /si/search?q=x. The proxy then remembers the choice in a cookie.
  */
 export function LanguageSwitcher() {
+  return (
+    // Reading the query string makes this part dynamic; until it's known (pre-rendered HTML),
+    // the links keep the page but not the query, which still works without JavaScript.
+    <Suspense fallback={<LanguageLinks />}>
+      <LanguageLinksWithQuery />
+    </Suspense>
+  );
+}
+
+function LanguageLinksWithQuery() {
+  const searchParams = useSearchParams();
+  return <LanguageLinks query={Object.fromEntries(searchParams)} />;
+}
+
+function LanguageLinks({ query }: { query?: Record<string, string> }) {
   const t = useTranslations("Header");
   const current = useLocale();
+  const pathname = usePathname();
 
   return (
-    <div role="group" aria-label={t("language")} className="flex rounded-md border p-0.5 text-sm">
-      {LANGUAGES.map((lang) => (
-        <span
-          key={lang.code}
-          lang={lang.code}
-          title={lang.name}
-          aria-current={lang.code === current ? "true" : undefined}
-          className={cn(
-            "rounded-sm px-2 py-1",
-            lang.code === current
-              ? "bg-primary font-medium text-primary-foreground"
-              : "text-muted-foreground",
-          )}
-        >
-          {lang.label}
-        </span>
-      ))}
-    </div>
+    <nav aria-label={t("language")}>
+      <ul className="flex rounded-md border p-0.5 text-sm">
+        {LANGUAGES.map((lang) => (
+          <li key={lang.code}>
+            {lang.code === current ? (
+              <span
+                lang={lang.code}
+                title={lang.name}
+                aria-current="true"
+                className="block rounded-sm bg-primary px-2 py-1 font-medium text-primary-foreground"
+              >
+                {lang.label}
+              </span>
+            ) : (
+              <Link
+                href={{ pathname, query }}
+                locale={lang.code}
+                lang={lang.code}
+                hrefLang={lang.code}
+                title={lang.name}
+                // Screen readers read the full name ("සිංහල"), not the short label
+                aria-label={lang.name}
+                className={cn(
+                  "block rounded-sm px-2 py-1 text-muted-foreground transition-colors",
+                  "hover:bg-accent hover:text-accent-foreground",
+                )}
+              >
+                {lang.label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

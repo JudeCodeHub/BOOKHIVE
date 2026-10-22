@@ -1,0 +1,13 @@
+# Keep the build context small and secrets out of the image
+node_modules/
+.next/
+out/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+*.tsbuildinfo
+.env
+.env.*
+Dockerfile
+.dockerignore

@@ -4,7 +4,45 @@
     "description": "Search the catalog, check availability, and manage your loans, holds and fines online."
   },
   "Home": {
-    "tagline": "Your public library, one search away."
+    "heroTitle": "Every book, one search away",
+    "heroSubtitle": "Search the library catalog, see what's on the shelf right now, and reserve books before you visit.",
+    "subjectsTitle": "Browse by subject",
+    "subjectsSubtitle": "Organised by the Dewey Decimal Classification, just like our shelves.",
+    "featuresTitle": "Your library, online",
+    "joinTitle": "Not a member yet?",
+    "joinText": "Apply online in a few minutes. Once approved, your digital library card is ready on your phone.",
+    "joinButton": "Become a member",
+    "rulesButton": "Borrowing rules",
+    "subjects": {
+      "general": "Computers & general works",
+      "philosophy": "Philosophy & psychology",
+      "religion": "Religion",
+      "socialSciences": "Social sciences",
+      "language": "Language",
+      "science": "Science",
+      "technology": "Technology",
+      "arts": "Arts & recreation",
+      "literature": "Literature",
+      "history": "History & geography"
+    },
+    "features": {
+      "availability": {
+        "title": "Check availability",
+        "text": "See how many copies are on the shelf and exactly where to find them."
+      },
+      "reserve": {
+        "title": "Reserve books",
+        "text": "All copies out? Join the queue and we'll tell you when it's your turn."
+      },
+      "renew": {
+        "title": "Renew from home",
+        "text": "See your due dates and renew loans without coming to the desk."
+      },
+      "pay": {
+        "title": "Pay fines online",
+        "text": "Pay by card, eZ Cash or mCash and get a receipt by email."
+      }
+    }
   },
   "Common": {
     "loading": "Loading",
