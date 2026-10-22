@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
  * Only the server has the private key, so only the server can create valid tokens.
  */
 @Configuration
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, AuthProperties.class})
 public class JwtConfig {
 
   private static final Logger log = LoggerFactory.getLogger(JwtConfig.class);
