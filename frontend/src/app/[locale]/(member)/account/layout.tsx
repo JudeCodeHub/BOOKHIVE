@@ -29,7 +29,7 @@ const MEMBER_NAV: NavItem[] = [
 ];
 
 /** Member portal: same header as the public site, plus a sidebar. Mobile-first. */
-export default function MemberLayout({ children }: LayoutProps<"/account">) {
+export default function MemberLayout({ children }: LayoutProps<"/[locale]/account">) {
   return (
     <>
       <SiteHeader />

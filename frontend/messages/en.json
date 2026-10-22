@@ -1,0 +1,23 @@
+{
+  "Metadata": {
+    "title": "BookHive",
+    "description": "Search the catalog, check availability, and manage your loans, holds and fines online."
+  },
+  "Home": {
+    "tagline": "Your public library, one search away."
+  },
+  "Common": {
+    "loading": "Loading"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "home": "Go to the home page"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "description": "Please try again. If the problem continues, contact the library.",
+    "retry": "Try again",
+    "reference": "Reference: {id}"
+  }
+}

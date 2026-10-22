@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import { Fraunces, Noto_Sans, Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google";
+import { notFound } from "next/navigation";
+import * as rootParams from "next/root-params";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
-import "./globals.css";
+import "../globals.css";
 
 // Fonts are downloaded at build time and served from our own domain (no requests to Google).
 // globals.css chains them: the browser picks, per character, the first font that has the glyph,
@@ -25,16 +31,26 @@ const notoTamil = Noto_Sans_Tamil({
 // Serif for headings: the "bookish" feel from PRD §11
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
 
-export const metadata: Metadata = {
-  title: "BookHive",
-  description:
-    "Search the catalog, check availability, and manage your loans, holds and fines online.",
-};
+// Pre-render every page in all three languages at build time (required with Cache Components)
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Metadata");
+  return { title: t("title"), description: t("description") };
+}
+
+/** Root layout: everything under /en, /si, /ta. */
+export default async function LocaleLayout({ children }: LayoutProps<"/[locale]">) {
+  const locale = await rootParams.locale();
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={cn(
         "h-full antialiased",
         notoSans.variable,
@@ -46,11 +62,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
-        <ThemeProvider>
-          {children}
-          {/* Pop-up notifications: toast.success("Book renewed") from any client component */}
-          <Toaster richColors closeButton />
-        </ThemeProvider>
+        {/* Passes the language and messages on to client components (useTranslations) */}
+        <NextIntlClientProvider>
+          <ThemeProvider>
+            <QueryProvider>
+              {children}
+              {/* Pop-up notifications: toast.success("Book renewed") from any client component */}
+              <Toaster richColors closeButton />
+            </QueryProvider>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
