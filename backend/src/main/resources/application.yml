@@ -17,6 +17,11 @@ spring:
       ddl-auto: validate
     # Don't keep the DB session open while rendering the response (avoids hidden lazy-loading queries).
     open-in-view: false
+    properties:
+      hibernate:
+        # Timestamps are written and read as UTC, whatever the server's time zone is.
+        jdbc:
+          time_zone: UTC
 
   flyway:
     locations: classpath:db/migration
@@ -28,3 +33,21 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only these two; everything else (env, beans, heapdump...) would leak internals.
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+      # /actuator/health/liveness and /readiness for Docker / AWS health checks
+      probes:
+        enabled: true
+
+logging:
+  pattern:
+    # Adds [requestId] to every console log line (see RequestIdFilter).
+    correlation: "[%X{requestId:-}] "

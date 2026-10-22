@@ -6,6 +6,23 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
+bookhive:
+  cors:
+    # Comma-separated, e.g. https://bookhive.lk,https://www.bookhive.lk
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+# API docs are for development only
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 logging:
+  # One JSON object per line (Elastic Common Schema), easy to search in CloudWatch.
+  # MDC values such as requestId are included automatically.
+  structured:
+    format:
+      console: ecs
   level:
     root: info

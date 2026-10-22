@@ -8,6 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lk.bookhive.common.exception.BusinessRuleException;
 import lk.bookhive.common.exception.ConflictException;
 import lk.bookhive.common.exception.NotFoundException;
@@ -17,6 +21,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Runs the handler against a fake controller; no Spring context or database needed. */
@@ -71,8 +78,38 @@ class GlobalExceptionHandlerTest {
         .andExpect(jsonPath("$.code").value("METHOD_NOT_ALLOWED"));
   }
 
+  @Test
+  void invalidBodyListsEveryBadField() throws Exception {
+    mvc.perform(
+            post("/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"not-an-email\",\"fullName\":\"\"}"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+        .andExpect(jsonPath("$.errors.length()").value(2))
+        .andExpect(jsonPath("$.errors[?(@.field == 'email')].code").value("Email"))
+        .andExpect(jsonPath("$.errors[?(@.field == 'fullName')].code").value("NotBlank"));
+  }
+
+  @Test
+  void invalidQueryParamIsReportedByName() throws Exception {
+    mvc.perform(get("/books").param("page", "-1"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+        .andExpect(jsonPath("$.errors[0].field").value("page"))
+        .andExpect(jsonPath("$.errors[0].code").value("Min"));
+  }
+
+  record RegisterRequest(@NotBlank @Email String email, @NotBlank String fullName) {}
+
   @RestController
   static class ThrowingController {
+
+    @PostMapping("/register")
+    void register(@Valid @RequestBody RegisterRequest request) {}
+
+    @GetMapping("/books")
+    void books(@RequestParam @Min(0) int page) {}
 
     @GetMapping("/not-found")
     void notFound() {

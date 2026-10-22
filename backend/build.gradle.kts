@@ -18,7 +18,18 @@ repositories {
 	mavenCentral()
 }
 
+val mapstructVersion = "1.6.3"
+val springdocVersion = "3.1.1"
+
+// Adds build-info.properties so /actuator/info shows the app name and version
+springBoot {
+	buildInfo()
+}
+
 dependencies {
+	implementation("org.mapstruct:mapstruct:$mapstructVersion")
+	annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-flyway")
@@ -35,6 +46,11 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+// MapStruct mappers become Spring beans, so they can be injected with a constructor
+tasks.withType<JavaCompile> {
+	options.compilerArgs.add("-Amapstruct.defaultComponentModel=spring")
 }
 
 tasks.withType<Test> {

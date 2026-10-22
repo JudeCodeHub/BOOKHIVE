@@ -12,10 +12,13 @@ public class WebConfig implements WebMvcConfigurer {
 
   public static final String API_PREFIX = "/api/v1";
 
-  // Every @RestController gets /api/v1 in front, so controllers declare only "/books" etc.
-  // Actuator (/actuator/health) is not a @RestController and stays unprefixed.
+  // Every BookHive @RestController gets /api/v1 in front, so controllers declare only "/books".
+  // Limited to our own package: library controllers (springdoc's /v3/api-docs) keep their paths.
   @Override
   public void configurePathMatch(PathMatchConfigurer configurer) {
-    configurer.addPathPrefix(API_PREFIX, HandlerTypePredicate.forAnnotation(RestController.class));
+    configurer.addPathPrefix(
+        API_PREFIX,
+        HandlerTypePredicate.forBasePackage("lk.bookhive")
+            .and(HandlerTypePredicate.forAnnotation(RestController.class)));
   }
 }
