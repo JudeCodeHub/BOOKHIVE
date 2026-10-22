@@ -41,6 +41,8 @@ dependencies {
     // JWT signing (RS256) and validation of Bearer tokens, via Nimbus JOSE
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    // Sending email over SMTP (Mailpit locally, AWS SES in production)
+    implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.flywaydb:flyway-database-postgresql")
     developmentOnly("org.springframework.boot:spring-boot-devtools")

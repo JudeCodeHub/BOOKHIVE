@@ -63,6 +63,7 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/bookhive
       DB_USERNAME: ${POSTGRES_USER:-bookhive}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-bookhive}
+      MAIL_HOST: mailpit
     ports:
       - "8080:8080"
     depends_on:

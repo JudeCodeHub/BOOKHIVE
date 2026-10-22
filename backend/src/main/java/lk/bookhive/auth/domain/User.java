@@ -89,6 +89,19 @@ public class User extends BaseEntity {
     return Objects.requireNonNull(email, "email").strip().toLowerCase(Locale.ROOT);
   }
 
+  /**
+   * The user clicked the link in the verification email (AUTH-2): the account becomes ACTIVE and
+   * can log in. A disabled account stays disabled.
+   */
+  public void verifyEmail(Instant now) {
+    if (emailVerifiedAt == null) {
+      emailVerifiedAt = now;
+    }
+    if (status == UserStatus.PENDING_VERIFICATION) {
+      status = UserStatus.ACTIVE;
+    }
+  }
+
   public boolean hasRole(Role role) {
     return roles.contains(role);
   }
