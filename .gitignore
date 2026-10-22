@@ -2,8 +2,8 @@
 #  BookHive — .gitignore (monorepo: backend / frontend / infra)
 # =========================================================
 
-# ---------- Local docs (PRD & notes stay on this machine) ----------
-docs/
+# ---------- Local docs (PRD & checklist stay on this machine; the rest of docs/ is committed) ----------
+docs/BookHive_PRD.md
 CHECKLIST.md
 
 # ---------- Secrets & environment ----------
