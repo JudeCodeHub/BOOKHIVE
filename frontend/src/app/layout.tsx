@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Noto_Sans, Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -41,11 +42,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         notoTamil.variable,
         fraunces.variable,
       )}
+      // next-themes adds class="dark" before React loads; this stops React warning about it
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
-        {children}
-        {/* Pop-up notifications: toast.success("Book renewed") from any client component */}
-        <Toaster richColors closeButton />
+        <ThemeProvider>
+          {children}
+          {/* Pop-up notifications: toast.success("Book renewed") from any client component */}
+          <Toaster richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );
