@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.auditing.DateTimeProvider;
 
 /**
- * The single source of "now". Code asks the {@link Clock} instead of calling {@code
- * Instant.now()}, so tests can freeze time (e.g. "it's 3 days after the due date").
+ * The single source of "now". Code asks the {@link Clock} instead of calling {@code Instant.now()},
+ * so tests can freeze time (e.g. "it's 3 days after the due date").
  */
 @Configuration
 public class TimeConfig {

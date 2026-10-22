@@ -1,4 +1,8 @@
-# Automated tests. The database will come from Testcontainers (step 82).
+# Automated tests. The database comes from Testcontainers (see TestcontainersConfiguration).
+
+bookhive:
+  cors:
+    allowed-origins: http://localhost:3000
 
 logging:
   level:
