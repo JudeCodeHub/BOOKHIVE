@@ -6,8 +6,8 @@
 // is renamed in Java, the frontend then shows a type error instead of breaking at runtime.
 //
 // OPENAPI_URL  spec location (default http://localhost:8080/v3/api-docs)
-// OPENAPI_AUTH "user:password" for HTTP Basic auth. Needed only until the backend's security
-//              config opens the docs in dev (Phase 3); use the password from the bootRun log.
+// OPENAPI_AUTH "user:password" for HTTP Basic auth, if the spec is behind a login. Not needed
+//              locally: the dev profile serves the docs publicly.
 
 import { writeFile } from "node:fs/promises";
 import openapiTS, { astToString } from "openapi-typescript";

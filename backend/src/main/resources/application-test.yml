@@ -3,6 +3,8 @@
 bookhive:
   cors:
     allowed-origins: http://localhost:3000
+  jwt:
+    allow-generated-keys: true
 
 logging:
   level:

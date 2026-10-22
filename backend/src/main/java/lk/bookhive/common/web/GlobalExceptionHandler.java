@@ -12,7 +12,10 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,13 +51,38 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return problem;
   }
 
+  // Not logged in, or the token is missing/invalid/expired. Also reached from Spring Security's
+  // filters through SecurityConfig, so every 401 has the same JSON shape.
+  @ExceptionHandler(AuthenticationException.class)
+  public ProblemDetail handleUnauthenticated(AuthenticationException ex) {
+    return unauthorized();
+  }
+
+  // Logged in, but not allowed (e.g. a member calling a staff endpoint).
+  @ExceptionHandler(AccessDeniedException.class)
+  public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+    // An anonymous visitor hitting a protected method should be told to log in, not "forbidden"
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+      return unauthorized();
+    }
+    ProblemDetail problem =
+        ProblemDetail.forStatusAndDetail(
+            HttpStatus.FORBIDDEN, "You don't have permission to do this.");
+    problem.setProperty(CODE, "FORBIDDEN");
+    return problem;
+  }
+
+  private static ProblemDetail unauthorized() {
+    ProblemDetail problem =
+        ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Please log in to continue.");
+    problem.setProperty(CODE, "UNAUTHORIZED");
+    return problem;
+  }
+
   // Last resort: log the real error, but never send internal details to the client.
   @ExceptionHandler(Exception.class)
-  public ProblemDetail handleUnexpected(Exception ex) throws Exception {
-    // Let Spring Security turn these into 401/403 instead of a 500.
-    if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
-      throw ex;
-    }
+  public ProblemDetail handleUnexpected(Exception ex) {
     log.error("Unexpected error", ex);
     ProblemDetail problem =
         ProblemDetail.forStatusAndDetail(
