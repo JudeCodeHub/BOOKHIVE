@@ -17,6 +17,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated from the backend OpenAPI spec (pnpm api:types)
     "src/lib/api-schema.d.ts",
+    // Playwright output
+    "test-results/**",
+    "playwright-report/**",
+    "blob-report/**",
   ]),
 ]);
 

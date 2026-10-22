@@ -12,3 +12,8 @@ AGENTS.md
 
 # Generated from the backend OpenAPI spec (pnpm api:types)
 src/lib/api-schema.d.ts
+
+# Test output
+test-results/
+playwright-report/
+blob-report/

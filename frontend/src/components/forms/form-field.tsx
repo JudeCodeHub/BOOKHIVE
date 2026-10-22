@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ export function FormField({
   className?: string;
   children: (field: FieldControlProps) => ReactNode;
 }) {
+  const t = useTranslations("Common");
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
@@ -50,7 +52,7 @@ export function FormField({
             <span aria-hidden className="text-destructive">
               *
             </span>
-            <span className="sr-only">(required)</span>
+            <span className="sr-only">{t("required")}</span>
           </>
         )}
       </Label>

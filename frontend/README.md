@@ -23,3 +23,8 @@ pnpm dev      # http://localhost:3000
 | `pnpm format`       | Format all files with Prettier (sorts Tailwind classes too)                  |
 | `pnpm format:check` | Fail if any file isn't formatted (used in CI)                                |
 | `pnpm api:types`    | Regenerate `src/lib/api-schema.d.ts` from the running backend's OpenAPI spec |
+| `pnpm test`         | Unit and component tests (Vitest); `pnpm test:watch` re-runs on save         |
+| `pnpm test:e2e`     | End-to-end tests in a real browser (Playwright)                              |
+
+The first time you run `pnpm test:e2e`, download its browser: `pnpm exec playwright install chromium`.
+Configuration (backend URL) is optional: see `.env.local.example`.
