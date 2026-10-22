@@ -1,0 +1,11 @@
+# Generated or installed files
+.next/
+out/
+build/
+coverage/
+node_modules/
+next-env.d.ts
+pnpm-lock.yaml
+
+# Written and re-written by Next.js itself
+AGENTS.md

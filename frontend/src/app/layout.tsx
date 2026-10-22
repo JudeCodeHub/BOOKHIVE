@@ -1,5 +1,28 @@
 import type { Metadata } from "next";
+import { Fraunces, Noto_Sans, Noto_Sans_Sinhala, Noto_Sans_Tamil } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
 import "./globals.css";
+
+// Fonts are downloaded at build time and served from our own domain (no requests to Google).
+// globals.css chains them: the browser picks, per character, the first font that has the glyph,
+// so English, Sinhala and Tamil text all render correctly in one font stack.
+const notoSans = Noto_Sans({ subsets: ["latin"], variable: "--font-noto-sans" });
+
+// Sinhala/Tamil are only needed on /si and /ta pages, so don't preload them on every page.
+const notoSinhala = Noto_Sans_Sinhala({
+  subsets: ["sinhala"],
+  variable: "--font-noto-sinhala",
+  preload: false,
+});
+const notoTamil = Noto_Sans_Tamil({
+  subsets: ["tamil"],
+  variable: "--font-noto-tamil",
+  preload: false,
+});
+
+// Serif for headings: the "bookish" feel from PRD §11
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
 
 export const metadata: Metadata = {
   title: "BookHive",
@@ -9,8 +32,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html
+      lang="en"
+      className={cn(
+        "h-full antialiased",
+        notoSans.variable,
+        notoSinhala.variable,
+        notoTamil.variable,
+        fraunces.variable,
+      )}
+    >
+      <body className="flex min-h-full flex-col">
+        {children}
+        {/* Pop-up notifications: toast.success("Book renewed") from any client component */}
+        <Toaster richColors closeButton />
+      </body>
     </html>
   );
 }
