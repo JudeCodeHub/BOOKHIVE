@@ -9,6 +9,10 @@ spring:
 bookhive:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  jwt:
+    allow-generated-keys: true
+  security:
+    public-api-docs: true
 
 logging:
   level:
