@@ -1,5 +1,7 @@
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
+// Each language is always shown in its own script, so these names are not translated
 const LANGUAGES = [
   { code: "en", label: "EN", name: "English" },
   { code: "si", label: "සිං", name: "සිංහල" },
@@ -7,12 +9,15 @@ const LANGUAGES = [
 ] as const;
 
 /**
- * English / Sinhala / Tamil switcher. Display only for now: switching starts working once
- * next-intl adds the /en, /si, /ta routes (checklist step 70 and 78).
+ * English / Sinhala / Tamil switcher. Display only for now: clicking to switch comes in
+ * checklist step 78.
  */
-export function LanguageSwitcher({ current = "en" }: { current?: string }) {
+export function LanguageSwitcher() {
+  const t = useTranslations("Header");
+  const current = useLocale();
+
   return (
-    <div role="group" aria-label="Language" className="flex rounded-md border p-0.5 text-sm">
+    <div role="group" aria-label={t("language")} className="flex rounded-md border p-0.5 text-sm">
       {LANGUAGES.map((lang) => (
         <span
           key={lang.code}

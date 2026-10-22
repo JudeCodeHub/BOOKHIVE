@@ -158,7 +158,8 @@ async function request<T>(
       signal: signal ?? AbortSignal.timeout(timeoutMs),
     });
   } catch (cause) {
-    const timedOut = cause instanceof DOMException && cause.name === "TimeoutError";
+    // Check the name, not `instanceof DOMException`: the class differs between environments
+    const timedOut = (cause as { name?: string } | null)?.name === "TimeoutError";
     throw new ApiError({
       status: 0,
       code: timedOut ? "TIMEOUT" : "NETWORK_ERROR",

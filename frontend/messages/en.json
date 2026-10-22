@@ -7,7 +7,8 @@
     "tagline": "Your public library, one search away."
   },
   "Common": {
-    "loading": "Loading"
+    "loading": "Loading",
+    "required": "(required)"
   },
   "NotFound": {
     "title": "Page not found",
@@ -19,5 +20,80 @@
     "description": "Please try again. If the problem continues, contact the library.",
     "retry": "Try again",
     "reference": "Reference: {id}"
+  },
+  "Header": {
+    "home": "BookHive home",
+    "searchLabel": "Search the catalog",
+    "searchPlaceholder": "Search by title, author or ISBN",
+    "search": "Search",
+    "login": "Log in",
+    "language": "Language",
+    "toggleTheme": "Toggle dark mode"
+  },
+  "Footer": {
+    "label": "Footer",
+    "visit": "Visit us",
+    "rules": "Borrowing rules",
+    "events": "Events",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "MemberNav": {
+    "label": "My account",
+    "dashboard": "Dashboard",
+    "loans": "My loans",
+    "holds": "Holds",
+    "fines": "Fines & payments",
+    "history": "Reading history",
+    "card": "Library card",
+    "wishlist": "Wishlist",
+    "events": "My events",
+    "notifications": "Notifications",
+    "settings": "Settings"
+  },
+  "StaffNav": {
+    "badge": "Staff",
+    "label": "Staff console",
+    "lookupLabel": "Find a member or item",
+    "lookupPlaceholder": "Member no, name, NIC or barcode",
+    "dashboard": "Dashboard",
+    "desk": "Desk",
+    "members": "Members",
+    "applications": "Applications",
+    "catalog": "Catalog",
+    "loans": "Loans",
+    "holds": "Hold shelf",
+    "fines": "Fines",
+    "events": "Events",
+    "news": "News",
+    "reviews": "Reviews",
+    "donations": "Donations",
+    "suggestions": "Suggestions",
+    "stocktake": "Stock-take"
+  },
+  "AdminNav": {
+    "badge": "Admin",
+    "label": "Admin console",
+    "staffConsole": "Staff console",
+    "overview": "Overview",
+    "settings": "Library rules",
+    "membershipTypes": "Membership types",
+    "hours": "Hours & holidays",
+    "staff": "Staff accounts",
+    "reports": "Reports",
+    "auditLogs": "Audit log",
+    "libraryInfo": "Library info"
+  },
+  "AccountHome": {
+    "title": "My account",
+    "description": "Your loans, holds and fines will appear here."
+  },
+  "StaffHome": {
+    "title": "Dashboard",
+    "description": "Today's checkouts, returns, overdue items and pending approvals will appear here."
+  },
+  "AdminHome": {
+    "title": "Overview",
+    "description": "Library rules, staff accounts, reports and audit logs will be managed here."
   }
 }

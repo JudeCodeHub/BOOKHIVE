@@ -5,10 +5,11 @@ import { cn } from "@/lib/utils";
  * Screen readers announce the label; users who turn off animations see static cells.
  */
 export function HexLoader({
-  label = "Loading",
+  label,
   className,
 }: {
-  label?: string;
+  /** Read out by screen readers, e.g. t("Common.loading") */
+  label: string;
   className?: string;
 }) {
   return (
