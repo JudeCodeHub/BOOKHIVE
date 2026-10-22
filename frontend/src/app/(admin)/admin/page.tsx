@@ -1,4 +1,10 @@
-// The admin layout comes in the next step (checklist 61).
-export default function AdminHome() {
-  return <h1 className="p-4 text-xl font-semibold">Admin console</h1>;
+export default function AdminOverview() {
+  return (
+    <>
+      <h1 className="text-xl font-semibold">Overview</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Library rules, staff accounts, reports and audit logs will be managed here.
+      </p>
+    </>
+  );
 }
