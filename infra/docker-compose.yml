@@ -49,6 +49,32 @@ services:
       - "8025:8025" # Web UI: open http://localhost:8025 to read them
     restart: unless-stopped
 
+  # Optional: only starts with --profile app. Day to day you run the backend from the IDE
+  # (./gradlew bootRun); this is for running the whole stack in containers.
+  #   docker compose -f infra/docker-compose.yml --profile app up -d --build
+  backend:
+    profiles: ["app"]
+    build: ../backend
+    image: bookhive-backend:local
+    container_name: bookhive-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      # Inside the compose network the database host is the service name, not localhost
+      DB_URL: jdbc:postgresql://postgres:5432/bookhive
+      DB_USERNAME: ${POSTGRES_USER:-bookhive}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-bookhive}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
 volumes:
   postgres-data:
   redis-data:
