@@ -7,25 +7,34 @@ test("the home page redirects to a language and shows the search box", async ({ 
   await page.goto("/");
 
   await expect(page).toHaveURL(/\/en$/);
-  await expect(page.getByRole("heading", { name: "BookHive" })).toBeVisible();
-  await expect(page.getByRole("searchbox", { name: "Search the catalog" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Every book, one search away" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("main").getByRole("searchbox", { name: "Search the catalog" }),
+  ).toBeVisible();
 });
 
 test("each language has its own URL, text and html lang", async ({ page }) => {
   await page.goto("/si");
   await expect(page.locator("html")).toHaveAttribute("lang", "si");
-  await expect(page.getByText("ඔබේ මහජන පුස්තකාලය, එක් සෙවුමකින්.")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "සෑම පොතක්ම, එක් සෙවුමකින්" }),
+  ).toBeVisible();
 
   await page.goto("/ta");
   await expect(page.locator("html")).toHaveAttribute("lang", "ta");
-  await expect(page.getByText("உங்கள் பொது நூலகம், ஒரு தேடலில்.")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "ஒவ்வொரு நூலும், ஒரு தேடலில்" }),
+  ).toBeVisible();
 });
 
 test("searching goes to the search page in the current language", async ({ page }) => {
   await page.goto("/si");
 
-  await page.getByRole("searchbox").fill("madol doova");
-  await page.getByRole("searchbox").press("Enter");
+  const search = page.getByRole("main").getByRole("searchbox");
+  await search.fill("madol doova");
+  await search.press("Enter");
 
   await expect(page).toHaveURL(/\/si\/search\?q=madol\+doova$/);
 });
@@ -60,4 +69,25 @@ test("dark mode can be toggled and is remembered", async ({ page }) => {
 
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+});
+
+test("the language switcher keeps the page and the search query", async ({ page }) => {
+  await page.goto("/en/account?tab=loans");
+
+  await page.getByRole("link", { name: "සිංහල" }).click();
+  await expect(page).toHaveURL(/\/si\/account\?tab=loans$/);
+
+  await page.goto("/si/account");
+  await page.getByRole("link", { name: "தமிழ்" }).click();
+  await expect(page).toHaveURL(/\/ta\/account$/);
+  await expect(page.getByRole("heading", { level: 1, name: "என் கணக்கு" })).toBeVisible();
+});
+
+test("the chosen language is remembered for links without a language", async ({ page }) => {
+  await page.goto("/en");
+  await page.getByRole("link", { name: "தமிழ்" }).click();
+  await expect(page).toHaveURL(/\/ta$/);
+
+  await page.goto("/account");
+  await expect(page).toHaveURL(/\/ta\/account$/);
 });

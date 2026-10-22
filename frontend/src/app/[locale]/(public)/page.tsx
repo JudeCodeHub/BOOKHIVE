@@ -1,12 +1,17 @@
-import { getTranslations } from "next-intl/server";
+import { FeatureList } from "@/features/home/feature-list";
+import { HeroSearch } from "@/features/home/hero-search";
+import { JoinCta } from "@/features/home/join-cta";
+import { SubjectGrid } from "@/features/home/subject-grid";
 
-export default async function Home() {
-  const t = await getTranslations("Home");
-
+// New arrivals, popular books, events and news join this page once their backend
+// endpoints exist (catalog, search and events phases).
+export default function Home() {
   return (
-    <section className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-24 text-center">
-      <h1 className="text-4xl font-semibold">BookHive</h1>
-      <p className="text-lg text-muted-foreground">{t("tagline")}</p>
-    </section>
+    <>
+      <HeroSearch />
+      <SubjectGrid />
+      <FeatureList />
+      <JoinCta />
+    </>
   );
 }

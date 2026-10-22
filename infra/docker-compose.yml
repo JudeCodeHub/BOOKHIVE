@@ -75,6 +75,32 @@ services:
       retries: 10
       start_period: 30s
 
+  # Optional, like the backend: http://localhost:3000
+  frontend:
+    profiles: ["app"]
+    build:
+      context: ../frontend
+      args:
+        # The browser calls the backend through the published port on localhost
+        NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+    image: bookhive-frontend:local
+    container_name: bookhive-frontend
+    environment:
+      # Server-side rendering calls the backend inside the compose network
+      API_URL: http://backend:8080/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      # 127.0.0.1, not localhost: in Alpine "localhost" resolves to IPv6 ::1, but Next.js listens on IPv4
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/en"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
 volumes:
   postgres-data:
   redis-data:
