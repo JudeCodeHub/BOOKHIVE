@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { LogoMark } from "@/components/brand/logo";
 import { SidebarNav, type NavItem } from "@/components/layout/sidebar-nav";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 /**
  * Frame shared by the staff and admin consoles: dense and desktop-first, with a dark top bar
@@ -34,7 +35,10 @@ export function ConsoleShell({
             {badge}
           </span>
         </Link>
-        <div className="ml-auto flex min-w-0 items-center gap-3">{headerActions}</div>
+        <div className="ml-auto flex min-w-0 items-center gap-3">
+          {headerActions}
+          <ThemeToggle className="hover:bg-white/10 hover:text-secondary-foreground" />
+        </div>
       </header>
 
       <div className="flex flex-1 flex-col md:flex-row">

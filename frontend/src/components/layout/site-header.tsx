@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -18,7 +19,7 @@ export function SiteHeader() {
         <form
           action="/search"
           role="search"
-          className="order-last flex w-full items-center gap-2 sm:order-none sm:w-auto sm:flex-1"
+          className="order-last flex w-full items-center gap-2 sm:order-0 sm:w-auto sm:flex-1"
         >
           <label htmlFor="site-search" className="sr-only">
             Search the catalog
@@ -37,6 +38,7 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-3 sm:ml-0">
           <LanguageSwitcher />
+          <ThemeToggle />
           <Button asChild variant="secondary">
             <Link href="/login">Log in</Link>
           </Button>
