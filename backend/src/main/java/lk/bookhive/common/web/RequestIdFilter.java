@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Gives every request an ID, puts it in the logging context (MDC) so every log line of that
- * request shows it, and returns it in the {@code X-Request-Id} response header. A user who reports
- * an error can send this ID and we find all matching log lines.
+ * Gives every request an ID, puts it in the logging context (MDC) so every log line of that request
+ * shows it, and returns it in the {@code X-Request-Id} response header. A user who reports an error
+ * can send this ID and we find all matching log lines.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

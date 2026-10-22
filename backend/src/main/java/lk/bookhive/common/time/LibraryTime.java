@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
  *
  * <ul>
  *   <li><b>Timestamps</b> ({@link Instant}, "when did it happen") are stored in UTC.
- *   <li><b>Business dates</b> ({@link LocalDate}: due dates, fine days, holidays) are calendar
- *       days in Sri Lanka, where the library is.
+ *   <li><b>Business dates</b> ({@link LocalDate}: due dates, fine days, holidays) are calendar days
+ *       in Sri Lanka, where the library is.
  * </ul>
  *
  * <p>At 2:00 AM in Colombo it's still the previous day in UTC, so "today" must always come from

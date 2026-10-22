@@ -7,8 +7,8 @@ import java.util.Objects;
 
 /**
  * An amount in Sri Lankan rupees, always with 2 decimals (cents). Uses {@link BigDecimal} because
- * {@code double} can't store most decimals exactly ({@code 0.1 + 0.2 = 0.30000000000000004}).
- * There is deliberately no {@code of(double)}: create amounts from a String or whole rupees.
+ * {@code double} can't store most decimals exactly ({@code 0.1 + 0.2 = 0.30000000000000004}). There
+ * is deliberately no {@code of(double)}: create amounts from a String or whole rupees.
  */
 public record Money(BigDecimal amount) implements Comparable<Money> {
 

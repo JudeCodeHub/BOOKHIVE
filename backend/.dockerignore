@@ -1,0 +1,12 @@
+# Keep the build context small and secrets out of the image
+.gradle/
+build/
+bin/
+out/
+.idea/
+*.iml
+.vscode/
+.env
+.env.*
+Dockerfile
+.dockerignore

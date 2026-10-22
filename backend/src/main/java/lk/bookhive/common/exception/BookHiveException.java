@@ -3,8 +3,8 @@ package lk.bookhive.common.exception;
 import org.springframework.http.HttpStatus;
 
 /**
- * Base class for expected domain errors. The {@code code} (e.g. {@code BOOK_NOT_FOUND}) is
- * stable and machine-readable: the frontend translates it, so never change an existing code.
+ * Base class for expected domain errors. The {@code code} (e.g. {@code BOOK_NOT_FOUND}) is stable
+ * and machine-readable: the frontend translates it, so never change an existing code.
  */
 public abstract class BookHiveException extends RuntimeException {
 
