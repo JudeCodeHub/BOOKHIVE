@@ -9,3 +9,6 @@ pnpm-lock.yaml
 
 # Written and re-written by Next.js itself
 AGENTS.md
+
+# Generated from the backend OpenAPI spec (pnpm api:types)
+src/lib/api-schema.d.ts

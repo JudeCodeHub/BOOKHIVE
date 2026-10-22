@@ -36,7 +36,7 @@ const STAFF_NAV: NavItem[] = [
   { href: "/staff/stocktake", label: "Stock-take", icon: <ClipboardCheck /> },
 ];
 
-export default function StaffLayout({ children }: LayoutProps<"/staff">) {
+export default function StaffLayout({ children }: LayoutProps<"/[locale]/staff">) {
   return (
     <ConsoleShell
       badge="Staff"

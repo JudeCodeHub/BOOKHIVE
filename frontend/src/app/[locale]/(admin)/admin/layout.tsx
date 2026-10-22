@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   BarChart3,
   Clock,
@@ -25,7 +25,7 @@ const ADMIN_NAV: NavItem[] = [
 ];
 
 /** Admin console: same frame as the staff console, with a shortcut back to the desk. */
-export default function AdminLayout({ children }: LayoutProps<"/admin">) {
+export default function AdminLayout({ children }: LayoutProps<"/[locale]/admin">) {
   return (
     <ConsoleShell
       badge="Admin"

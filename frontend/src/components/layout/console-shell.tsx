@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { LogoMark } from "@/components/brand/logo";
 import { SidebarNav, type NavItem } from "@/components/layout/sidebar-nav";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
