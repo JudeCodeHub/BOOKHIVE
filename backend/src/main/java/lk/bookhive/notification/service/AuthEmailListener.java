@@ -1,9 +1,11 @@
 package lk.bookhive.notification.service;
 
 import java.util.UUID;
+import lk.bookhive.auth.domain.Role;
 import lk.bookhive.auth.event.EmailVerificationRequested;
 import lk.bookhive.auth.event.PasswordChanged;
 import lk.bookhive.auth.event.PasswordResetRequested;
+import lk.bookhive.auth.event.StaffInvited;
 import lk.bookhive.common.domain.Language;
 import lk.bookhive.notification.config.MailProperties;
 import lk.bookhive.notification.service.EmailSender.EmailMessage;
@@ -99,6 +101,29 @@ public class AuthEmailListener {
         BookHive
         """
             .formatted(event.fullName(), forgotLink));
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void onStaffInvited(StaffInvited event) {
+    String link = link(event.language(), "accept-invite", event.token());
+    String role = event.role() == Role.ADMIN ? "an administrator" : "a librarian";
+    send(
+        event.userId(),
+        event.email(),
+        "You're invited to BookHive",
+        """
+        Hello %s,
+
+        You've been added to BookHive as %s. Choose your password to activate your account:
+
+        %s
+
+        The link works for 72 hours and only once. If you weren't expecting this, you can ignore
+        this email.
+
+        BookHive
+        """
+            .formatted(event.fullName(), role, link));
   }
 
   /** e.g. http://localhost:3000/si/reset-password?token=... */

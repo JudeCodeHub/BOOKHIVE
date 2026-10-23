@@ -85,6 +85,29 @@ public class User extends BaseEntity {
     return user;
   }
 
+  /**
+   * A staff account created by an admin (staff don't self-register). It can't log in until the
+   * person accepts the emailed invite and chooses a password; until then {@code passwordHash} is a
+   * hash of a random value nobody knows.
+   *
+   * @param role LIBRARIAN or ADMIN (an admin is also a librarian through the role hierarchy)
+   */
+  public static User inviteStaff(
+      String email,
+      String unusablePasswordHash,
+      String fullName,
+      String phone,
+      Language language,
+      Role role) {
+    if (role != Role.LIBRARIAN && role != Role.ADMIN) {
+      throw new IllegalArgumentException("Staff role must be LIBRARIAN or ADMIN, not " + role);
+    }
+    User user = register(email, unusablePasswordHash, fullName, phone, language);
+    user.roles.clear();
+    user.roles.add(role);
+    return user;
+  }
+
   /** " Nimali@Mail.LK " -> "nimali@mail.lk". Use it for every email lookup too. */
   public static String normalizeEmail(String email) {
     return Objects.requireNonNull(email, "email").strip().toLowerCase(Locale.ROOT);

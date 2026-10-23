@@ -23,6 +23,16 @@ final class PasswordRequests {
     }
   }
 
+  /** {@code POST /api/v1/auth/accept-invite}: the token from the staff invite email. */
+  record AcceptInviteRequest(
+      @NotBlank @Size(max = 100) String token, @NotBlank @Size(min = 8, max = 72) String password) {
+
+    @Override
+    public String toString() {
+      return "AcceptInviteRequest[***]";
+    }
+  }
+
   /** {@code POST /api/v1/me/password} */
   record ChangePasswordRequest(
       @NotBlank @Size(max = 200) String currentPassword,

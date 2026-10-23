@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import lk.bookhive.auth.config.AuthProperties;
+import lk.bookhive.auth.domain.Role;
 import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.domain.UserStatus;
 import lk.bookhive.auth.domain.VerificationToken;
@@ -14,6 +15,7 @@ import lk.bookhive.auth.domain.VerificationTokenType;
 import lk.bookhive.auth.event.EmailVerificationRequested;
 import lk.bookhive.auth.event.PasswordChanged;
 import lk.bookhive.auth.event.PasswordResetRequested;
+import lk.bookhive.auth.event.StaffInvited;
 import lk.bookhive.auth.repository.RefreshTokenRepository;
 import lk.bookhive.auth.repository.UserRepository;
 import lk.bookhive.auth.repository.VerificationTokenRepository;
@@ -26,6 +28,7 @@ import lk.bookhive.common.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -221,9 +224,63 @@ public class AuthService {
     return token;
   }
 
+  /**
+   * An admin creates a staff account (PRD ADM-4). The person gets an invite email and chooses their
+   * own password, so no one else ever knows it.
+   */
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  public User inviteStaff(
+      UUID adminId, String email, String fullName, String phone, Language language, Role role) {
+    String normalizedEmail = User.normalizeEmail(email);
+    if (users.existsByEmail(normalizedEmail)) {
+      throw new ConflictException(
+          "EMAIL_ALREADY_REGISTERED", "An account with this email already exists.");
+    }
+
+    // Placeholder password: random and never shown, so the account can't be used before the invite
+    String unusableHash = passwordEncoder.encode(SecureTokens.generate());
+    User user =
+        users.save(
+            User.inviteStaff(normalizedEmail, unusableHash, fullName, phone, language, role));
+    String token = issueToken(user, VerificationTokenType.INVITE);
+    events.publishEvent(
+        new StaffInvited(
+            user.getId(),
+            user.getEmail(),
+            user.getFullName(),
+            user.getPreferredLanguage(),
+            role,
+            token));
+    audit.record("auth.staff_invited", adminId, "user", user.getId(), Map.of("role", role.name()));
+    log.info("Admin {} invited {} {}", adminId, role, user.getId());
+    return user;
+  }
+
+  /**
+   * The invited staff member chose a password through the invite link: the account becomes ACTIVE
+   * (the link proves the email address) and they can log in.
+   */
+  @Transactional
+  public void acceptInvite(String token, String password) {
+    Instant now = Instant.now(clock);
+    User user = useToken(token, VerificationTokenType.INVITE, now).getUser();
+    passwordPolicy.check(password, "password", user.getEmail());
+
+    user.changePassword(passwordEncoder.encode(password));
+    user.verifyEmail(now);
+    audit.record("auth.staff_invite_accepted", user.getId(), "user", user.getId(), Map.of());
+    log.info("Staff member {} accepted the invite", user.getId());
+  }
+
   /** Finds an unused, unexpired link token of this type and marks it used. */
   private VerificationToken useToken(String rawToken, VerificationTokenType type, Instant now) {
-    String prefix = type == VerificationTokenType.EMAIL ? "VERIFICATION_TOKEN" : "RESET_TOKEN";
+    String prefix =
+        switch (type) {
+          case EMAIL -> "VERIFICATION_TOKEN";
+          case RESET -> "RESET_TOKEN";
+          case INVITE -> "INVITE_TOKEN";
+        };
     VerificationToken token =
         verificationTokens
             .findByTokenHashAndType(SecureTokens.hash(rawToken), type)
@@ -241,6 +298,7 @@ public class AuthService {
     return switch (type) {
       case EMAIL -> properties.emailVerificationTtl();
       case RESET -> properties.passwordResetTtl();
+      case INVITE -> properties.staffInviteTtl();
     };
   }
 

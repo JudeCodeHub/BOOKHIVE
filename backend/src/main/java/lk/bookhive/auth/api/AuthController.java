@@ -3,6 +3,7 @@ package lk.bookhive.auth.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lk.bookhive.auth.api.PasswordRequests.AcceptInviteRequest;
 import lk.bookhive.auth.api.PasswordRequests.ForgotPasswordRequest;
 import lk.bookhive.auth.api.PasswordRequests.ResetPasswordRequest;
 import lk.bookhive.auth.domain.User;
@@ -90,6 +91,13 @@ public class AuthController {
   @Operation(summary = "Email a password reset link if the account exists")
   public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
     authService.requestPasswordReset(request.email());
+  }
+
+  @PostMapping("/accept-invite")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "New staff member: set your password with the token from the invite email")
+  public void acceptInvite(@Valid @RequestBody AcceptInviteRequest request) {
+    authService.acceptInvite(request.token(), request.password());
   }
 
   @PostMapping("/reset-password")

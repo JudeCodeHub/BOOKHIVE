@@ -5,5 +5,7 @@ public enum VerificationTokenType {
   /** "Verify your email address" after registering (AUTH-2). */
   EMAIL,
   /** "Reset your password" (AUTH-4). */
-  RESET
+  RESET,
+  /** "You've been invited to BookHive staff: set your password" (staff accounts). */
+  INVITE
 }
