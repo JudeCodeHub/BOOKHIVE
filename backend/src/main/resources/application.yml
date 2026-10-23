@@ -60,6 +60,7 @@ logging:
 bookhive:
   auth:
     email-verification-ttl: 24h
+    password-reset-ttl: 1h
     # Refresh cookie only over HTTPS. Turned off in dev, which runs on plain http://localhost
     refresh-cookie-secure: true
   mail:

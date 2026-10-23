@@ -83,7 +83,7 @@ public class SessionService {
     }
 
     log.info("User {} logged in", user.getId());
-    return startSession(user, UUID.randomUUID());
+    return startNewSession(user);
   }
 
   /**
@@ -131,6 +131,12 @@ public class SessionService {
     refreshTokens
         .findByTokenHash(SecureTokens.hash(rawRefreshToken))
         .ifPresent(token -> refreshTokens.revokeFamily(token.getFamilyId(), Instant.now(clock)));
+  }
+
+  /** A brand-new session (new token family), e.g. after login or a password change. */
+  @Transactional
+  public Session startNewSession(User user) {
+    return startSession(user, UUID.randomUUID());
   }
 
   private Session startSession(User user, UUID familyId) {

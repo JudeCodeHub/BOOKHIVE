@@ -1,7 +1,9 @@
 package lk.bookhive.common.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
+  /** Name used by {@code @SecurityRequirement(name = "bearer")} on protected controllers. */
+  public static final String BEARER = "bearer";
+
   @Bean
   public OpenAPI bookHiveOpenApi() {
     return new OpenAPI()
@@ -19,6 +24,15 @@ public class OpenApiConfig {
             new Info()
                 .title("BookHive API")
                 .version("v1")
-                .description("Public library platform: catalog, members, loans, holds, fines."));
+                .description("Public library platform: catalog, members, loans, holds, fines."))
+        // Adds the "Authorize" button in Swagger UI: paste an accessToken from /auth/login
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    BEARER,
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")));
   }
 }

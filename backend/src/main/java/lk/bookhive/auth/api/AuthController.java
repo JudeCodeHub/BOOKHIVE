@@ -3,19 +3,14 @@ package lk.bookhive.auth.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.time.Duration;
-import lk.bookhive.auth.config.AuthProperties;
-import lk.bookhive.auth.config.JwtProperties;
+import lk.bookhive.auth.api.PasswordRequests.ForgotPasswordRequest;
+import lk.bookhive.auth.api.PasswordRequests.ResetPasswordRequest;
 import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.auth.service.SessionService;
-import lk.bookhive.auth.service.SessionService.Session;
-import lk.bookhive.common.config.WebConfig;
 import lk.bookhive.common.domain.Language;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,29 +22,21 @@ import org.springframework.web.bind.annotation.RestController;
 /** Public account endpoints under /api/v1/auth (no login needed, see SecurityConfig). */
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Auth", description = "Register, verify email, login, refresh, logout")
+@Tag(name = "Auth", description = "Register, verify email, login, refresh, logout, passwords")
 public class AuthController {
 
   /** The httpOnly cookie holding the refresh token (ADR 0001). */
-  public static final String REFRESH_COOKIE = "bookhive_refresh";
-
-  // The browser sends the cookie only to the auth endpoints, never to the rest of the API
-  private static final String REFRESH_COOKIE_PATH = WebConfig.API_PREFIX + "/auth";
+  public static final String REFRESH_COOKIE = RefreshCookies.NAME;
 
   private final AuthService authService;
   private final SessionService sessionService;
-  private final AuthProperties authProperties;
-  private final JwtProperties jwtProperties;
+  private final RefreshCookies refreshCookies;
 
   public AuthController(
-      AuthService authService,
-      SessionService sessionService,
-      AuthProperties authProperties,
-      JwtProperties jwtProperties) {
+      AuthService authService, SessionService sessionService, RefreshCookies refreshCookies) {
     this.authService = authService;
     this.sessionService = sessionService;
-    this.authProperties = authProperties;
-    this.jwtProperties = jwtProperties;
+    this.refreshCookies = refreshCookies;
   }
 
   @PostMapping("/register")
@@ -76,14 +63,15 @@ public class AuthController {
   @PostMapping("/login")
   @Operation(summary = "Log in: access token in the body, refresh token in an httpOnly cookie")
   public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-    return sessionResponse(sessionService.login(request.email(), request.password()));
+    return refreshCookies.sessionResponse(
+        sessionService.login(request.email(), request.password()));
   }
 
   @PostMapping("/refresh")
   @Operation(summary = "New access token from the refresh cookie (the cookie is rotated)")
   public ResponseEntity<AuthResponse> refresh(
       @CookieValue(name = REFRESH_COOKIE, required = false) String refreshToken) {
-    return sessionResponse(sessionService.refresh(refreshToken));
+    return refreshCookies.sessionResponse(sessionService.refresh(refreshToken));
   }
 
   @PostMapping("/logout")
@@ -92,28 +80,22 @@ public class AuthController {
       @CookieValue(name = REFRESH_COOKIE, required = false) String refreshToken) {
     sessionService.logout(refreshToken);
     return ResponseEntity.noContent()
-        .header(HttpHeaders.SET_COOKIE, refreshCookie("", Duration.ZERO).toString())
+        .header(HttpHeaders.SET_COOKIE, refreshCookies.cleared())
         .build();
   }
 
-  private ResponseEntity<AuthResponse> sessionResponse(Session session) {
-    return ResponseEntity.ok()
-        .header(
-            HttpHeaders.SET_COOKIE,
-            refreshCookie(session.refreshToken(), jwtProperties.refreshTokenTtl()).toString())
-        // Tokens must never be stored by a browser or proxy cache
-        .cacheControl(CacheControl.noStore())
-        .body(AuthResponse.from(session));
+  /** Always 204, whether or not the email has an account (so it can't be used to check). */
+  @PostMapping("/forgot-password")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Email a password reset link if the account exists")
+  public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+    authService.requestPasswordReset(request.email());
   }
 
-  /** maxAge 0 deletes the cookie (logout). */
-  private ResponseCookie refreshCookie(String value, Duration maxAge) {
-    return ResponseCookie.from(REFRESH_COOKIE, value)
-        .httpOnly(true) // JavaScript can't read it, so XSS can't steal it
-        .secure(authProperties.refreshCookieSecure()) // HTTPS only (except local dev)
-        .sameSite("Strict") // not sent on requests started by other websites
-        .path(REFRESH_COOKIE_PATH)
-        .maxAge(maxAge)
-        .build();
+  @PostMapping("/reset-password")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Set a new password with the token from the reset email")
+  public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    authService.resetPassword(request.token(), request.newPassword());
   }
 }
