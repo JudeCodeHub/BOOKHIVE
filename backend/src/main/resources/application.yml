@@ -91,6 +91,11 @@ bookhive:
     public-key: ${JWT_PUBLIC_KEY:}
     key-id: ${JWT_KEY_ID:bookhive-1}
     allow-generated-keys: false
+  # The very first admin, created at startup only while no admin exists (step 105)
+  bootstrap-admin:
+    email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    full-name: ${BOOTSTRAP_ADMIN_NAME:Administrator}
   # Per-IP limits on endpoints attackers like to hammer (PRD §6 Security)
   rate-limit:
     enabled: true

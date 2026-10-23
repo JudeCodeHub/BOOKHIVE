@@ -2,6 +2,7 @@ package lk.bookhive.auth.repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import lk.bookhive.auth.domain.Role;
 import lk.bookhive.auth.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -18,4 +19,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   /** Registration: is this (normalized) email already taken? */
   boolean existsByEmail(String email);
+
+  /** Is there at least one account with this role? (e.g. does an admin exist yet) */
+  boolean existsByRolesContaining(Role role);
 }
