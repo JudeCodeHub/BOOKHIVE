@@ -102,6 +102,11 @@ public class User extends BaseEntity {
     }
   }
 
+  /** Stores a new password hash (reset or change). The password must already be hashed. */
+  public void changePassword(String newPasswordHash) {
+    this.passwordHash = Objects.requireNonNull(newPasswordHash, "newPasswordHash");
+  }
+
   public boolean hasRole(Role role) {
     return roles.contains(role);
   }
