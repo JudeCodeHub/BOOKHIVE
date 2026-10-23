@@ -26,6 +26,12 @@ spring:
   flyway:
     locations: classpath:db/migration
 
+  # Redis: rate limits now, caching later. Default: Redis from infra/docker-compose.yml
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   # Outgoing email. Default: Mailpit from infra/docker-compose.yml (inbox: http://localhost:8025)
   mail:
     host: ${MAIL_HOST:localhost}
@@ -45,6 +51,11 @@ management:
       exposure:
         # Only these two; everything else (env, beans, heapdump...) would leak internals.
         include: health,info
+  health:
+    # Rate limiting lets requests through when Redis is down, so a Redis outage must not mark
+    # the whole app unhealthy (which would make the load balancer stop sending traffic)
+    redis:
+      enabled: false
   endpoint:
     health:
       show-details: never
@@ -61,6 +72,9 @@ bookhive:
   auth:
     email-verification-ttl: 24h
     password-reset-ttl: 1h
+    # Lock an account for 15 minutes after 5 wrong passwords in a row (AUTH-6)
+    max-failed-logins: 5
+    lockout-duration: 15m
     # Refresh cookie only over HTTPS. Turned off in dev, which runs on plain http://localhost
     refresh-cookie-secure: true
   mail:
@@ -76,6 +90,15 @@ bookhive:
     public-key: ${JWT_PUBLIC_KEY:}
     key-id: ${JWT_KEY_ID:bookhive-1}
     allow-generated-keys: false
+  # Per-IP limits on endpoints attackers like to hammer (PRD §6 Security)
+  rate-limit:
+    enabled: true
+    rules:
+      login: { path: /api/v1/auth/login, capacity: 10, period: 1m }
+      register: { path: /api/v1/auth/register, capacity: 5, period: 1h }
+      forgot-password: { path: /api/v1/auth/forgot-password, capacity: 5, period: 1h }
+      reset-password: { path: /api/v1/auth/reset-password, capacity: 10, period: 1h }
+      verify-email: { path: /api/v1/auth/verify-email, capacity: 20, period: 1h }
   security:
     # Swagger UI and /v3/api-docs reachable without login (dev only)
     public-api-docs: false

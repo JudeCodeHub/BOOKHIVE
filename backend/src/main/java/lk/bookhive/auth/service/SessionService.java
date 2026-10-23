@@ -1,9 +1,11 @@
 package lk.bookhive.auth.service;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import lk.bookhive.auth.config.AuthProperties;
 import lk.bookhive.auth.config.JwtProperties;
 import lk.bookhive.auth.domain.RefreshToken;
 import lk.bookhive.auth.domain.User;
@@ -33,6 +35,7 @@ public class SessionService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final JwtProperties jwtProperties;
+  private final AuthProperties authProperties;
   private final Clock clock;
 
   /**
@@ -47,33 +50,57 @@ public class SessionService {
       PasswordEncoder passwordEncoder,
       JwtService jwtService,
       JwtProperties jwtProperties,
+      AuthProperties authProperties,
       Clock clock) {
     this.users = users;
     this.refreshTokens = refreshTokens;
     this.passwordEncoder = passwordEncoder;
     this.jwtService = jwtService;
     this.jwtProperties = jwtProperties;
+    this.authProperties = authProperties;
     this.clock = clock;
     this.dummyPasswordHash = passwordEncoder.encode(UUID.randomUUID().toString());
   }
 
-  /** Email + password -> a new session (AUTH-3). Starts a new refresh token family. */
-  @Transactional
+  /**
+   * Email + password -> a new session (AUTH-3). Starts a new refresh token family.
+   *
+   * <p>Lockout (AUTH-6): after too many wrong passwords in a row the account is locked for a while.
+   * {@code noRollbackFor}: a wrong password must still be counted even though login fails.
+   */
+  @Transactional(noRollbackFor = UnauthorizedException.class)
   public Session login(String email, String password) {
+    Instant now = Instant.now(clock);
     Optional<User> found = users.findByEmail(User.normalizeEmail(email));
     String hash = found.map(User::getPasswordHash).orElse(dummyPasswordHash);
     boolean passwordMatches = passwordEncoder.matches(password, hash);
 
-    // Same answer for "no such email" and "wrong password": don't help attackers find accounts
-    User user =
-        found
-            .filter(u -> passwordMatches)
-            .orElseThrow(
-                () ->
-                    new UnauthorizedException(
-                        "INVALID_CREDENTIALS", "The email or password is incorrect."));
+    if (found.isEmpty() || !passwordMatches) {
+      // Not counted while already locked, so an attacker can't keep extending the lock
+      found
+          .filter(user -> !user.isLockedAt(now))
+          .ifPresent(
+              user -> {
+                user.recordFailedLogin(
+                    now, authProperties.maxFailedLogins(), authProperties.lockoutDuration());
+                if (user.isLockedAt(now)) {
+                  log.warn("User {} locked after too many failed logins", user.getId());
+                }
+              });
+      // Same answer for "no such email", "wrong password" and "locked + wrong password", so
+      // attackers can't tell which emails have accounts
+      throw new UnauthorizedException("INVALID_CREDENTIALS", "The email or password is incorrect.");
+    }
+    User user = found.get();
 
-    // Only revealed after the correct password, so it can't be used to probe emails
+    // Everything below is only revealed to someone who knows the correct password
+    if (user.isLockedAt(now)) {
+      throw new ForbiddenException(
+          "ACCOUNT_LOCKED",
+          "Too many failed attempts. Please try again in "
+              + minutesUntil(now, user.getLockedUntil())
+              + " minutes, or reset your password.");
+    }
     if (user.getStatus() == UserStatus.PENDING_VERIFICATION) {
       throw new ForbiddenException(
           "EMAIL_NOT_VERIFIED", "Please verify your email address before logging in.");
@@ -82,8 +109,13 @@ public class SessionService {
       throw new ForbiddenException("ACCOUNT_DISABLED", "This account has been disabled.");
     }
 
+    user.recordSuccessfulLogin();
     log.info("User {} logged in", user.getId());
     return startNewSession(user);
+  }
+
+  private static long minutesUntil(Instant now, Instant until) {
+    return Math.max(1, Duration.between(now, until).toSeconds() / 60 + 1);
   }
 
   /**
