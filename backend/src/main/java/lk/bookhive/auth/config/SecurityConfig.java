@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -32,9 +33,13 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  *   <li>/staff/** needs LIBRARIAN, /admin/** needs ADMIN (an ADMIN is also a LIBRARIAN).
  * </ul>
  *
- * <p>Fine-grained rules ("only the owner may see this loan") live in the services.
+ * <p>Fine-grained rules live in the services: {@code @PreAuthorize} on a method (enabled here) for
+ * role checks, and plain code for "only the owner may see this loan".
  */
 @Configuration
+// Second line of defence: @PreAuthorize("hasRole('ADMIN')") on a service method holds even if a
+// URL rule above is wrong or the method is called from somewhere new
+@EnableMethodSecurity
 public class SecurityConfig {
 
   private static final String API = "/api/v1";

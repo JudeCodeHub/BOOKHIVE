@@ -3,6 +3,7 @@ package lk.bookhive.common.web;
 import java.util.ArrayList;
 import java.util.List;
 import lk.bookhive.common.exception.BookHiveException;
+import lk.bookhive.common.exception.FieldValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSourceResolvable;
@@ -49,6 +50,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemDetail problem = ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
     problem.setProperty(CODE, ex.getCode());
     return problem;
+  }
+
+  // A field broke a rule checked in a service (e.g. password too common): same shape as @Valid
+  @ExceptionHandler(FieldValidationException.class)
+  public ProblemDetail handleFieldValidation(FieldValidationException ex) {
+    return validationProblem(
+        List.of(new ValidationError(ex.getField(), ex.getCode(), ex.getMessage())));
   }
 
   // Not logged in, or the token is missing/invalid/expired. Also reached from Spring Security's
