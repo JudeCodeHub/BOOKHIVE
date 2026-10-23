@@ -1,5 +1,6 @@
 package lk.bookhive.auth.api;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
@@ -19,11 +20,11 @@ final class ProfileDtos {
       UUID id,
       String email,
       String fullName,
-      String phone,
+      @Schema(nullable = true) String phone,
       String preferredLanguage,
       Set<Role> roles,
       UserStatus status,
-      Instant emailVerifiedAt,
+      @Schema(nullable = true) Instant emailVerifiedAt,
       Instant createdAt) {
 
     static ProfileResponse from(User user) {
