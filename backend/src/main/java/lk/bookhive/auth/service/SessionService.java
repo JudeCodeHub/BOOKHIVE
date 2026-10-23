@@ -3,6 +3,7 @@ package lk.bookhive.auth.service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lk.bookhive.auth.config.AuthProperties;
@@ -13,6 +14,7 @@ import lk.bookhive.auth.domain.UserStatus;
 import lk.bookhive.auth.repository.RefreshTokenRepository;
 import lk.bookhive.auth.repository.UserRepository;
 import lk.bookhive.auth.service.JwtService.AccessToken;
+import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.exception.ForbiddenException;
 import lk.bookhive.common.exception.UnauthorizedException;
 import org.slf4j.Logger;
@@ -36,6 +38,7 @@ public class SessionService {
   private final JwtService jwtService;
   private final JwtProperties jwtProperties;
   private final AuthProperties authProperties;
+  private final AuditService audit;
   private final Clock clock;
 
   /**
@@ -51,6 +54,7 @@ public class SessionService {
       JwtService jwtService,
       JwtProperties jwtProperties,
       AuthProperties authProperties,
+      AuditService audit,
       Clock clock) {
     this.users = users;
     this.refreshTokens = refreshTokens;
@@ -58,6 +62,7 @@ public class SessionService {
     this.jwtService = jwtService;
     this.jwtProperties = jwtProperties;
     this.authProperties = authProperties;
+    this.audit = audit;
     this.clock = clock;
     this.dummyPasswordHash = passwordEncoder.encode(UUID.randomUUID().toString());
   }
@@ -84,9 +89,16 @@ public class SessionService {
                 user.recordFailedLogin(
                     now, authProperties.maxFailedLogins(), authProperties.lockoutDuration());
                 if (user.isLockedAt(now)) {
+                  audit.record("auth.account_locked", null, "user", user.getId(), Map.of());
                   log.warn("User {} locked after too many failed logins", user.getId());
                 }
               });
+      audit.record(
+          "auth.login_failed",
+          null,
+          "user",
+          found.map(User::getId).orElse(null),
+          Map.of("email", User.normalizeEmail(email), "accountExists", found.isPresent()));
       // Same answer for "no such email", "wrong password" and "locked + wrong password", so
       // attackers can't tell which emails have accounts
       throw new UnauthorizedException("INVALID_CREDENTIALS", "The email or password is incorrect.");
@@ -110,6 +122,7 @@ public class SessionService {
     }
 
     user.recordSuccessfulLogin();
+    audit.record("auth.login", user.getId(), "user", user.getId(), Map.of());
     log.info("User {} logged in", user.getId());
     return startNewSession(user);
   }
@@ -135,6 +148,12 @@ public class SessionService {
 
     if (current.getRevokedAt() != null) {
       int revoked = refreshTokens.revokeFamily(current.getFamilyId(), now);
+      audit.record(
+          "auth.refresh_token_reused",
+          null,
+          "user",
+          current.getUser().getId(),
+          Map.of("sessionsRevoked", revoked));
       log.warn(
           "Refresh token reuse for user {}: revoked {} token(s) of the session",
           current.getUser().getId(),
@@ -162,7 +181,12 @@ public class SessionService {
     }
     refreshTokens
         .findByTokenHash(SecureTokens.hash(rawRefreshToken))
-        .ifPresent(token -> refreshTokens.revokeFamily(token.getFamilyId(), Instant.now(clock)));
+        .ifPresent(
+            token -> {
+              refreshTokens.revokeFamily(token.getFamilyId(), Instant.now(clock));
+              UUID userId = token.getUser().getId();
+              audit.record("auth.logout", userId, "user", userId, Map.of());
+            });
   }
 
   /** A brand-new session (new token family), e.g. after login or a password change. */

@@ -150,8 +150,22 @@ class AuthControllerTest {
             {"email":"long@mail.lk","password":"%s","fullName":"Long Password"}
             """
                 .formatted(sinhala))
-        .andExpect(status().isUnprocessableContent())
-        .andExpect(jsonPath("$.code").value("PASSWORD_TOO_LONG"));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+        .andExpect(jsonPath("$.errors[0].field").value("password"))
+        .andExpect(jsonPath("$.errors[0].code").value("PASSWORD_TOO_LONG"));
+  }
+
+  @Test
+  void commonPasswordIsShownUnderThePasswordField() throws Exception {
+    register(
+            """
+            {"email":"weak@mail.lk","password":"password123","fullName":"Weak Password"}
+            """)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.errors[0].field").value("password"))
+        .andExpect(jsonPath("$.errors[0].code").value("PASSWORD_TOO_COMMON"));
+    assertThat(users.existsByEmail("weak@mail.lk")).isFalse();
   }
 
   private ResultActions register(String json) throws Exception {

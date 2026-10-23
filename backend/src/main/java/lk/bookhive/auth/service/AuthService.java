@@ -3,6 +3,8 @@ package lk.bookhive.auth.service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import lk.bookhive.auth.config.AuthProperties;
 import lk.bookhive.auth.domain.User;
@@ -16,6 +18,7 @@ import lk.bookhive.auth.repository.RefreshTokenRepository;
 import lk.bookhive.auth.repository.UserRepository;
 import lk.bookhive.auth.repository.VerificationTokenRepository;
 import lk.bookhive.auth.service.SessionService.Session;
+import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.domain.Language;
 import lk.bookhive.common.exception.BusinessRuleException;
 import lk.bookhive.common.exception.ConflictException;
@@ -42,6 +45,7 @@ public class AuthService {
   private final PasswordEncoder passwordEncoder;
   private final PasswordPolicy passwordPolicy;
   private final SessionService sessionService;
+  private final AuditService audit;
   private final ApplicationEventPublisher events;
   private final AuthProperties properties;
   private final Clock clock;
@@ -53,6 +57,7 @@ public class AuthService {
       PasswordEncoder passwordEncoder,
       PasswordPolicy passwordPolicy,
       SessionService sessionService,
+      AuditService audit,
       ApplicationEventPublisher events,
       AuthProperties properties,
       Clock clock) {
@@ -62,6 +67,7 @@ public class AuthService {
     this.passwordEncoder = passwordEncoder;
     this.passwordPolicy = passwordPolicy;
     this.sessionService = sessionService;
+    this.audit = audit;
     this.events = events;
     this.properties = properties;
     this.clock = clock;
@@ -79,7 +85,7 @@ public class AuthService {
       throw new ConflictException(
           "EMAIL_ALREADY_REGISTERED", "An account with this email already exists.");
     }
-    passwordPolicy.check(password);
+    passwordPolicy.check(password, "password", normalizedEmail);
 
     User user =
         users.save(
@@ -90,6 +96,7 @@ public class AuthService {
     events.publishEvent(
         new EmailVerificationRequested(
             user.getId(), user.getEmail(), user.getFullName(), user.getPreferredLanguage(), token));
+    audit.record("auth.registered", user.getId(), "user", user.getId(), Map.of());
     log.info("Registered user {}", user.getId());
     return user;
   }
@@ -100,6 +107,12 @@ public class AuthService {
     Instant now = Instant.now(clock);
     VerificationToken verification = useToken(token, VerificationTokenType.EMAIL, now);
     verification.getUser().verifyEmail(now);
+    audit.record(
+        "auth.email_verified",
+        verification.getUser().getId(),
+        "user",
+        verification.getUser().getId(),
+        Map.of());
     log.info("Verified email of user {}", verification.getUser().getId());
   }
 
@@ -125,6 +138,7 @@ public class AuthService {
                       user.getFullName(),
                       user.getPreferredLanguage(),
                       token));
+              audit.record("auth.password_reset_requested", null, "user", user.getId(), Map.of());
               log.info("Password reset requested for user {}", user.getId());
             },
             () -> log.info("Password reset requested for an unknown or disabled email"));
@@ -136,15 +150,17 @@ public class AuthService {
    */
   @Transactional
   public void resetPassword(String token, String newPassword) {
-    passwordPolicy.check(newPassword);
     Instant now = Instant.now(clock);
     User user = useToken(token, VerificationTokenType.RESET, now).getUser();
+    // If this fails, the transaction rolls back and the link can be used again with a better one
+    passwordPolicy.check(newPassword, "newPassword", user.getEmail());
 
     user.changePassword(passwordEncoder.encode(newPassword));
     user.verifyEmail(now);
     user.recordSuccessfulLogin(); // a locked-out owner can get back in by resetting
     refreshTokens.revokeAllForUser(user.getId(), now);
     publishPasswordChanged(user);
+    audit.record("auth.password_reset", user.getId(), "user", user.getId(), Map.of());
     log.info("Password reset for user {}", user.getId());
   }
 
@@ -159,6 +175,12 @@ public class AuthService {
   public User updateProfile(UUID userId, String fullName, String phone, Language language) {
     User user = requireUser(userId);
     user.updateProfile(fullName, phone, language);
+    // Which fields changed, not their values (keeps personal data out of the audit log)
+    Map<String, Object> changed = new LinkedHashMap<>();
+    changed.put("fullName", fullName != null);
+    changed.put("phone", phone != null);
+    changed.put("preferredLanguage", language != null);
+    audit.record("auth.profile_updated", userId, "user", userId, changed);
     return user;
   }
 
@@ -173,11 +195,12 @@ public class AuthService {
       throw new BusinessRuleException(
           "CURRENT_PASSWORD_INCORRECT", "Your current password is incorrect.");
     }
-    passwordPolicy.check(newPassword);
+    passwordPolicy.check(newPassword, "newPassword", user.getEmail());
 
     user.changePassword(passwordEncoder.encode(newPassword));
     refreshTokens.revokeAllForUser(user.getId(), Instant.now(clock));
     publishPasswordChanged(user);
+    audit.record("auth.password_changed", user.getId(), "user", user.getId(), Map.of());
     log.info("Password changed for user {}", user.getId());
     return sessionService.startNewSession(user);
   }
