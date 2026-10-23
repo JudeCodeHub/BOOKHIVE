@@ -9,6 +9,12 @@ spring:
 bookhive:
   auth:
     refresh-cookie-secure: false
+  # Local-only admin so you can log in to Swagger and the staff/admin pages right away.
+  # Never used outside the dev profile; prod sets BOOTSTRAP_ADMIN_* as real secrets.
+  bootstrap-admin:
+    email: ${BOOTSTRAP_ADMIN_EMAIL:admin@bookhive.local}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:honey-hive-dev-2026}
+    full-name: Dev Admin
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
   jwt:

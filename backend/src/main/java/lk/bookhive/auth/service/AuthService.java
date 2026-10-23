@@ -273,6 +273,46 @@ public class AuthService {
     log.info("Staff member {} accepted the invite", user.getId());
   }
 
+  /**
+   * Creates the very first admin from configuration (see AdminBootstrap). Does nothing once any
+   * admin exists, so it can't be used later to add admins or reset a password.
+   *
+   * @return true if an admin was created
+   */
+  @Transactional
+  public boolean bootstrapAdmin(String email, String password, String fullName) {
+    if (users.existsByRolesContaining(Role.ADMIN)) {
+      log.debug("An admin already exists: bootstrap admin skipped");
+      return false;
+    }
+    String normalizedEmail = User.normalizeEmail(email);
+    if (users.existsByEmail(normalizedEmail)) {
+      // Silently turning an existing (e.g. member) account into an admin would be a surprise
+      log.warn(
+          "Bootstrap admin skipped: {} already has a non-admin account. Invite an admin instead.",
+          normalizedEmail);
+      return false;
+    }
+    // A weak password stops startup with a clear message instead of creating a guessable admin
+    passwordPolicy.check(password, "BOOTSTRAP_ADMIN_PASSWORD", normalizedEmail);
+
+    User admin =
+        User.inviteStaff(
+            normalizedEmail,
+            passwordEncoder.encode(password),
+            fullName == null || fullName.isBlank() ? "Administrator" : fullName,
+            null,
+            Language.EN,
+            Role.ADMIN);
+    admin.verifyEmail(Instant.now(clock)); // set up by the operator, nothing to confirm
+    users.save(admin);
+    audit.record("auth.admin_bootstrapped", null, "user", admin.getId(), Map.of());
+    log.info(
+        "Created the first admin {}. Remove BOOTSTRAP_ADMIN_PASSWORD from the environment now.",
+        normalizedEmail);
+    return true;
+  }
+
   /** Finds an unused, unexpired link token of this type and marks it used. */
   private VerificationToken useToken(String rawToken, VerificationTokenType type, Instant now) {
     String prefix =
