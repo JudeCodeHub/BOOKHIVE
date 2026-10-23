@@ -4,6 +4,8 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.util.ArrayList;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,5 +36,26 @@ public class OpenApiConfig {
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
                         .bearerFormat("JWT")));
+  }
+
+  /**
+   * Response DTOs always contain every field (Jackson also writes nulls), so mark them all as
+   * required. Without this every generated TypeScript field would be optional ({@code id?:}) and
+   * the frontend would have to check each one. Fields that can be null say so with
+   * {@code @Schema(nullable = true)}. Request DTOs keep springdoc's own rules (@NotBlank etc.).
+   */
+  @Bean
+  public OpenApiCustomizer responseFieldsAreAlwaysPresent() {
+    return openApi ->
+        openApi
+            .getComponents()
+            .getSchemas()
+            .forEach(
+                (name, schema) -> {
+                  boolean isResponse = name.endsWith("Response") || name.endsWith("Summary");
+                  if (isResponse && schema.getProperties() != null) {
+                    schema.setRequired(new ArrayList<>(schema.getProperties().keySet()));
+                  }
+                });
   }
 }

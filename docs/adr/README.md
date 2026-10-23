@@ -5,6 +5,7 @@ An ADR records one important technical decision: the problem, what we chose, wha
 | # | Decision | Status |
 |---|---|---|
 | [0001](0001-auth-tokens.md) | Login with a short-lived access JWT + rotating refresh token in an httpOnly cookie | Accepted |
+| [0002](0002-frontend-session.md) | Frontend keeps the access token in memory, single-flight refresh, a hint cookie for route guards | Accepted |
 
 ## Template
 
