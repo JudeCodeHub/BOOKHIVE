@@ -60,6 +60,8 @@ logging:
 bookhive:
   auth:
     email-verification-ttl: 24h
+    # Refresh cookie only over HTTPS. Turned off in dev, which runs on plain http://localhost
+    refresh-cookie-secure: true
   mail:
     from: ${MAIL_FROM:BookHive <no-reply@bookhive.lk>}
     # Website address used in email links
