@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @param emailVerificationTtl how long a "verify your email" link works
  * @param passwordResetTtl how long a "reset your password" link works (short: it's powerful)
+ * @param staffInviteTtl how long a staff invite link works
  * @param refreshCookieSecure send the refresh cookie over HTTPS only; false only for local http
  * @param maxFailedLogins wrong passwords in a row before the account is locked (AUTH-6)
  * @param lockoutDuration how long the account stays locked
@@ -16,6 +17,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record AuthProperties(
     Duration emailVerificationTtl,
     Duration passwordResetTtl,
+    Duration staffInviteTtl,
     boolean refreshCookieSecure,
     int maxFailedLogins,
     Duration lockoutDuration) {}
