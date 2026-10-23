@@ -22,6 +22,7 @@ repositories {
 val mapstructVersion = "1.6.3"
 val springdocVersion = "3.1.1"
 val archunitVersion = "1.5.1"
+val bucket4jVersion = "8.21.0"
 // 1.37.0 is not yet compatible with Spotless 8.10.4
 val googleJavaFormatVersion = "1.36.1"
 
@@ -44,6 +45,10 @@ dependencies {
     // Sending email over SMTP (Mailpit locally, AWS SES in production)
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    // Redis (Lettuce client) + Bucket4j: rate limits shared by every backend instance
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("com.bucket4j:bucket4j_jdk17-core:$bucket4jVersion")
+    implementation("com.bucket4j:bucket4j_jdk17-lettuce:$bucket4jVersion")
     implementation("org.flywaydb:flyway-database-postgresql")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")

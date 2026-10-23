@@ -142,9 +142,24 @@ public class AuthService {
 
     user.changePassword(passwordEncoder.encode(newPassword));
     user.verifyEmail(now);
+    user.recordSuccessfulLogin(); // a locked-out owner can get back in by resetting
     refreshTokens.revokeAllForUser(user.getId(), now);
     publishPasswordChanged(user);
     log.info("Password reset for user {}", user.getId());
+  }
+
+  /** The logged-in user's own account (GET /me). */
+  @Transactional(readOnly = true)
+  public User getProfile(UUID userId) {
+    return requireUser(userId);
+  }
+
+  /** Edits name, phone and/or language (PATCH /me). Null arguments are left unchanged. */
+  @Transactional
+  public User updateProfile(UUID userId, String fullName, String phone, Language language) {
+    User user = requireUser(userId);
+    user.updateProfile(fullName, phone, language);
+    return user;
   }
 
   /**
@@ -153,10 +168,7 @@ public class AuthService {
    */
   @Transactional
   public Session changePassword(UUID userId, String currentPassword, String newPassword) {
-    User user =
-        users
-            .findById(userId)
-            .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND", "Account not found."));
+    User user = requireUser(userId);
     if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
       throw new BusinessRuleException(
           "CURRENT_PASSWORD_INCORRECT", "Your current password is incorrect.");
@@ -168,6 +180,13 @@ public class AuthService {
     publishPasswordChanged(user);
     log.info("Password changed for user {}", user.getId());
     return sessionService.startNewSession(user);
+  }
+
+  // A valid token for a deleted account is the only way to get here
+  private User requireUser(UUID userId) {
+    return users
+        .findById(userId)
+        .orElseThrow(() -> new NotFoundException("USER_NOT_FOUND", "Account not found."));
   }
 
   /** Creates a one-time email link token; returns the raw token for the email. */

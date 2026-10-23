@@ -5,6 +5,11 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
   # AWS SES (or any SMTP server) over TLS
   mail:
     host: ${MAIL_HOST}
@@ -22,6 +27,10 @@ bookhive:
   cors:
     # Comma-separated, e.g. https://bookhive.lk,https://www.bookhive.lk
     allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+server:
+  # Behind the AWS load balancer: take the client IP from X-Forwarded-For (rate limits, logs)
+  forward-headers-strategy: native
 
 # API docs are for development only
 springdoc:

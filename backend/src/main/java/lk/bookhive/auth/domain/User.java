@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
@@ -100,6 +101,48 @@ public class User extends BaseEntity {
     if (status == UserStatus.PENDING_VERIFICATION) {
       status = UserStatus.ACTIVE;
     }
+  }
+
+  /**
+   * Edits the profile (AUTH-5). A null argument leaves that field unchanged; a blank phone removes
+   * it. The email can't be changed here: it would need verifying again.
+   */
+  public void updateProfile(String fullName, String phone, Language language) {
+    if (fullName != null) {
+      if (fullName.isBlank()) {
+        throw new IllegalArgumentException("fullName must not be blank");
+      }
+      this.fullName = fullName.strip();
+    }
+    if (phone != null) {
+      this.phone = phone.isBlank() ? null : phone.strip();
+    }
+    if (language != null) {
+      this.preferredLanguage = language;
+    }
+  }
+
+  /** Locked after too many wrong passwords (AUTH-6), until {@link #getLockedUntil()}. */
+  public boolean isLockedAt(Instant now) {
+    return lockedUntil != null && now.isBefore(lockedUntil);
+  }
+
+  /**
+   * A wrong password. After {@code maxAttempts} in a row the account is locked for {@code
+   * lockDuration}, and the count starts again.
+   */
+  public void recordFailedLogin(Instant now, int maxAttempts, Duration lockDuration) {
+    failedLogins++;
+    if (failedLogins >= maxAttempts) {
+      lockedUntil = now.plus(lockDuration);
+      failedLogins = 0;
+    }
+  }
+
+  /** A correct password: forget earlier mistakes. */
+  public void recordSuccessfulLogin() {
+    failedLogins = 0;
+    lockedUntil = null;
   }
 
   /** Stores a new password hash (reset or change). The password must already be hashed. */

@@ -64,6 +64,7 @@ services:
       DB_USERNAME: ${POSTGRES_USER:-bookhive}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-bookhive}
       MAIL_HOST: mailpit
+      REDIS_HOST: redis
     ports:
       - "8080:8080"
     depends_on:

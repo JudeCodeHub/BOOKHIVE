@@ -1,6 +1,14 @@
 # Automated tests. The database comes from Testcontainers (see TestcontainersConfiguration).
 
 bookhive:
+  # High limits so tests that log in many times aren't blocked; RateLimitTest sets its own
+  rate-limit:
+    rules:
+      login: { capacity: 100000 }
+      register: { capacity: 100000 }
+      forgot-password: { capacity: 100000 }
+      reset-password: { capacity: 100000 }
+      verify-email: { capacity: 100000 }
   cors:
     allowed-origins: http://localhost:3000
   jwt:
