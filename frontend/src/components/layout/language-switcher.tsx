@@ -4,15 +4,8 @@ import { Suspense } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, usePathname } from "@/i18n/navigation";
-import type { Locale } from "@/i18n/routing";
+import { LANGUAGES } from "@/i18n/languages";
 import { cn } from "@/lib/utils";
-
-// Each language is always shown in its own script, so these names are not translated
-const LANGUAGES: { code: Locale; label: string; name: string }[] = [
-  { code: "en", label: "EN", name: "English" },
-  { code: "si", label: "සිං", name: "සිංහල" },
-  { code: "ta", label: "தமி", name: "தமிழ்" },
-];
 
 /**
  * English / Sinhala / Tamil switcher: links to the same page in another language, e.g.
