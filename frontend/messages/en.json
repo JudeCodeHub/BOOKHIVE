@@ -68,6 +68,12 @@
     "language": "Language",
     "toggleTheme": "Toggle dark mode"
   },
+  "AccountMenu": {
+    "account": "My account",
+    "staff": "Staff console",
+    "admin": "Admin console",
+    "logout": "Log out"
+  },
   "Footer": {
     "label": "Footer",
     "visit": "Visit us",

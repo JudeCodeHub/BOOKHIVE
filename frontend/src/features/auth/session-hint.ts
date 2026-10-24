@@ -27,6 +27,7 @@ export function decodeHint(value: string | undefined | null): HintRole[] | null 
 
 /** The protected areas of the site and who may open them (same rules as the backend). */
 export type Area = "account" | "staff" | "admin";
+const AREAS: readonly Area[] = ["account", "staff", "admin"];
 
 export function canOpen(area: Area, roles: readonly string[]): boolean {
   switch (area) {
@@ -37,4 +38,12 @@ export function canOpen(area: Area, roles: readonly string[]): boolean {
     case "admin":
       return roles.includes("ADMIN");
   }
+}
+
+/**
+ * The areas a user may open, from least to most powerful: ["account"] for a member,
+ * ["account", "staff", "admin"] for an admin. The last one is the user's "home" area.
+ */
+export function openableAreas(roles: readonly string[]): Area[] {
+  return AREAS.filter((area) => canOpen(area, roles));
 }

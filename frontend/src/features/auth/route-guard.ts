@@ -1,5 +1,5 @@
 import { routing } from "@/i18n/routing";
-import { canOpen, decodeHint, type Area } from "@/features/auth/session-hint";
+import { canOpen, decodeHint, openableAreas, type Area } from "@/features/auth/session-hint";
 
 const PROTECTED = new RegExp(`^/(${routing.locales.join("|")})(/(account|staff|admin)(?:/.*)?)$`);
 
@@ -23,7 +23,7 @@ export function guardRedirect(pathname: string, search: string, hint: string | u
     return `/${locale}/login?next=${encodeURIComponent(rest + search)}`;
   }
   if (!canOpen(area as Area, roles)) {
-    return `/${locale}${roles.includes("ADMIN") ? "/admin" : roles.includes("LIBRARIAN") ? "/staff" : "/account"}`;
+    return `/${locale}/${openableAreas(roles).at(-1)}`;
   }
   return null;
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import { LogoMark } from "@/components/brand/logo";
+import { AccountMenu } from "@/components/layout/account-menu";
 import { SidebarNav, type NavItem } from "@/components/layout/sidebar-nav";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
@@ -38,6 +39,7 @@ export function ConsoleShell({
         <div className="ml-auto flex min-w-0 items-center gap-3">
           {headerActions}
           <ThemeToggle className="hover:bg-white/10 hover:text-secondary-foreground" />
+          <AccountMenu className="h-8 bg-white/10 text-secondary-foreground hover:bg-white/20" />
         </div>
       </header>
 
