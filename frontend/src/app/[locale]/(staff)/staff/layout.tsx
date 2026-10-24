@@ -18,6 +18,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ConsoleShell } from "@/components/layout/console-shell";
 import type { NavItem } from "@/components/layout/sidebar-nav";
 import { Input } from "@/components/ui/input";
+import { RequireArea } from "@/features/auth/require-area";
 
 export default function StaffLayout({ children }: LayoutProps<"/[locale]/staff">) {
   const t = useTranslations("StaffNav");
@@ -63,7 +64,7 @@ export default function StaffLayout({ children }: LayoutProps<"/[locale]/staff">
         </form>
       }
     >
-      {children}
+      <RequireArea area="staff">{children}</RequireArea>
     </ConsoleShell>
   );
 }

@@ -33,9 +33,9 @@ The last point has a catch: the refresh cookie belongs to the **backend** (`loca
 
 ### Telling Next.js "probably logged in": a hint cookie
 
-- After login/refresh the frontend sets its **own** cookie on the frontend's domain: `bookhive_session=1` (not httpOnly, `SameSite=Lax`, 7 days). Logout and a failed refresh delete it.
-- It contains **no secret**: only "this browser had a session".
-- The Next.js proxy (step 114) uses it to redirect visitors without it to `/login?next=...` before rendering protected pages.
+- After login/refresh the frontend sets its **own** cookie on the frontend's domain: the user's roles, e.g. `bookhive_session=MEMBER` or `bookhive_session=LIBRARIAN.ADMIN` (not httpOnly, `SameSite=Lax`, 7 days). Logout and a failed refresh delete it.
+- It contains **no secret**: only "this browser had a session, with these roles".
+- The Next.js proxy (step 114) uses it to redirect visitors without it to `/login?next=...` before rendering protected pages, and sends members away from `/staff` and `/admin`. Once the session is restored, a client guard (`RequireArea`) checks the real roles again.
 - **It is not security.** Faking it only shows an empty page shell: every piece of data still comes from the API, which checks the real token. Protected pages render their data on the client after the session is restored.
 
 ### Several tabs: BroadcastChannel

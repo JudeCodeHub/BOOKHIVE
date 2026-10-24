@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { API_BASE_URL, ApiError, api, setAccessTokenProvider } from "@/lib/api";
+import {
+  API_BASE_URL,
+  ApiError,
+  api,
+  setAccessTokenProvider,
+  setUnauthorizedHandler,
+} from "@/lib/api";
 
 /** Replaces fetch with a fake that returns `response` and records the request. */
 function mockFetch(response: Response | (() => Promise<Response>)) {
@@ -20,6 +26,7 @@ function problem(status: number, body: object) {
 
 afterEach(() => {
   setAccessTokenProvider(() => null);
+  setUnauthorizedHandler(null);
 });
 
 describe("api client", () => {
@@ -115,5 +122,55 @@ describe("api client", () => {
     mockFetch(Response.json({}));
 
     await expect(api.get("books")).rejects.toThrow(/must start with/);
+  });
+});
+
+describe("silent refresh on 401", () => {
+  const expired = () => problem(401, { code: "UNAUTHORIZED" });
+
+  it("refreshes the token once and retries the request with the new one", async () => {
+    let token = "old-token";
+    setAccessTokenProvider(() => token);
+    const refresh = vi.fn(async () => {
+      token = "new-token";
+      return true;
+    });
+    setUnauthorizedHandler(refresh);
+    const fetchMock = vi
+      .fn<(url: string, init?: RequestInit) => Promise<Response>>()
+      .mockResolvedValueOnce(expired())
+      .mockResolvedValueOnce(Response.json({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(api.get("/me")).resolves.toEqual({ ok: true });
+
+    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(new Headers(fetchMock.mock.calls[1][1]?.headers).get("Authorization")).toBe(
+      "Bearer new-token",
+    );
+  });
+
+  it("gives up with the 401 when the refresh fails", async () => {
+    setAccessTokenProvider(() => "old-token");
+    setUnauthorizedHandler(async () => false);
+    const fetchMock = mockFetch(() => Promise.resolve(expired()));
+
+    await expect(api.get("/me")).rejects.toMatchObject({ status: 401 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("doesn't refresh for visitors or for the auth endpoints themselves", async () => {
+    const refresh = vi.fn(async () => true);
+    setUnauthorizedHandler(refresh);
+    mockFetch(() => Promise.resolve(expired()));
+
+    // No token was sent: a 401 here isn't an expired session
+    await expect(api.get("/me")).rejects.toBeInstanceOf(ApiError);
+    // A wrong password on /auth/login must not trigger a refresh loop
+    setAccessTokenProvider(() => "old-token");
+    await expect(api.post("/auth/login", {})).rejects.toBeInstanceOf(ApiError);
+
+    expect(refresh).not.toHaveBeenCalled();
   });
 });

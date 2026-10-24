@@ -3,12 +3,25 @@
  * it through the httpOnly cookie, and tells other tabs about logouts.
  *
  *   await login(email, password);   // after this, api.* calls send the Bearer token
- *   await refreshSession();         // on app start: restores the session after a reload
+ *   await restoreSession();         // on app start: restores the session after a reload
  *   await logout();
  *
- * React components read it through the useSession hook (checklist step 112).
+ * React components read it through useSession() (use-session.ts).
  */
-import { ApiError, api, setAccessTokenProvider, type Schema } from "@/lib/api";
+import {
+  encodeHint,
+  SESSION_HINT_COOKIE,
+  SESSION_HINT_MAX_AGE_SECONDS,
+} from "@/features/auth/session-hint";
+import {
+  ApiError,
+  api,
+  setAccessTokenProvider,
+  setUnauthorizedHandler,
+  type Schema,
+} from "@/lib/api";
+
+export { SESSION_HINT_COOKIE };
 
 export type AuthResponse = Schema<"AuthResponse">;
 export type SessionUser = Schema<"UserSummary">;
@@ -21,22 +34,46 @@ export type Session = {
   user: SessionUser;
 };
 
-/** Frontend-domain cookie meaning "this browser probably has a session" (no secret inside). */
-export const SESSION_HINT_COOKIE = "bookhive_session";
-const HINT_MAX_AGE_SECONDS = 7 * 24 * 60 * 60; // as long as the refresh token
+/**
+ * - loading: a session may exist (hint cookie) and is being restored from the refresh cookie
+ * - authenticated: logged in, `session` is set
+ * - anonymous: not logged in
+ */
+export type AuthState =
+  | { status: "loading"; session: null }
+  | { status: "authenticated"; session: Session }
+  | { status: "anonymous"; session: null };
+
+const LOADING: AuthState = { status: "loading", session: null };
+const ANONYMOUS: AuthState = { status: "anonymous", session: null };
 const CHANNEL_NAME = "bookhive-auth";
 
-let current: Session | null = null;
+// Without the hint cookie there is nothing to restore: anonymous straight away
+let state: AuthState = hasHintCookie() ? LOADING : ANONYMOUS;
 let refreshing: Promise<Session | null> | null = null;
 const listeners = new Set<() => void>();
 
-// Every API call made through lib/api.ts now carries the current access token
-setAccessTokenProvider(() => current?.accessToken);
+// Every API call made through lib/api.ts carries the current access token...
+setAccessTokenProvider(() => state.session?.accessToken);
+// ...and an expired one is renewed once, then the request is retried (checklist step 113)
+setUnauthorizedHandler(async () => (await refreshSession()) !== null);
 
 // --- Reading -----------------------------------------------------------------------------
 
+export function getAuthState(): AuthState {
+  return state;
+}
+
+/**
+ * What the server renders: it can't know the session (it lives in browser memory), so pages
+ * start as "loading" and settle in the browser. Keeps server and browser HTML identical.
+ */
+export function getServerAuthState(): AuthState {
+  return LOADING;
+}
+
 export function getSession(): Session | null {
-  return current;
+  return state.session;
 }
 
 /** For useSyncExternalStore: call `listener` whenever the session changes. */
@@ -51,6 +88,19 @@ export function subscribe(listener: () => void): () => void {
 export async function login(email: string, password: string): Promise<Session> {
   const response = await api.post<AuthResponse>("/auth/login", { email, password });
   return setSession(fromResponse(response));
+}
+
+/**
+ * Called once when the app starts (SessionProvider): if this browser had a session, get a fresh
+ * access token for it. Network trouble counts as "not logged in" for now; the next action retries.
+ */
+export async function restoreSession(): Promise<void> {
+  if (state.status !== "loading") return;
+  try {
+    await refreshSession();
+  } catch {
+    setState(ANONYMOUS);
+  }
 }
 
 /**
@@ -96,19 +146,16 @@ export async function logout(): Promise<void> {
 
 /** Also used after a password change, which returns a fresh session (POST /me/password). */
 export function setSession(session: Session): Session {
-  current = session;
-  writeHintCookie(true);
-  notify();
+  writeHintCookie(session.user.roles);
+  setState({ status: "authenticated", session });
   return session;
 }
 
 export function clearSession(): void {
-  if (current === null && !hasHintCookie()) {
-    return;
+  writeHintCookie(null);
+  if (state.status !== "anonymous") {
+    setState(ANONYMOUS);
   }
-  current = null;
-  writeHintCookie(false);
-  notify();
 }
 
 export function fromResponse(response: AuthResponse): Session {
@@ -124,19 +171,27 @@ export function hasRole(session: Session | null, role: Role): boolean {
   return roles.includes(role) || (role === "LIBRARIAN" && roles.includes("ADMIN"));
 }
 
-function notify() {
+function setState(next: AuthState) {
+  state = next;
   listeners.forEach((listener) => listener());
 }
 
-function writeHintCookie(loggedIn: boolean) {
+function writeHintCookie(roles: readonly string[] | null) {
   if (typeof document === "undefined") return;
-  document.cookie = loggedIn
-    ? `${SESSION_HINT_COOKIE}=1; Path=/; Max-Age=${HINT_MAX_AGE_SECONDS}; SameSite=Lax`
+  document.cookie = roles
+    ? `${SESSION_HINT_COOKIE}=${encodeHint(roles)}; Path=/; Max-Age=${SESSION_HINT_MAX_AGE_SECONDS}; SameSite=Lax`
     : `${SESSION_HINT_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
 }
 
 function hasHintCookie(): boolean {
-  return typeof document !== "undefined" && document.cookie.includes(`${SESSION_HINT_COOKIE}=1`);
+  return (
+    typeof document !== "undefined" &&
+    document.cookie
+      .split("; ")
+      .some(
+        (c) => c.startsWith(`${SESSION_HINT_COOKIE}=`) && c.length > SESSION_HINT_COOKIE.length + 1,
+      )
+  );
 }
 
 // --- Other tabs ----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 // Smoke tests: the app shell works in a real browser. Feature flows (login, checkout...)
 // get their own spec files as they're built.
@@ -48,7 +48,37 @@ test("unknown pages show the translated 404 page", async ({ page }) => {
   await expect(page).toHaveURL(/\/en$/);
 });
 
+/** Pretends a member is logged in: the hint cookie for the proxy, a fake refresh for the page. */
+async function loginAsMember(page: Page) {
+  await page
+    .context()
+    .addCookies([{ name: "bookhive_session", value: "MEMBER", url: "http://localhost:3000" }]);
+  await page.route("**/api/v1/auth/refresh", (route) =>
+    route.fulfill({
+      json: {
+        accessToken: "e2e-token",
+        tokenType: "Bearer",
+        expiresAt: "2099-01-01T00:00:00Z",
+        user: {
+          id: "00000000-0000-0000-0000-000000000001",
+          email: "nimali@mail.lk",
+          fullName: "Nimali Perera",
+          roles: ["MEMBER"],
+          preferredLanguage: "en",
+        },
+      },
+    }),
+  );
+}
+
+test("visitors opening My account are sent to log in first", async ({ page }) => {
+  await page.goto("/en/account/loans");
+
+  await expect(page).toHaveURL(/\/en\/login\?next=%2Faccount%2Floans$/);
+});
+
 test("the member sidebar marks the current page", async ({ page }) => {
+  await loginAsMember(page);
   await page.goto("/en/account");
 
   const nav = page.getByRole("navigation", { name: "My account" });
@@ -72,6 +102,7 @@ test("dark mode can be toggled and is remembered", async ({ page }) => {
 });
 
 test("the language switcher keeps the page and the search query", async ({ page }) => {
+  await loginAsMember(page);
   await page.goto("/en/account?tab=loans");
 
   await page.getByRole("link", { name: "සිංහල" }).click();
@@ -88,6 +119,6 @@ test("the chosen language is remembered for links without a language", async ({ 
   await page.getByRole("link", { name: "தமிழ்" }).click();
   await expect(page).toHaveURL(/\/ta$/);
 
-  await page.goto("/account");
-  await expect(page).toHaveURL(/\/ta\/account$/);
+  await page.goto("/register");
+  await expect(page).toHaveURL(/\/ta\/register$/);
 });

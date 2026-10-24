@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SidebarNav, type NavItem } from "@/components/layout/sidebar-nav";
+import { RequireArea } from "@/features/auth/require-area";
 
 /** Member portal: same header as the public site, plus a sidebar. Mobile-first. */
 export default function MemberLayout({ children }: LayoutProps<"/[locale]/account">) {
@@ -41,7 +42,7 @@ export default function MemberLayout({ children }: LayoutProps<"/[locale]/accoun
           <SidebarNav items={nav} label={t("label")} />
         </aside>
         <main id="main" className="min-w-0 flex-1">
-          {children}
+          <RequireArea area="account">{children}</RequireArea>
         </main>
       </div>
       <SiteFooter />

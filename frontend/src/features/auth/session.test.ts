@@ -47,7 +47,7 @@ describe("session", () => {
     await login("nimali@mail.lk", "reading-is-fun");
 
     expect(getSession()?.user.email).toBe("nimali@mail.lk");
-    expect(document.cookie).toContain(`${SESSION_HINT_COOKIE}=1`);
+    expect(document.cookie).toContain(`${SESSION_HINT_COOKIE}=MEMBER`);
     expect(listener).toHaveBeenCalled();
     unsubscribe();
   });
@@ -91,7 +91,7 @@ describe("session", () => {
 
     await expect(refreshSession()).resolves.toBeNull();
     expect(getSession()).toBeNull();
-    expect(document.cookie).not.toContain(`${SESSION_HINT_COOKIE}=1`);
+    expect(document.cookie).not.toContain(`${SESSION_HINT_COOKIE}=MEMBER`);
   });
 
   it("a network error during refresh keeps the session and reports the error", async () => {

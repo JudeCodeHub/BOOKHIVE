@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Logo } from "@/components/brand/logo";
+import { AccountButton } from "@/components/layout/account-button";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -43,9 +44,7 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-3 sm:ml-0">
           <LanguageSwitcher />
           <ThemeToggle />
-          <Button asChild variant="secondary">
-            <Link href="/login">{t("login")}</Link>
-          </Button>
+          <AccountButton />
         </div>
       </div>
     </header>
