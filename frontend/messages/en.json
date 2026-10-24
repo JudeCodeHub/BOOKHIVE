@@ -133,5 +133,73 @@
   "AdminHome": {
     "title": "Overview",
     "description": "Library rules, staff accounts, reports and audit logs will be managed here."
+  },
+  "Auth": {
+    "login": {
+      "metaTitle": "Log in",
+      "title": "Welcome back",
+      "subtitle": "Log in to see your loans, holds and fines.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "forgot": "Forgot your password?",
+      "noAccount": "New to BookHive?",
+      "register": "Create an account",
+      "welcome": "Welcome, {name}!"
+    },
+    "register": {
+      "metaTitle": "Create an account",
+      "title": "Create your account",
+      "subtitle": "Then apply for library membership to start borrowing.",
+      "fullName": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters. A short sentence is easy to remember and hard to guess.",
+      "phone": "Mobile number (optional)",
+      "phoneHint": "For SMS reminders, e.g. 0771234567",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "login": "Log in",
+      "checkEmailTitle": "Check your email",
+      "checkEmailText": "We sent a link to {email}. Open it to confirm your address, then log in."
+    },
+    "verify": {
+      "metaTitle": "Verify your email",
+      "checking": "Confirming your email address…",
+      "successTitle": "Email confirmed",
+      "successText": "Your account is ready. You can log in now.",
+      "invalidTitle": "This link doesn't work",
+      "invalidText": "It may have been used already. If you confirmed your email before, just log in.",
+      "expiredTitle": "This link has expired",
+      "expiredText": "Use \"Forgot your password?\" to get a new link: it confirms your email too.",
+      "missingTitle": "No verification link",
+      "missingText": "Open the link from the email we sent you.",
+      "login": "Log in",
+      "forgot": "Get a new link"
+    },
+    "errors": {
+      "INVALID_CREDENTIALS": "The email or password is incorrect.",
+      "EMAIL_NOT_VERIFIED": "Please confirm your email first: open the link we sent you.",
+      "ACCOUNT_LOCKED": "Too many failed attempts. Try again in 15 minutes, or reset your password.",
+      "ACCOUNT_DISABLED": "This account has been disabled. Please contact the library.",
+      "TOO_MANY_REQUESTS": "Too many attempts. Please wait a moment and try again.",
+      "NETWORK_ERROR": "Can't reach BookHive. Check your connection and try again.",
+      "TIMEOUT": "BookHive is taking too long to answer. Please try again.",
+      "EMAIL_ALREADY_REGISTERED": "An account with this email already exists. Log in instead?",
+      "PASSWORD_TOO_COMMON": "This password is too easy to guess. Please choose a less common one.",
+      "PASSWORD_CONTAINS_EMAIL": "Your password must not contain your email address.",
+      "PASSWORD_TOO_LONG": "Please choose a shorter password.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "validation": {
+      "required": "Please fill this in.",
+      "email": "Please enter a valid email address.",
+      "passwordMin": "Use at least 8 characters.",
+      "passwordMax": "Please choose a shorter password.",
+      "tooLong": "This is too long.",
+      "phone": "Enter a Sri Lankan number like 0771234567."
+    }
   }
 }
