@@ -151,6 +151,19 @@ export function setSession(session: Session): Session {
   return session;
 }
 
+/**
+ * After the user edits their profile (PATCH /me): the header shows the new name straight away.
+ * The access token itself doesn't change; the next refresh brings the same data from the server.
+ */
+export function updateSessionUser(changes: Partial<SessionUser>): void {
+  if (state.status !== "authenticated") return;
+  const { session } = state;
+  setState({
+    status: "authenticated",
+    session: { ...session, user: { ...session.user, ...changes } },
+  });
+}
+
 export function clearSession(): void {
   writeHintCookie(null);
   if (state.status !== "anonymous") {

@@ -197,6 +197,7 @@
       "PASSWORD_TOO_COMMON": "This password is too easy to guess. Please choose a less common one.",
       "PASSWORD_CONTAINS_EMAIL": "Your password must not contain your email address.",
       "PASSWORD_TOO_LONG": "Please choose a shorter password.",
+      "CURRENT_PASSWORD_INCORRECT": "Your current password is incorrect.",
       "generic": "Something went wrong. Please try again."
     },
     "validation": {
@@ -246,6 +247,38 @@
       "newLink": "Get a new link",
       "missingTitle": "No link found",
       "missingText": "Open the link from the email we sent you."
+    }
+  },
+  "Settings": {
+    "metaTitle": "Settings",
+    "title": "Settings",
+    "profile": {
+      "title": "Profile",
+      "description": "Your details and the language the library uses with you.",
+      "email": "Email",
+      "emailHint": "Your email can't be changed here. Ask the library if you need to change it.",
+      "fullName": "Full name",
+      "phone": "Mobile number (optional)",
+      "phoneHint": "For SMS reminders, e.g. 0771234567",
+      "language": "Language",
+      "languageHint": "The website and the library's emails use this language.",
+      "submit": "Save changes",
+      "submitting": "Saving…",
+      "saved": "Your profile has been saved."
+    },
+    "password": {
+      "metaTitle": "Change password",
+      "title": "Change password",
+      "description": "After the change you stay logged in here, and your other devices are logged out.",
+      "open": "Change password",
+      "back": "Back to settings",
+      "current": "Current password",
+      "new": "New password",
+      "newHint": "At least 8 characters. A short sentence is easy to remember and hard to guess.",
+      "confirm": "Repeat the new password",
+      "submit": "Change password",
+      "submitting": "Changing…",
+      "changed": "Password changed. Your other devices have been logged out."
     }
   }
 }
