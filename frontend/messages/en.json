@@ -199,7 +199,47 @@
       "passwordMin": "Use at least 8 characters.",
       "passwordMax": "Please choose a shorter password.",
       "tooLong": "This is too long.",
-      "phone": "Enter a Sri Lankan number like 0771234567."
+      "phone": "Enter a Sri Lankan number like 0771234567.",
+      "passwordsDontMatch": "The two passwords don't match."
+    },
+    "forgot": {
+      "metaTitle": "Forgot password",
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email and we'll send you a link to choose a new one.",
+      "email": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "sentTitle": "Check your email",
+      "sentText": "If {email} has a BookHive account, we've sent it a link. It works for one hour.",
+      "backToLogin": "Back to log in"
+    },
+    "reset": {
+      "metaTitle": "Choose a new password",
+      "title": "Choose a new password",
+      "subtitle": "You'll be logged out on all your devices.",
+      "doneTitle": "Password changed",
+      "doneText": "You can log in with your new password now."
+    },
+    "invite": {
+      "metaTitle": "Activate your staff account",
+      "title": "Welcome to BookHive",
+      "subtitle": "Choose a password to activate your staff account.",
+      "doneTitle": "Your account is ready",
+      "doneText": "Log in with your email and the password you just chose.",
+      "expiredText": "Ask an administrator to send you a new invitation."
+    },
+    "setPassword": {
+      "password": "New password",
+      "confirm": "Repeat the new password",
+      "submit": "Save password",
+      "submitting": "Saving…",
+      "login": "Log in",
+      "invalidTitle": "This link doesn't work",
+      "invalidText": "It may have been used already, or a newer link was sent.",
+      "expiredTitle": "This link has expired",
+      "newLink": "Get a new link",
+      "missingTitle": "No link found",
+      "missingText": "Open the link from the email we sent you."
     }
   }
 }
