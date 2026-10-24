@@ -1,4 +1,5 @@
 import type { SessionUser } from "@/features/auth/session";
+import { openableAreas } from "@/features/auth/session-hint";
 
 /**
  * Where to go after logging in: the page the user was trying to reach (?next=), or their area.
@@ -8,9 +9,7 @@ export function afterLoginPath(user: SessionUser, next: string | null): string {
   if (next && isSafeInternalPath(next)) {
     return next;
   }
-  if (user.roles.includes("ADMIN")) return "/admin";
-  if (user.roles.includes("LIBRARIAN")) return "/staff";
-  return "/account";
+  return `/${openableAreas(user.roles).at(-1) ?? "account"}`;
 }
 
 /**

@@ -1,14 +1,14 @@
 import { Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Logo } from "@/components/brand/logo";
-import { AccountButton } from "@/components/layout/account-button";
+import { AccountMenu } from "@/components/layout/account-menu";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/navigation";
 
-/** Public + member header: logo, catalog search, language, login. */
+/** Public + member header: logo, catalog search, language, login / account menu. */
 export function SiteHeader() {
   const t = useTranslations("Header");
   const locale = useLocale();
@@ -44,7 +44,7 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-3 sm:ml-0">
           <LanguageSwitcher />
           <ThemeToggle />
-          <AccountButton />
+          <AccountMenu />
         </div>
       </div>
     </header>
