@@ -5,6 +5,7 @@ import * as rootParams from "next/root-params";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
@@ -66,7 +67,7 @@ export default async function LocaleLayout({ children }: LayoutProps<"/[locale]"
         <NextIntlClientProvider>
           <ThemeProvider>
             <QueryProvider>
-              {children}
+              <SessionProvider>{children}</SessionProvider>
               {/* Pop-up notifications: toast.success("Book renewed") from any client component */}
               <Toaster richColors closeButton />
             </QueryProvider>

@@ -95,6 +95,17 @@ export function setAccessTokenProvider(provider: AccessTokenProvider) {
   accessTokenProvider = provider;
 }
 
+/**
+ * Called when a request with a token gets 401 (the 15-minute access token expired). Should get a
+ * new token and return true if that worked; the request is then retried once (step 113).
+ */
+type UnauthorizedHandler = () => Promise<boolean>;
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
+  unauthorizedHandler = handler;
+}
+
 // --- Requests -----------------------------------------------------------------------------
 
 type QueryValue = string | number | boolean | null | undefined;
@@ -123,7 +134,31 @@ function buildUrl(path: string, query?: Query): string {
   return url.toString();
 }
 
+/**
+ * One request, plus one silent retry when the access token had expired: the user never sees the
+ * 401. Not for /auth/* itself (a failed login or refresh is a real answer) and only once, so a
+ * truly logged-out user can't cause a loop.
+ */
 async function request<T>(
+  method: Method,
+  path: string,
+  body: unknown,
+  options: RequestOptions = {},
+): Promise<T> {
+  const sentToken = !!accessTokenProvider();
+  try {
+    return await send<T>(method, path, body, options);
+  } catch (error) {
+    const expiredToken =
+      error instanceof ApiError && error.status === 401 && sentToken && !path.startsWith("/auth/");
+    if (expiredToken && unauthorizedHandler && (await unauthorizedHandler())) {
+      return send<T>(method, path, body, options);
+    }
+    throw error;
+  }
+}
+
+async function send<T>(
   method: Method,
   path: string,
   body: unknown,

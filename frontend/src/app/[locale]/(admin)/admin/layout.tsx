@@ -11,6 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { ConsoleShell } from "@/components/layout/console-shell";
 import type { NavItem } from "@/components/layout/sidebar-nav";
+import { RequireArea } from "@/features/auth/require-area";
 import { Link } from "@/i18n/navigation";
 
 /** Admin console: same frame as the staff console, with a shortcut back to the desk. */
@@ -42,7 +43,7 @@ export default function AdminLayout({ children }: LayoutProps<"/[locale]/admin">
         </Link>
       }
     >
-      {children}
+      <RequireArea area="admin">{children}</RequireArea>
     </ConsoleShell>
   );
 }
