@@ -71,6 +71,54 @@ public class MembershipType extends BaseEntity {
     // for JPA
   }
 
+  /**
+   * The editable part of a type (admins, checklist step 145). The code is fixed once created,
+   * because code and emails refer to it.
+   */
+  public record Rules(
+      String nameEn,
+      String nameSi,
+      String nameTa,
+      Integer minAge,
+      Integer maxAge,
+      int maxItems,
+      int loanDays,
+      int maxRenewals,
+      int maxHolds,
+      Money annualFee,
+      RequiredDocument requiredDocument,
+      boolean requiresGuardian,
+      List<String> allowedSections,
+      boolean active) {}
+
+  public static MembershipType create(String code, Rules rules) {
+    MembershipType type = new MembershipType();
+    type.code = code;
+    type.update(rules);
+    return type;
+  }
+
+  /** Applies to new loans from now on; existing loans keep the due date they were given. */
+  public void update(Rules rules) {
+    this.nameEn = rules.nameEn();
+    this.nameSi = rules.nameSi();
+    this.nameTa = rules.nameTa();
+    this.minAge = rules.minAge();
+    this.maxAge = rules.maxAge();
+    this.maxItems = rules.maxItems();
+    this.loanDays = rules.loanDays();
+    this.maxRenewals = rules.maxRenewals();
+    this.maxHolds = rules.maxHolds();
+    this.annualFee = rules.annualFee().amount();
+    this.requiredDocument = rules.requiredDocument();
+    this.requiresGuardian = rules.requiresGuardian();
+    this.allowedSections =
+        rules.allowedSections() == null || rules.allowedSections().isEmpty()
+            ? null
+            : List.copyOf(rules.allowedSections());
+    this.active = rules.active();
+  }
+
   public String getCode() {
     return code;
   }
