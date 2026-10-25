@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -55,6 +56,7 @@ export function AccountMenu({ className }: { className?: string }) {
 
   async function handleLogout() {
     await logout();
+    toast.success(t("loggedOut"));
     // Back to the public home page; other open tabs log out too (BroadcastChannel)
     router.replace("/");
   }

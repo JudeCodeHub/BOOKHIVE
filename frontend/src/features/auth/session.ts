@@ -52,6 +52,10 @@ const CHANNEL_NAME = "bookhive-auth";
 let state: AuthState = hasHintCookie() ? LOADING : ANONYMOUS;
 let refreshing: Promise<Session | null> | null = null;
 const listeners = new Set<() => void>();
+const endedListeners = new Set<(reason: SessionEndReason) => void>();
+
+/** Why a session ended without the user pressing "Log out" in this tab. */
+export type SessionEndReason = "expired" | "other-tab";
 
 // Every API call made through lib/api.ts carries the current access token...
 setAccessTokenProvider(() => state.session?.accessToken);
@@ -80,6 +84,15 @@ export function getSession(): Session | null {
 export function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+/**
+ * Called when a logged-in session ends on its own: the refresh was refused (expired, revoked,
+ * password changed elsewhere) or the user logged out in another tab. Used to tell the user why.
+ */
+export function onSessionEnded(listener: (reason: SessionEndReason) => void): () => void {
+  endedListeners.add(listener);
+  return () => endedListeners.delete(listener);
 }
 
 // --- Changing ----------------------------------------------------------------------------
@@ -124,7 +137,7 @@ async function doRefresh(): Promise<Session | null> {
   } catch (error) {
     // 401 = no session (expired, logged out, revoked): that's an answer, not an error
     if (error instanceof ApiError && error.status === 401) {
-      clearSession();
+      endSession("expired");
       return null;
     }
     // Network trouble etc.: keep whatever we have and let the caller decide
@@ -175,6 +188,15 @@ export function fromResponse(response: AuthResponse): Session {
   return { accessToken: response.accessToken, expiresAt: response.expiresAt, user: response.user };
 }
 
+/** clearSession(), and if someone was logged in, tell the listeners why it ended. */
+function endSession(reason: SessionEndReason) {
+  const wasLoggedIn = state.status === "authenticated";
+  clearSession();
+  if (wasLoggedIn) {
+    endedListeners.forEach((listener) => listener(reason));
+  }
+}
+
 // --- Helpers -----------------------------------------------------------------------------
 
 export function hasRole(session: Session | null, role: Role): boolean {
@@ -215,7 +237,7 @@ const channel = typeof BroadcastChannel === "undefined" ? null : new BroadcastCh
 
 channel?.addEventListener("message", (event: MessageEvent<AuthMessage>) => {
   if (event.data?.type === "logout") {
-    clearSession();
+    endSession("other-tab");
   }
 });
 

@@ -6,6 +6,7 @@ import {
   hasRole,
   login,
   logout,
+  onSessionEnded,
   refreshSession,
   SESSION_HINT_COOKIE,
   subscribe,
@@ -131,5 +132,43 @@ describe("session", () => {
     expect(hasRole({ ...admin, user: admin.user }, "LIBRARIAN")).toBe(true);
     expect(hasRole({ ...response, user: response.user }, "LIBRARIAN")).toBe(false);
     expect(hasRole(null, "MEMBER")).toBe(false);
+  });
+
+  it("reports an expired session, so the user can be told why they were logged out", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse(response)),
+    );
+    await login("nimali@mail.lk", "reading-is-fun");
+    const ended = vi.fn();
+    const unsubscribe = onSessionEnded(ended);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ code: "INVALID_REFRESH_TOKEN" }, 401)),
+    );
+
+    await refreshSession();
+
+    expect(ended).toHaveBeenCalledWith("expired");
+    unsubscribe();
+  });
+
+  it("doesn't report a session end when the user logs out themselves", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse(response)),
+    );
+    await login("nimali@mail.lk", "reading-is-fun");
+    const ended = vi.fn();
+    const unsubscribe = onSessionEnded(ended);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(null, { status: 204 })),
+    );
+
+    await logout();
+
+    expect(ended).not.toHaveBeenCalled();
+    unsubscribe();
   });
 });
