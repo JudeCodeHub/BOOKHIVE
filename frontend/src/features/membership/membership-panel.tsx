@@ -1,20 +1,20 @@
 "use client";
 
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { ApplicationForm } from "@/features/membership/application-form";
+import { MembershipStatus } from "@/features/membership/membership-status";
 import { useMembership } from "@/features/membership/use-membership";
 
 /**
  * /account/membership: the application form for people who haven't applied (or were rejected),
- * otherwise a short summary. The full status page with timeline comes in checklist step 140.
+ * otherwise where the membership stands (MembershipStatus).
  */
 export function MembershipPanel() {
   const t = useTranslations("Membership");
   const tCommon = useTranslations("Common");
-  const format = useFormatter();
   const errorMessage = useAuthErrorMessage();
   const query = useMembership();
 
@@ -51,17 +51,5 @@ export function MembershipPanel() {
     );
   }
 
-  return (
-    <div role="status" className="grid gap-1 rounded-lg border p-4">
-      <p className="font-medium">{t(`status.${membership.status}`)}</p>
-      {membership.memberNo && <p>{t("status.memberNo", { memberNo: membership.memberNo })}</p>}
-      {membership.expiresAt && (
-        <p className="text-muted-foreground">
-          {t("status.expires", {
-            date: format.dateTime(new Date(membership.expiresAt), { dateStyle: "long" }),
-          })}
-        </p>
-      )}
-    </div>
-  );
+  return <MembershipStatus membership={membership} />;
 }

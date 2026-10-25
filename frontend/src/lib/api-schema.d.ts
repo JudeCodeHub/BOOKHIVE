@@ -675,12 +675,12 @@ export interface components {
             expiresAt: string;
             statusReason: string;
         };
-        Card: {
-            memberNo?: string;
-            fullName?: string;
-            membershipType?: string;
+        CardResponse: {
+            memberNo: string;
+            fullName: string;
+            membershipType: string;
             /** Format: date */
-            expiresAt?: string;
+            expiresAt: string;
         };
     };
     responses: never;
@@ -1231,7 +1231,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["Card"];
+                    "*/*": components["schemas"]["CardResponse"];
                 };
             };
         };

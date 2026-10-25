@@ -51,12 +51,12 @@ public class LibraryCardService {
   }
 
   /** What's printed on the card. */
-  public record Card(
+  public record CardResponse(
       String memberNo, String fullName, String membershipType, LocalDate expiresAt) {}
 
   /** Only active members have a card: it's what the desk scans to lend books. */
   @Transactional(readOnly = true)
-  public Card card(UUID userId) {
+  public CardResponse card(UUID userId) {
     Member member =
         members
             .findByUserId(userId)
@@ -67,7 +67,7 @@ public class LibraryCardService {
           "CARD_NOT_AVAILABLE", "The library card is available while your membership is active.");
     }
     User user = authService.getProfile(userId);
-    return new Card(
+    return new CardResponse(
         member.getMemberNo(),
         user.getFullName(),
         member.getMembershipType().getName(user.getPreferredLanguage()),
@@ -89,7 +89,7 @@ public class LibraryCardService {
    * Tamil script would not show. Embedding Noto fonts comes with the trilingual PDFs later.
    */
   public byte[] pdf(UUID userId) {
-    Card card = card(userId);
+    CardResponse card = card(userId);
     Document document = new Document(CARD, 10, 10, 8, 8);
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       PdfWriter.getInstance(document, out);

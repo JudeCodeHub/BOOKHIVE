@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
 import lk.bookhive.member.service.LibraryCardService;
-import lk.bookhive.member.service.LibraryCardService.Card;
+import lk.bookhive.member.service.LibraryCardService.CardResponse;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +33,7 @@ public class LibraryCardController {
 
   @GetMapping("/card")
   @Operation(summary = "What's on my library card")
-  public Card card(@AuthenticationPrincipal Jwt jwt) {
+  public CardResponse card(@AuthenticationPrincipal Jwt jwt) {
     return cards.card(userId(jwt));
   }
 
