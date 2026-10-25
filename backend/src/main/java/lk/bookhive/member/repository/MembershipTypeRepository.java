@@ -10,6 +10,11 @@ public interface MembershipTypeRepository extends JpaRepository<MembershipType, 
 
   Optional<MembershipType> findByCode(String code);
 
+  boolean existsByCode(String code);
+
+  /** Every type, retired ones too (admin page). */
+  List<MembershipType> findAllByOrderByCode();
+
   /** The types someone can apply for now (retired ones are left out). */
   List<MembershipType> findByActiveTrueOrderByCode();
 }
