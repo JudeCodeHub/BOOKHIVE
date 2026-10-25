@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 import lk.bookhive.common.domain.BaseEntity;
+import lk.bookhive.common.exception.ConflictException;
 
 /**
  * A library member (table {@code members}): a user account plus library data. Starts as an
@@ -92,9 +93,7 @@ public class Member extends BaseEntity {
 
   /** After a rejection the user may apply again: same row, fresh application. */
   public void reapply(ApplicationDetails details, Instant now) {
-    if (status != MemberStatus.REJECTED) {
-      throw new IllegalStateException("Only a rejected application can be submitted again");
-    }
+    moveTo(MemberStatus.PENDING);
     fill(details, now);
   }
 
@@ -107,7 +106,9 @@ public class Member extends BaseEntity {
     this.city = details.city();
     this.postalCode = details.postalCode();
     this.guardian = details.guardian();
-    this.status = MemberStatus.PENDING;
+    if (status == null) {
+      moveTo(MemberStatus.PENDING);
+    }
     this.statusReason = null;
     this.appliedAt = now;
   }
@@ -118,9 +119,8 @@ public class Member extends BaseEntity {
    * @param memberNo a fresh number from MemberNumberGenerator
    */
   public void approve(UUID staffId, String memberNo, LocalDate today, Instant now) {
-    requirePending();
+    moveTo(MemberStatus.ACTIVE);
     this.memberNo = memberNo;
-    this.status = MemberStatus.ACTIVE;
     this.approvedBy = staffId;
     this.approvedAt = now;
     this.expiresAt = today.plusYears(1);
@@ -129,19 +129,60 @@ public class Member extends BaseEntity {
 
   /** Staff turn the application down; the reason is shown to the applicant. */
   public void reject(String reason) {
-    requirePending();
-    this.status = MemberStatus.REJECTED;
+    moveTo(MemberStatus.REJECTED);
     this.statusReason = reason;
+  }
+
+  /**
+   * Another year (MEM-6). Renewing before the end adds the year to the current expiry date, so
+   * early renewers lose no days; after expiry the new year starts today.
+   *
+   * @return the new expiry date
+   */
+  public LocalDate renew(LocalDate today) {
+    moveTo(MemberStatus.ACTIVE);
+    LocalDate base = isExpiredOn(today) ? today : expiresAt;
+    this.expiresAt = base.plusYears(1);
+    this.statusReason = null;
+    return expiresAt;
+  }
+
+  /** Staff block the member from borrowing (MEM-7), e.g. after damaging books. */
+  public void suspend(String reason) {
+    moveTo(MemberStatus.SUSPENDED);
+    this.statusReason = reason;
+  }
+
+  /** Lifts a suspension. If the year ran out meanwhile, the member is expired instead. */
+  public void reactivate(LocalDate today) {
+    moveTo(isExpiredOn(today) ? MemberStatus.EXPIRED : MemberStatus.ACTIVE);
+    this.statusReason = null;
+  }
+
+  /** The membership year is over (the nightly expiry job uses this too). */
+  public void expire() {
+    moveTo(MemberStatus.EXPIRED);
   }
 
   public boolean isPending() {
     return status == MemberStatus.PENDING;
   }
 
-  private void requirePending() {
-    if (status != MemberStatus.PENDING) {
-      throw new IllegalStateException("Application is " + status + ", not PENDING");
+  /** Past the last valid day, whatever the status says (the expiry job may not have run yet). */
+  public boolean isExpiredOn(LocalDate today) {
+    return expiresAt != null && expiresAt.isBefore(today);
+  }
+
+  /**
+   * The one place where the status changes (checklist step 132), so no code path can make an
+   * illegal jump such as EXPIRED -> PENDING.
+   */
+  private void moveTo(MemberStatus next) {
+    if (status != null && !status.canMoveTo(next)) {
+      throw new ConflictException(
+          "STATUS_CHANGE_NOT_ALLOWED", "A " + status + " membership can't become " + next + ".");
     }
+    this.status = next;
   }
 
   /** What the applicant fills in; already validated by the service. */
