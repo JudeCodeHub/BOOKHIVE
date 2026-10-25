@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, FileUp } from "lucide-react";
+import { Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, useWatch, type FieldPath } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { HexLoader } from "@/components/brand/hex-loader";
+import { FileUpload, UploadProgress } from "@/components/forms/file-upload";
 import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +76,7 @@ function Wizard({ types }: { types: MembershipType[] }) {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number | null>(null);
 
   const typeByCode = (code: string) => types.find((type) => type.code === code);
 
@@ -184,11 +186,13 @@ function Wizard({ types }: { types: MembershipType[] }) {
     if (needsDocument && file) body.append("document", file);
 
     try {
-      await api.post("/memberships/applications", body);
+      await api.post("/memberships/applications", body, { onUploadProgress: setProgress });
       toast.success(t("sent"));
       await queryClient.invalidateQueries({ queryKey: MEMBERSHIP_QUERY_KEY });
     } catch (error) {
       handleServerError(error);
+    } finally {
+      setProgress(null);
     }
   });
 
@@ -357,21 +361,15 @@ function Wizard({ types }: { types: MembershipType[] }) {
         >
           {(field) => (
             <div className="grid gap-2">
-              <Input
-                type="file"
-                accept={FILE_TYPES.join(",")}
+              <FileUpload
                 {...field}
-                onChange={(event) => {
-                  setFile(event.target.files?.[0] ?? null);
+                accept={FILE_TYPES.join(",")}
+                value={file}
+                onChange={(chosen) => {
+                  setFile(chosen);
                   setFileError(null);
                 }}
               />
-              {file && (
-                <p className="flex items-center gap-2 text-sm">
-                  <FileUp aria-hidden className="size-4 text-primary" />
-                  {t("document.selected", { name: file.name })}
-                </p>
-              )}
               <p className="text-sm text-muted-foreground">{t("document.privacy")}</p>
             </div>
           )}
@@ -405,6 +403,7 @@ function Wizard({ types }: { types: MembershipType[] }) {
               value={needsDocument ? (file?.name ?? "") : t("review.noDocument")}
             />
           </dl>
+          {progress != null && <UploadProgress value={progress} />}
         </div>
       )}
 

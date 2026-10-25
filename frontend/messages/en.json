@@ -48,6 +48,14 @@
     "loading": "Loading",
     "required": "(required)"
   },
+  "FileUpload": {
+    "choose": "Tap to choose a file",
+    "drop": "or drag it here",
+    "preview": "Preview of the chosen file",
+    "remove": "Remove {name}",
+    "uploading": "Uploading",
+    "progress": "Uploading… {percent}%"
+  },
   "NotFound": {
     "title": "Page not found",
     "description": "The page you're looking for doesn't exist or has been moved.",
@@ -326,8 +334,6 @@
       "nicTitle": "Photo of your NIC",
       "studentIdTitle": "Photo of your student ID",
       "hint": "A clear photo or scan of the front: JPG, PNG, WebP or PDF, up to 5 MB.",
-      "choose": "Choose a file",
-      "selected": "Selected: {name}",
       "privacy": "Only library staff can see it. It's deleted after your application is decided."
     },
     "review": {
@@ -374,7 +380,48 @@
       "GUARDIAN_NOT_ADULT": "The guardian must be an adult member.",
       "FILE_TOO_LARGE": "The file is too large. The limit is 5 MB.",
       "FILE_EMPTY": "The file is empty.",
-      "FILE_TYPE_NOT_ALLOWED": "Upload a photo (JPG, PNG, WebP) or a PDF."
+      "FILE_TYPE_NOT_ALLOWED": "Upload a photo (JPG, PNG, WebP) or a PDF.",
+      "RENEWAL_TOO_EARLY": "It's too early to renew.",
+      "MEMBERSHIP_SUSPENDED": "A suspended membership can't be renewed. Please contact the library."
+    },
+    "statusPage": {
+      "timeline": "Application progress",
+      "applied": "Application sent",
+      "appliedOn": "{date}",
+      "review": "Staff review",
+      "reviewWaiting": "Usually within two working days. We'll email you.",
+      "decision": "Decision",
+      "approved": "Approved",
+      "notApproved": "Not approved",
+      "type": "Membership type",
+      "memberNo": "Member number",
+      "validUntil": "Valid until",
+      "daysLeft": "{days, plural, =0 {Ends today} one {# day left} other {# days left}}",
+      "reason": "Reason",
+      "suspendedHelp": "You can't borrow books while your membership is suspended. Please contact the library.",
+      "expiredHelp": "Renew to borrow books again.",
+      "viewCard": "View my library card",
+      "renew": "Renew for one year",
+      "renewing": "Renewing…",
+      "renewOpens": "You can renew from {date}.",
+      "renewed": "Renewed until {date}.",
+      "feeDue": "A membership fee of LKR {fee} has been added. You can pay it online or at the desk."
     }
+  },
+  "LibraryCard": {
+    "metaTitle": "Library card",
+    "title": "My library card",
+    "label": "Library card",
+    "member": "Member",
+    "memberNo": "Member number",
+    "type": "Type",
+    "validUntil": "Valid until",
+    "barcode": "Barcode for member {memberNo}",
+    "qr": "QR code for member {memberNo}",
+    "download": "Download PDF",
+    "downloading": "Preparing…",
+    "help": "Show this card at the desk to borrow books. Turn up your screen brightness so it scans easily.",
+    "notAvailable": "Your library card appears here once your membership is active.",
+    "goToMembership": "Go to my membership"
   }
 }

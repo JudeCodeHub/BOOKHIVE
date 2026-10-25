@@ -115,6 +115,10 @@ export type RequestOptions = Omit<RequestInit, "method" | "body"> & {
   /** Added to the URL; null/undefined values are skipped, arrays repeat the key. */
   query?: Query;
   timeoutMs?: number;
+  /** "blob" for files (images, PDFs) instead of JSON. */
+  responseType?: "json" | "blob";
+  /** File uploads: called with 0..1 while the body is sent (uses XMLHttpRequest). */
+  onUploadProgress?: (fraction: number) => void;
 };
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -162,7 +166,15 @@ async function send<T>(
   method: Method,
   path: string,
   body: unknown,
-  { query, timeoutMs = DEFAULT_TIMEOUT_MS, headers, signal, ...init }: RequestOptions = {},
+  {
+    query,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    headers,
+    signal,
+    responseType = "json",
+    onUploadProgress,
+    ...init
+  }: RequestOptions = {},
 ): Promise<T> {
   const finalHeaders = new Headers(headers);
   finalHeaders.set("Accept", "application/json, application/problem+json");
@@ -183,15 +195,18 @@ async function send<T>(
 
   let response: Response;
   try {
-    response = await fetch(url, {
-      ...init,
-      method,
-      headers: finalHeaders,
-      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
-      // Send/receive the httpOnly refresh-token cookie (backend CORS allows credentials)
-      credentials: "include",
-      signal: signal ?? AbortSignal.timeout(timeoutMs),
-    });
+    response =
+      onUploadProgress && isFormData
+        ? await sendWithProgress(method, url, finalHeaders, body, timeoutMs, onUploadProgress)
+        : await fetch(url, {
+            ...init,
+            method,
+            headers: finalHeaders,
+            body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
+            // Send/receive the httpOnly refresh-token cookie (backend CORS allows credentials)
+            credentials: "include",
+            signal: signal ?? AbortSignal.timeout(timeoutMs),
+          });
   } catch (cause) {
     // Check the name, not `instanceof DOMException`: the class differs between environments
     const timedOut = (cause as { name?: string } | null)?.name === "TimeoutError";
@@ -210,9 +225,61 @@ async function send<T>(
     throw await toApiError(response, requestId);
   }
 
+  if (responseType === "blob") {
+    return (await response.blob()) as T;
+  }
   // 204 No Content, or an empty body
   const text = await response.text();
   return (text ? JSON.parse(text) : undefined) as T;
+}
+
+/**
+ * Like fetch, but reports upload progress (fetch can't). Resolves to a normal Response so the
+ * rest of send() treats both the same. Errors are thrown like fetch's: TimeoutError or TypeError.
+ */
+function sendWithProgress(
+  method: Method,
+  url: string,
+  headers: Headers,
+  body: FormData,
+  timeoutMs: number,
+  onProgress: (fraction: number) => void,
+): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.withCredentials = true;
+    // Uploads of a few MB on a slow mobile connection need more time than normal requests
+    xhr.timeout = Math.max(timeoutMs, 120_000);
+    headers.forEach((value, key) => xhr.setRequestHeader(key, value));
+    xhr.responseType = "blob";
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(event.loaded / event.total);
+    };
+    xhr.onload = () => {
+      onProgress(1);
+      const responseHeaders = new Headers();
+      for (const line of xhr
+        .getAllResponseHeaders()
+        .trim()
+        .split(/[\r\n]+/)) {
+        const at = line.indexOf(":");
+        if (at > 0) responseHeaders.append(line.slice(0, at).trim(), line.slice(at + 1).trim());
+      }
+      // A Response can't have a body with 204
+      const noBody = xhr.status === 204 || xhr.status === 205;
+      resolve(
+        new Response(noBody ? null : (xhr.response as Blob), {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          headers: responseHeaders,
+        }),
+      );
+    };
+    xhr.onerror = () => reject(new TypeError("Network request failed"));
+    xhr.ontimeout = () => reject(Object.assign(new Error("Timed out"), { name: "TimeoutError" }));
+    xhr.send(body);
+  });
 }
 
 async function toApiError(response: Response, requestId?: string): Promise<ApiError> {
@@ -236,6 +303,9 @@ async function toApiError(response: Response, requestId?: string): Promise<ApiEr
 
 export const api = {
   get: <T>(path: string, options?: RequestOptions) => request<T>("GET", path, undefined, options),
+  /** A file (image, PDF) as a Blob, sent with the access token like any other request. */
+  getBlob: (path: string, options?: RequestOptions) =>
+    request<Blob>("GET", path, undefined, { ...options, responseType: "blob" }),
   post: <T = void>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>("POST", path, body, options),
   put: <T = void>(path: string, body?: unknown, options?: RequestOptions) =>
