@@ -308,6 +308,40 @@ export interface paths {
         patch: operations["updateProfile"];
         trace?: never;
     };
+    "/api/v1/staff/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search by member number, NIC, phone, email or name */
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/members/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Member profile for the desk */
+        get: operations["profile_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/applications": {
         parameters: {
             query?: never;
@@ -475,38 +509,38 @@ export interface components {
         RejectRequest: {
             reason: string;
         };
-        ApplicationDetail: {
+        ApplicationDetailResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** @enum {string} */
-            status?: "PENDING" | "ACTIVE" | "SUSPENDED" | "EXPIRED" | "REJECTED";
-            fullName?: string;
-            email?: string;
-            phone?: string;
-            membershipType?: string;
-            nic?: string;
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "EXPIRED" | "REJECTED";
+            fullName: string;
+            email: string;
+            phone: string;
+            membershipType: string;
+            nic: string;
             /** Format: date */
-            dateOfBirth?: string;
-            addressLine?: string;
-            city?: string;
-            postalCode?: string;
-            guardianMemberNo?: string;
+            dateOfBirth: string;
+            addressLine: string;
+            city: string;
+            postalCode: string;
+            guardianMemberNo: string;
             /** Format: date-time */
-            appliedAt?: string;
-            memberNo?: string;
-            statusReason?: string;
-            documents?: components["schemas"]["DocumentLink"][];
+            appliedAt: string;
+            memberNo: string;
+            statusReason: string;
+            documents: components["schemas"]["DocumentLinkResponse"][];
         };
-        DocumentLink: {
+        DocumentLinkResponse: {
             /** Format: uuid */
-            id?: string;
+            id: string;
             /** @enum {string} */
-            kind?: "NIC" | "STUDENT_ID";
-            contentType?: string;
+            kind: "NIC" | "STUDENT_ID";
+            contentType: string;
             /** Format: int64 */
-            sizeBytes?: number;
+            sizeBytes: number;
             /** Format: uri */
-            url?: string;
+            url: string;
         };
         ApplicationRequest: {
             membershipType: string;
@@ -616,6 +650,59 @@ export interface components {
             emailVerifiedAt: string | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        MemberSummary: {
+            /** Format: uuid */
+            id: string;
+            memberNo: string;
+            fullName: string;
+            email: string;
+            phone: string;
+            membershipType: string;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "EXPIRED" | "REJECTED";
+            /** Format: date */
+            expiresAt: string;
+        };
+        PageResponseMemberSummary: {
+            content: components["schemas"]["MemberSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        MemberProfileResponse: {
+            /** Format: uuid */
+            id: string;
+            memberNo: string;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "EXPIRED" | "REJECTED";
+            statusReason: string;
+            fullName: string;
+            email: string;
+            phone: string;
+            preferredLanguage: string;
+            membershipType: string;
+            /** Format: int32 */
+            maxItems: number;
+            /** Format: int32 */
+            loanDays: number;
+            /** Format: date */
+            dateOfBirth: string;
+            nic: string;
+            addressLine: string;
+            city: string;
+            postalCode: string;
+            /** Format: date-time */
+            approvedAt: string;
+            /** Format: date */
+            expiresAt: string;
+            guardian: components["schemas"]["MemberSummary"];
+            juniors: components["schemas"]["MemberSummary"][];
         };
         ApplicationSummary: {
             /** Format: uuid */
@@ -786,7 +873,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApplicationDetail"];
+                    "*/*": components["schemas"]["ApplicationDetailResponse"];
                 };
             };
         };
@@ -808,7 +895,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApplicationDetail"];
+                    "*/*": components["schemas"]["ApplicationDetailResponse"];
                 };
             };
         };
@@ -1131,6 +1218,52 @@ export interface operations {
             };
         };
     };
+    search: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseMemberSummary"];
+                };
+            };
+        };
+    };
+    profile_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MemberProfileResponse"];
+                };
+            };
+        };
+    };
     pending: {
         parameters: {
             query?: {
@@ -1171,7 +1304,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApplicationDetail"];
+                    "*/*": components["schemas"]["ApplicationDetailResponse"];
                 };
             };
         };

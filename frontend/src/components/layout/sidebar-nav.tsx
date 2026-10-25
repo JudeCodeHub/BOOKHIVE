@@ -1,29 +1,37 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 export type NavItem = { href: string; label: string; icon: ReactNode };
 
+type Props = { items: NavItem[]; label: string; dense?: boolean };
+
 /**
  * Sidebar links with the current page highlighted. A client component because it reads the
  * current URL. Vertical on desktop; on small screens it becomes a horizontally scrolling row.
+ *
+ * On pages with an id in the URL (/staff/members/[id]) the path isn't known when the page shell
+ * is pre-rendered, so the links first render without a highlight (Suspense fallback).
  */
-export function SidebarNav({
-  items,
-  label,
-  dense = false,
-}: {
-  items: NavItem[];
-  label: string;
-  dense?: boolean;
-}) {
-  const pathname = usePathname();
+export function SidebarNav(props: Props) {
+  return (
+    <Suspense fallback={<NavLinks {...props} pathname={null} />}>
+      <CurrentNavLinks {...props} />
+    </Suspense>
+  );
+}
 
+function CurrentNavLinks(props: Props) {
+  return <NavLinks {...props} pathname={usePathname()} />;
+}
+
+function NavLinks({ items, label, dense = false, pathname }: Props & { pathname: string | null }) {
   // Exact match for section roots (/account), prefix match for the rest (/account/loans/123)
   const isActive = (href: string) =>
-    pathname === href || (href.split("/").length > 2 && pathname.startsWith(`${href}/`));
+    pathname !== null &&
+    (pathname === href || (href.split("/").length > 2 && pathname.startsWith(`${href}/`)));
 
   return (
     <nav aria-label={label}>
