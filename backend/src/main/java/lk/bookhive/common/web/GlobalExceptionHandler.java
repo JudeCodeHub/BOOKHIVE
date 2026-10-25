@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
@@ -118,6 +119,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         error.getDefaultMessage()))
             .toList();
     return handleExceptionInternal(ex, validationProblem(errors), headers, status, request);
+  }
+
+  // An upload bigger than spring.servlet.multipart.max-file-size: 413 with a code the UI can show
+  @Override
+  protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+      MaxUploadSizeExceededException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
+    ProblemDetail problem =
+        ProblemDetail.forStatusAndDetail(
+            HttpStatus.CONTENT_TOO_LARGE, "The file is too large. The limit is 5 MB.");
+    problem.setProperty(CODE, "FILE_TOO_LARGE");
+    return handleExceptionInternal(ex, problem, headers, HttpStatus.CONTENT_TOO_LARGE, request);
   }
 
   // Constraints on @RequestParam / @PathVariable failed, e.g. @Min(0) int page.

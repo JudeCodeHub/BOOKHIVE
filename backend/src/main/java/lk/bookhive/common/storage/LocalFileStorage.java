@@ -2,23 +2,19 @@ package lk.bookhive.common.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Component;
+import java.time.Duration;
 
-/**
- * Stores files in a folder on this machine. Simple stand-in until MinIO/S3 (checklist step 126).
- */
-@Component
-@EnableConfigurationProperties(StorageProperties.class)
+/** Stores files in a folder on this machine. Used by tests, which have no S3 server. */
 public class LocalFileStorage implements FileStorage {
 
   private final Path root;
 
-  public LocalFileStorage(StorageProperties properties) {
-    this.root = Path.of(properties.localDir()).toAbsolutePath().normalize();
+  public LocalFileStorage(Path root) {
+    this.root = root.toAbsolutePath().normalize();
   }
 
   @Override
@@ -37,6 +33,12 @@ public class LocalFileStorage implements FileStorage {
   @Override
   public void delete(String key) throws IOException {
     Files.deleteIfExists(resolve(key));
+  }
+
+  /** A file: link; only meaningful on this machine. */
+  @Override
+  public URI temporaryLink(String key, Duration validFor) {
+    return resolve(key).toUri();
   }
 
   /** Keeps every key inside the root folder, so "../../etc/passwd" can't escape it. */

@@ -23,6 +23,7 @@ val mapstructVersion = "1.6.3"
 val springdocVersion = "3.1.1"
 val archunitVersion = "1.5.1"
 val bucket4jVersion = "8.21.0"
+val awsSdkVersion = "2.46.7"
 // 1.37.0 is not yet compatible with Spotless 8.10.4
 val googleJavaFormatVersion = "1.36.1"
 
@@ -50,6 +51,12 @@ dependencies {
     implementation("com.bucket4j:bucket4j_jdk17-core:$bucket4jVersion")
     implementation("com.bucket4j:bucket4j_jdk17-lettuce:$bucket4jVersion")
     implementation("org.flywaydb:flyway-database-postgresql")
+    // File storage over the S3 API: SeaweedFS locally, AWS S3 in production
+    implementation(platform("software.amazon.awssdk:bom:$awsSdkVersion"))
+    implementation("software.amazon.awssdk:s3") {
+        // We only use the blocking client; the async Netty client is not needed
+        exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
+    }
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")

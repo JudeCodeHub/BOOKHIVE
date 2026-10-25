@@ -49,6 +49,21 @@ services:
       - "8025:8025" # Web UI: open http://localhost:8025 to read them
     restart: unless-stopped
 
+  # S3-compatible file storage for uploads (membership documents, later book covers).
+  # Production uses AWS S3 with the same code. (MinIO no longer publishes free Docker images.)
+  # The backend creates its bucket on first start. S3 API: http://localhost:8333
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    container_name: bookhive-seaweedfs
+    command: ["server", "-dir=/data", "-s3", "-s3.config=/etc/seaweedfs/s3.json"]
+    ports:
+      - "8333:8333"
+    volumes:
+      - seaweedfs-data:/data
+      # Dev access key (no anonymous access, so every bucket is private)
+      - ./seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    restart: unless-stopped
+
   # Optional: only starts with --profile app. Day to day you run the backend from the IDE
   # (./gradlew bootRun); this is for running the whole stack in containers.
   #   docker compose -f infra/docker-compose.yml --profile app up -d --build
@@ -65,6 +80,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-bookhive}
       MAIL_HOST: mailpit
       REDIS_HOST: redis
+      S3_ENDPOINT: http://seaweedfs:8333
     ports:
       - "8080:8080"
     depends_on:
@@ -106,3 +122,4 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  seaweedfs-data:

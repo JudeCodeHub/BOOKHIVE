@@ -87,10 +87,7 @@ public class MembershipApplicationController {
         document == null || document.isEmpty()
             ? null
             : new Upload(
-                document.getInputStream(),
-                document.getSize(),
-                document.getContentType(),
-                document.getOriginalFilename());
+                document.getInputStream(), document.getSize(), document.getOriginalFilename());
     Member member = applications.apply(UUID.fromString(jwt.getSubject()), form, upload);
     return ApplicationResponse.from(member);
   }

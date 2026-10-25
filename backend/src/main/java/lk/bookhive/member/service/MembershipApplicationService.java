@@ -10,9 +10,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import lk.bookhive.common.audit.AuditService;
+import lk.bookhive.common.crypto.FieldEncryption;
 import lk.bookhive.common.exception.ConflictException;
 import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.storage.FileStorage;
+import lk.bookhive.common.storage.UploadCheck;
+import lk.bookhive.common.storage.UploadCheck.CheckedUpload;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.member.domain.DocumentKind;
 import lk.bookhive.member.domain.Member;
@@ -44,6 +47,7 @@ public class MembershipApplicationService {
   private final FileStorage storage;
   private final AuditService audit;
   private final LibraryTime time;
+  private final FieldEncryption encryption;
 
   public MembershipApplicationService(
       MemberRepository members,
@@ -51,13 +55,15 @@ public class MembershipApplicationService {
       MemberDocumentRepository documents,
       FileStorage storage,
       AuditService audit,
-      LibraryTime time) {
+      LibraryTime time,
+      FieldEncryption encryption) {
     this.members = members;
     this.types = types;
     this.documents = documents;
     this.storage = storage;
     this.audit = audit;
     this.time = time;
+    this.encryption = encryption;
   }
 
   /** What the applicant sends, before checking. */
@@ -70,7 +76,7 @@ public class MembershipApplicationService {
       String postalCode) {}
 
   /** An uploaded file, independent of the web layer. */
-  public record Upload(InputStream content, long sizeBytes, String contentType, String filename) {}
+  public record Upload(InputStream content, long sizeBytes, String filename) {}
 
   /**
    * Checks the application against the chosen type's rules and saves it as PENDING, with the proof
@@ -112,6 +118,7 @@ public class MembershipApplicationService {
         new ApplicationDetails(
             type,
             nic,
+            encryption.lookupHash(nic),
             form.dateOfBirth(),
             form.addressLine().strip(),
             form.city().strip(),
@@ -165,14 +172,23 @@ public class MembershipApplicationService {
   private void saveDocument(Member member, DocumentKind kind, Upload upload) {
     // Random key: never derived from the user's file name
     String key = "member-documents/" + member.getId() + "/" + UUID.randomUUID();
-    try (InputStream content = upload.content()) {
-      storage.put(key, content, upload.sizeBytes(), upload.contentType());
+    String contentType;
+    try (InputStream raw = upload.content()) {
+      // Size and real file type (from the first bytes), not what the browser claims
+      CheckedUpload checked = UploadCheck.document("document", raw, upload.sizeBytes());
+      contentType = checked.type().contentType();
+      storage.put(key, checked.content(), upload.sizeBytes(), contentType);
     } catch (IOException e) {
       throw new UncheckedIOException("Could not store the uploaded document", e);
     }
     documents.save(
         new MemberDocument(
-            member, kind, key, upload.contentType(), upload.sizeBytes(), upload.filename()));
+            member, kind, key, contentType, upload.sizeBytes(), shorten(upload.filename())));
+  }
+
+  /** Kept only to show staff; the column holds 255 characters. */
+  private static String shorten(String filename) {
+    return filename == null || filename.length() <= 255 ? filename : filename.substring(0, 255);
   }
 
   private static String blankToNull(String value) {

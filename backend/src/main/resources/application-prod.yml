@@ -24,6 +24,21 @@ spring:
 bookhive:
   mail:
     frontend-url: ${FRONTEND_URL}
+  # AWS S3 itself: no endpoint override, credentials from the server's IAM role.
+  # The bucket is created by infrastructure with "Block all public access" on.
+  storage:
+    s3:
+      endpoint: ""
+      region: ${S3_REGION}
+      bucket: ${S3_BUCKET}
+      access-key: ""
+      secret-key: ""
+      path-style: false
+      create-bucket: false
+  # Encrypts NIC numbers in the database. 32 random bytes, Base64. Losing it makes stored NICs
+  # unreadable, so keep a copy in AWS Secrets Manager.
+  crypto:
+    field-key: ${FIELD_ENCRYPTION_KEY}
   cors:
     # Comma-separated, e.g. https://bookhive.lk,https://www.bookhive.lk
     allowed-origins: ${CORS_ALLOWED_ORIGINS}
