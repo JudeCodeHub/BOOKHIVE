@@ -20,4 +20,10 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
   Optional<Book> findByIsbn13(String isbn13);
 
   Optional<Book> findByIsbn10(String isbn10);
+
+  /** Is any book from this publisher? (Then it can't be deleted.) */
+  boolean existsByPublisherId(UUID publisherId);
+
+  /** Is any book in this category? (Then it can't be deleted.) */
+  boolean existsByCategoriesId(UUID categoryId);
 }
