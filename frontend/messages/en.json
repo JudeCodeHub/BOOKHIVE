@@ -72,7 +72,8 @@
     "account": "My account",
     "staff": "Staff console",
     "admin": "Admin console",
-    "logout": "Log out"
+    "logout": "Log out",
+    "loggedOut": "You're logged out. See you soon!"
   },
   "Footer": {
     "label": "Footer",
@@ -247,6 +248,10 @@
       "newLink": "Get a new link",
       "missingTitle": "No link found",
       "missingText": "Open the link from the email we sent you."
+    },
+    "session": {
+      "expired": "Your session has ended. Please log in again.",
+      "otherTab": "You logged out in another tab."
     }
   },
   "Settings": {
