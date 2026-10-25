@@ -41,6 +41,8 @@ public class MembershipApplicationService {
   // Old NIC: 9 digits + V or X (e.g. 851234567V). New NIC (since 2016): 12 digits.
   private static final Pattern NIC = Pattern.compile("^(\\d{9}[VX]|\\d{12})$");
 
+  private static final int ADULT_AGE = 18;
+
   private final MemberRepository members;
   private final MembershipTypeRepository types;
   private final MemberDocumentRepository documents;
@@ -73,7 +75,8 @@ public class MembershipApplicationService {
       LocalDate dateOfBirth,
       String addressLine,
       String city,
-      String postalCode) {}
+      String postalCode,
+      String guardianMemberNo) {}
 
   /** An uploaded file, independent of the web layer. */
   public record Upload(InputStream content, long sizeBytes, String filename) {}
@@ -108,6 +111,7 @@ public class MembershipApplicationService {
 
     checkAge(type, form.dateOfBirth());
     String nic = checkNic(type, form.nic());
+    Member guardian = checkGuardian(type, form.guardianMemberNo());
     if (type.getRequiredDocument() != RequiredDocument.NONE
         && (document == null || document.sizeBytes() == 0)) {
       throw new FieldValidationException(
@@ -122,7 +126,8 @@ public class MembershipApplicationService {
             form.dateOfBirth(),
             form.addressLine().strip(),
             form.city().strip(),
-            blankToNull(form.postalCode()));
+            blankToNull(form.postalCode()),
+            guardian);
     Member member;
     if (existing == null) {
       member = members.save(Member.apply(userId, details, time.now()));
@@ -154,6 +159,41 @@ public class MembershipApplicationService {
           "AGE_NOT_ALLOWED",
           "Your age doesn't match this membership type. Please choose another type.");
     }
+  }
+
+  /**
+   * Junior members need an active adult member as guardian (MEM-2), given by member number. Staff
+   * still check the relationship when they review the application.
+   */
+  private Member checkGuardian(MembershipType type, String guardianMemberNo) {
+    if (!type.isRequiresGuardian()) {
+      return null;
+    }
+    if (guardianMemberNo == null || guardianMemberNo.isBlank()) {
+      throw new FieldValidationException(
+          "guardianMemberNo",
+          "GUARDIAN_REQUIRED",
+          "A junior member needs a parent or guardian who is a library member.");
+    }
+    Member guardian =
+        members
+            .findByMemberNo(guardianMemberNo.strip().toUpperCase(Locale.ROOT))
+            .orElseThrow(
+                () ->
+                    new FieldValidationException(
+                        "guardianMemberNo",
+                        "GUARDIAN_NOT_FOUND",
+                        "No member has this number. Check the guardian's library card."));
+    if (guardian.getStatus() != MemberStatus.ACTIVE) {
+      throw new FieldValidationException(
+          "guardianMemberNo", "GUARDIAN_NOT_ACTIVE", "The guardian's membership is not active.");
+    }
+    int guardianAge = Period.between(guardian.getDateOfBirth(), time.today()).getYears();
+    if (guardian.getMembershipType().isRequiresGuardian() || guardianAge < ADULT_AGE) {
+      throw new FieldValidationException(
+          "guardianMemberNo", "GUARDIAN_NOT_ADULT", "The guardian must be an adult member.");
+    }
+    return guardian;
   }
 
   /** Returns the NIC in standard form (upper case, no spaces), or null if the type needs none. */
