@@ -53,7 +53,9 @@ public class MembershipApplicationController {
       @NotNull @Past LocalDate dateOfBirth,
       @NotBlank @Size(max = 200) String addressLine,
       @NotBlank @Size(max = 80) String city,
-      @Pattern(regexp = "^$|^[0-9]{5}$", message = "must be 5 digits") String postalCode) {}
+      @Pattern(regexp = "^$|^[0-9]{5}$", message = "must be 5 digits") String postalCode,
+      // Junior applications only: the parent's or guardian's member number, e.g. BH-000123
+      @Size(max = 12) String guardianMemberNo) {}
 
   public record ApplicationResponse(
       UUID id, MemberStatus status, String membershipType, Instant appliedAt) {
@@ -82,7 +84,8 @@ public class MembershipApplicationController {
             request.dateOfBirth(),
             request.addressLine(),
             request.city(),
-            request.postalCode());
+            request.postalCode(),
+            request.guardianMemberNo());
     Upload upload =
         document == null || document.isEmpty()
             ? null

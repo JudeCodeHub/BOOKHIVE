@@ -3,9 +3,12 @@ package lk.bookhive.auth.service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lk.bookhive.auth.config.AuthProperties;
 import lk.bookhive.auth.domain.Role;
 import lk.bookhive.auth.domain.User;
@@ -171,6 +174,13 @@ public class AuthService {
   @Transactional(readOnly = true)
   public User getProfile(UUID userId) {
     return requireUser(userId);
+  }
+
+  /** Several accounts at once by id, e.g. names and emails for the staff application queue. */
+  @Transactional(readOnly = true)
+  public Map<UUID, User> findUsers(Collection<UUID> userIds) {
+    return users.findAllById(userIds).stream()
+        .collect(Collectors.toMap(User::getId, Function.identity()));
   }
 
   /** Edits name, phone and/or language (PATCH /me). Null arguments are left unchanged. */

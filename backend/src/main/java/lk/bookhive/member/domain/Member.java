@@ -106,9 +106,42 @@ public class Member extends BaseEntity {
     this.addressLine = details.addressLine();
     this.city = details.city();
     this.postalCode = details.postalCode();
+    this.guardian = details.guardian();
     this.status = MemberStatus.PENDING;
     this.statusReason = null;
     this.appliedAt = now;
+  }
+
+  /**
+   * Staff accept the application: the person becomes an active member for one year (PRD §4.1).
+   *
+   * @param memberNo a fresh number from MemberNumberGenerator
+   */
+  public void approve(UUID staffId, String memberNo, LocalDate today, Instant now) {
+    requirePending();
+    this.memberNo = memberNo;
+    this.status = MemberStatus.ACTIVE;
+    this.approvedBy = staffId;
+    this.approvedAt = now;
+    this.expiresAt = today.plusYears(1);
+    this.statusReason = null;
+  }
+
+  /** Staff turn the application down; the reason is shown to the applicant. */
+  public void reject(String reason) {
+    requirePending();
+    this.status = MemberStatus.REJECTED;
+    this.statusReason = reason;
+  }
+
+  public boolean isPending() {
+    return status == MemberStatus.PENDING;
+  }
+
+  private void requirePending() {
+    if (status != MemberStatus.PENDING) {
+      throw new IllegalStateException("Application is " + status + ", not PENDING");
+    }
   }
 
   /** What the applicant fills in; already validated by the service. */
@@ -119,7 +152,8 @@ public class Member extends BaseEntity {
       LocalDate dateOfBirth,
       String addressLine,
       String city,
-      String postalCode) {}
+      String postalCode,
+      Member guardian) {}
 
   public UUID getUserId() {
     return userId;
