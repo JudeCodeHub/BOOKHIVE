@@ -37,6 +37,12 @@ spring:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}
 
+  # Uploads (membership documents): photos/scans up to 5 MB. Type checks: checklist step 127
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
   mvc:
     # Spring's built-in errors use RFC 7807 ProblemDetail, like ours.
     problemdetails:
@@ -96,6 +102,9 @@ bookhive:
     email: ${BOOTSTRAP_ADMIN_EMAIL:}
     password: ${BOOTSTRAP_ADMIN_PASSWORD:}
     full-name: ${BOOTSTRAP_ADMIN_NAME:Administrator}
+  # Uploaded files. Local folder for now; MinIO / S3 in checklist step 126
+  storage:
+    local-dir: ${STORAGE_LOCAL_DIR:uploads}
   # Per-IP limits on endpoints attackers like to hammer (PRD §6 Security)
   rate-limit:
     enabled: true
