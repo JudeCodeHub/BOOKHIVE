@@ -1,4 +1,4 @@
-package lk.bookhive.member.service;
+package lk.bookhive.common.barcode;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -26,25 +26,25 @@ import org.springframework.stereotype.Component;
  * </ul>
  */
 @Component
-public class CardCodes {
+public class BarcodeImages {
 
   private static final int BLACK = 0xFF000000;
   private static final int WHITE = 0xFFFFFFFF;
 
-  /** PNG barcode, sized for the card (wide and short). */
-  public byte[] barcodePng(String memberNo) {
+  /** PNG barcode (wide and short). */
+  public byte[] barcodePng(String text) {
     return png(
         new Code128Writer()
-            .encode(memberNo, BarcodeFormat.CODE_128, 600, 120, Map.of(EncodeHintType.MARGIN, 10)));
+            .encode(text, BarcodeFormat.CODE_128, 600, 120, Map.of(EncodeHintType.MARGIN, 10)));
   }
 
   /** PNG QR code. Level M: up to ~15% of it can be damaged and it still scans. */
-  public byte[] qrPng(String memberNo) {
+  public byte[] qrPng(String text) {
     try {
       return png(
           new QRCodeWriter()
               .encode(
-                  memberNo,
+                  text,
                   BarcodeFormat.QR_CODE,
                   300,
                   300,

@@ -12,10 +12,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import lk.bookhive.common.domain.BaseEntity;
 import lk.bookhive.common.domain.Money;
+import lk.bookhive.common.exception.ConflictException;
 
 /**
  * One physical item of a book (table {@code copies}, ADR 0003): what the desk scans and lends.
- * Status changes go through methods added with the copy rules (steps 159, 165, 166).
+ * Status changes go through methods named after what happens ({@link #withdraw}); loans and holds
+ * add theirs in the circulation phase.
  */
 @Entity
 @Table(name = "copies")
@@ -85,6 +87,25 @@ public class Copy extends BaseEntity {
     this.acquisitionSource = details.acquisitionSource();
     this.price = details.price() == null ? null : details.price().amount();
     this.notes = blankToNull(details.notes());
+  }
+
+  /**
+   * Takes the copy out of the collection for good (damaged beyond repair, outdated, lost and
+   * written off). Not while someone has it or it's waiting for a member: that would break their
+   * loan or hold (checklist step 165). The row stays, so loan and fine history remain correct.
+   */
+  public void withdraw() {
+    if (status == CopyStatus.WITHDRAWN) {
+      throw new ConflictException("COPY_ALREADY_WITHDRAWN", "This copy is already withdrawn.");
+    }
+    if (status == CopyStatus.ON_LOAN || status == CopyStatus.ON_HOLD_SHELF) {
+      throw new ConflictException(
+          "COPY_IN_USE",
+          status == CopyStatus.ON_LOAN
+              ? "This copy is on loan. Check it in first."
+              : "This copy is waiting on the hold shelf for a member.");
+    }
+    this.status = CopyStatus.WITHDRAWN;
   }
 
   private static String blankToNull(String value) {
