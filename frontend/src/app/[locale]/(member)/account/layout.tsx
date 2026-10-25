@@ -6,6 +6,7 @@ import {
   CreditCard,
   Heart,
   History,
+  IdCard,
   LayoutDashboard,
   Settings,
   Wallet,
@@ -23,6 +24,7 @@ export default function MemberLayout({ children }: LayoutProps<"/[locale]/accoun
   // Member portal pages (PRD §10)
   const nav: NavItem[] = [
     { href: "/account", label: t("dashboard"), icon: <LayoutDashboard /> },
+    { href: "/account/membership", label: t("membership"), icon: <IdCard /> },
     { href: "/account/loans", label: t("loans"), icon: <BookOpen /> },
     { href: "/account/holds", label: t("holds"), icon: <BookMarked /> },
     { href: "/account/fines", label: t("fines"), icon: <Wallet /> },

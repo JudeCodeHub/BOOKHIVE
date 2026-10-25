@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
@@ -11,8 +12,10 @@ import lk.bookhive.member.domain.Member;
 import lk.bookhive.member.domain.MemberStatus;
 import lk.bookhive.member.service.MembershipService;
 import lk.bookhive.member.service.MembershipService.Renewal;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +44,41 @@ public class MembershipController {
       return new RenewalResponse(
           member.getMemberNo(), member.getStatus(), member.getExpiresAt(), renewal.fee().amount());
     }
+  }
+
+  /**
+   * My membership or application. 204 No Content if I never applied.
+   *
+   * @param statusReason why it was rejected or suspended
+   */
+  public record MembershipResponse(
+      UUID id,
+      MemberStatus status,
+      String membershipType,
+      String memberNo,
+      Instant appliedAt,
+      LocalDate expiresAt,
+      String statusReason) {
+
+    static MembershipResponse from(Member member) {
+      return new MembershipResponse(
+          member.getId(),
+          member.getStatus(),
+          member.getMembershipType().getCode(),
+          member.getMemberNo(),
+          member.getAppliedAt(),
+          member.getExpiresAt(),
+          member.getStatusReason());
+    }
+  }
+
+  @GetMapping
+  @Operation(summary = "My membership or application (204 if none)")
+  public ResponseEntity<MembershipResponse> mine(@AuthenticationPrincipal Jwt jwt) {
+    Member member = memberships.findOwn(UUID.fromString(jwt.getSubject()));
+    return member == null
+        ? ResponseEntity.noContent().build()
+        : ResponseEntity.ok(MembershipResponse.from(member));
   }
 
   @PostMapping("/renew")

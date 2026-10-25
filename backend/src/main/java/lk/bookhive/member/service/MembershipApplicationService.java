@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -80,6 +81,12 @@ public class MembershipApplicationService {
 
   /** An uploaded file, independent of the web layer. */
   public record Upload(InputStream content, long sizeBytes, String filename) {}
+
+  /** Types someone can apply for now, for the application form. */
+  @Transactional(readOnly = true)
+  public List<MembershipType> activeTypes() {
+    return types.findByActiveTrueOrderByCode();
+  }
 
   /**
    * Checks the application against the chosen type's rules and saves it as PENDING, with the proof
