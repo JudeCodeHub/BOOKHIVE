@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -19,17 +20,22 @@ import lk.bookhive.catalog.domain.BookFormat;
 import lk.bookhive.catalog.service.BookService;
 import lk.bookhive.catalog.service.BookService.BookForm;
 import lk.bookhive.catalog.service.BookService.ContributorForm;
+import lk.bookhive.catalog.service.CoverService;
 import lk.bookhive.common.config.OpenApiConfig;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /** Cataloguing titles (librarians and admins). Reading a book: GET /books/{id}. */
 @RestController
@@ -39,9 +45,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class StaffBookController {
 
   private final BookService books;
+  private final CoverService covers;
 
-  public StaffBookController(BookService books) {
+  public StaffBookController(BookService books, CoverService covers) {
     this.books = books;
+    this.covers = covers;
   }
 
   public record ContributorRequest(@NotNull UUID authorId, AuthorRole role) {}
@@ -104,6 +112,24 @@ public class StaffBookController {
       @PathVariable UUID id,
       @Valid @RequestBody BookRequest request) {
     return BookResponse.from(books.update(id, request.form(), staffId(jwt)));
+  }
+
+  @PostMapping(path = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Operation(summary = "Upload or replace the cover (JPG or PNG, up to 5 MB)")
+  public BookResponse uploadCover(
+      @AuthenticationPrincipal Jwt jwt,
+      @PathVariable UUID id,
+      @RequestPart("cover") MultipartFile cover)
+      throws IOException {
+    covers.upload(id, cover.getInputStream(), cover.getSize(), staffId(jwt));
+    return BookResponse.from(books.get(id));
+  }
+
+  @DeleteMapping("/{id}/cover")
+  @Operation(summary = "Remove the cover")
+  public BookResponse removeCover(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+    covers.remove(id, staffId(jwt));
+    return BookResponse.from(books.get(id));
   }
 
   private static UUID staffId(Jwt jwt) {

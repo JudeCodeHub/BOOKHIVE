@@ -7,6 +7,7 @@ import lk.bookhive.catalog.domain.AuthorRole;
 import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.domain.BookAuthor;
 import lk.bookhive.catalog.domain.BookFormat;
+import lk.bookhive.catalog.service.CoverService;
 
 /** Book JSON shared by the public and the staff endpoints. */
 final class BookResponses {
@@ -44,7 +45,8 @@ final class BookResponses {
       String callNumber,
       PublisherSummary publisher,
       List<ContributorSummary> contributors,
-      List<CategorySummary> categories) {
+      List<CategorySummary> categories,
+      String coverVersion) {
 
     static BookResponse from(Book book) {
       return new BookResponse(
@@ -64,7 +66,8 @@ final class BookResponses {
               ? null
               : new PublisherSummary(book.getPublisher().getId(), book.getPublisher().getName()),
           book.getContributors().stream().map(ContributorSummary::from).toList(),
-          book.getCategories().stream().map(CategorySummary::from).toList());
+          book.getCategories().stream().map(CategorySummary::from).toList(),
+          CoverService.version(book));
     }
   }
 }

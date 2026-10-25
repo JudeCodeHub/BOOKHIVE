@@ -85,6 +85,20 @@ public final class UploadCheck {
     return new CheckedUpload(type, buffered);
   }
 
+  /**
+   * A picture (book covers): JPEG or PNG only, because those are what Java can read to make the
+   * thumbnails. Same size limit as documents.
+   */
+  public static CheckedUpload image(String field, InputStream content, long sizeBytes)
+      throws IOException {
+    CheckedUpload checked = document(field, content, sizeBytes);
+    if (checked.type() != DocumentType.JPEG && checked.type() != DocumentType.PNG) {
+      throw new FieldValidationException(
+          field, "FILE_TYPE_NOT_ALLOWED", "Upload a JPG or PNG picture.");
+    }
+    return checked;
+  }
+
   static Optional<DocumentType> detect(byte[] head) {
     return Arrays.stream(DocumentType.values()).filter(type -> type.matches(head)).findFirst();
   }

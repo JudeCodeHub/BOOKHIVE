@@ -26,6 +26,7 @@ val bucket4jVersion = "8.21.0"
 val awsSdkVersion = "2.46.7"
 val zxingVersion = "3.5.4"
 val openpdfVersion = "3.0.5"
+val thumbnailatorVersion = "0.4.21"
 // 1.37.0 is not yet compatible with Spotless 8.10.4
 val googleJavaFormatVersion = "1.36.1"
 
@@ -62,6 +63,8 @@ dependencies {
     // Library card: Code128 barcode + QR code images, and the printable card PDF
     implementation("com.google.zxing:core:$zxingVersion")
     implementation("com.github.librepdf:openpdf:$openpdfVersion")
+    // Book covers: resized into small/medium/large thumbnails on upload
+    implementation("net.coobird:thumbnailator:$thumbnailatorVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
