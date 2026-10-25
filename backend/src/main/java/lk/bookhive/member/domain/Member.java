@@ -31,7 +31,8 @@ public class Member extends BaseEntity {
   @Column(length = 12)
   private String memberNo;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  // Eager: almost every use needs the type's rules, and there are only a handful of types
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
   @JoinColumn(name = "membership_type_id", nullable = false)
   private MembershipType membershipType;
 

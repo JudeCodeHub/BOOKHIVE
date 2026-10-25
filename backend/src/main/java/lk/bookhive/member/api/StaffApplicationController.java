@@ -68,7 +68,7 @@ public class StaffApplicationController {
   }
 
   /** Everything staff need to decide, including the NIC (decrypted) and document links. */
-  public record ApplicationDetail(
+  public record ApplicationDetailResponse(
       UUID id,
       MemberStatus status,
       String fullName,
@@ -84,16 +84,16 @@ public class StaffApplicationController {
       Instant appliedAt,
       String memberNo,
       String statusReason,
-      List<DocumentLink> documents) {}
+      List<DocumentLinkResponse> documents) {}
 
   /**
    * @param url works for a few minutes only; ask for the application again for a fresh one
    */
-  public record DocumentLink(
+  public record DocumentLinkResponse(
       UUID id, DocumentKind kind, String contentType, long sizeBytes, URI url) {
 
-    static DocumentLink from(DocumentView view) {
-      return new DocumentLink(
+    static DocumentLinkResponse from(DocumentView view) {
+      return new DocumentLinkResponse(
           view.document().getId(),
           view.document().getKind(),
           view.document().getContentType(),
@@ -114,20 +114,21 @@ public class StaffApplicationController {
 
   @GetMapping("/{id}")
   @Operation(summary = "One application with its documents")
-  public ApplicationDetail get(@PathVariable UUID id) {
+  public ApplicationDetailResponse get(@PathVariable UUID id) {
     return detail(reviews.get(id), id);
   }
 
   @PostMapping("/{id}/approve")
   @Operation(summary = "Approve: assigns the member number, emails the member")
-  public ApplicationDetail approve(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+  public ApplicationDetailResponse approve(
+      @AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
     reviews.approve(id, staffId(jwt));
     return detail(reviews.get(id), id);
   }
 
   @PostMapping("/{id}/reject")
   @Operation(summary = "Reject with a reason, which is emailed to the applicant")
-  public ApplicationDetail reject(
+  public ApplicationDetailResponse reject(
       @AuthenticationPrincipal Jwt jwt,
       @PathVariable UUID id,
       @Valid @RequestBody RejectRequest request) {
@@ -135,9 +136,9 @@ public class StaffApplicationController {
     return detail(reviews.get(id), id);
   }
 
-  private ApplicationDetail detail(ApplicationView view, UUID id) {
+  private ApplicationDetailResponse detail(ApplicationView view, UUID id) {
     Member member = view.member();
-    return new ApplicationDetail(
+    return new ApplicationDetailResponse(
         member.getId(),
         member.getStatus(),
         view.applicant().getFullName(),
@@ -153,7 +154,7 @@ public class StaffApplicationController {
         member.getAppliedAt(),
         member.getMemberNo(),
         member.getStatusReason(),
-        reviews.documents(id).stream().map(DocumentLink::from).toList());
+        reviews.documents(id).stream().map(DocumentLinkResponse::from).toList());
   }
 
   private static UUID staffId(Jwt jwt) {

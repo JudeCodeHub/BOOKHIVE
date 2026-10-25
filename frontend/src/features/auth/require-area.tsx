@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, type ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { afterLoginPath } from "@/features/auth/redirects";
 import { canOpen, type Area } from "@/features/auth/session-hint";
@@ -15,8 +15,25 @@ import { usePathname, useRouter } from "@/i18n/navigation";
  *
  * Shows a loader until the session is known, so private content never flashes for a visitor.
  */
-export function RequireArea({ area, children }: { area: Area; children: ReactNode }) {
+export function RequireArea(props: { area: Area; children: ReactNode }) {
+  // It reads the current URL (for ?next=), which pages with an [id] only know in the browser
+  return (
+    <Suspense fallback={<AreaLoader />}>
+      <Guard {...props} />
+    </Suspense>
+  );
+}
+
+function AreaLoader() {
   const t = useTranslations("Common");
+  return (
+    <div className="flex flex-1 items-center justify-center p-16">
+      <HexLoader label={t("loading")} />
+    </div>
+  );
+}
+
+function Guard({ area, children }: { area: Area; children: ReactNode }) {
   const { status, user } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -32,11 +49,7 @@ export function RequireArea({ area, children }: { area: Area; children: ReactNod
   }, [status, user, allowed, pathname, router]);
 
   if (!allowed) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-16">
-        <HexLoader label={t("loading")} />
-      </div>
-    );
+    return <AreaLoader />;
   }
   return children;
 }
