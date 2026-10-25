@@ -116,6 +116,13 @@ bookhive:
       secret-key: ${S3_SECRET_KEY:bookhive-dev-secret}
       path-style: true
       create-bucket: true
+  # "Lookup ISBN" while cataloguing (Open Library). Cached in Redis.
+  isbn-lookup:
+    base-url: ${ISBN_LOOKUP_URL:https://openlibrary.org}
+    timeout: 5s
+    user-agent: "BookHive/0.1 (public library catalogue; https://bookhive.lk)"
+    cache-ttl: 7d
+    not-found-ttl: 1d
   # Per-IP limits on endpoints attackers like to hammer (PRD §6 Security)
   rate-limit:
     enabled: true
