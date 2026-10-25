@@ -10,12 +10,17 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
+import lk.bookhive.common.domain.Language;
 import lk.bookhive.member.domain.Member;
 import lk.bookhive.member.domain.MemberStatus;
+import lk.bookhive.member.domain.MembershipType;
+import lk.bookhive.member.domain.RequiredDocument;
 import lk.bookhive.member.service.MembershipApplicationService;
 import lk.bookhive.member.service.MembershipApplicationService.ApplicationForm;
 import lk.bookhive.member.service.MembershipApplicationService.Upload;
@@ -23,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -46,6 +52,45 @@ public class MembershipApplicationController {
     this.applications = applications;
   }
 
+  /**
+   * A membership type as shown on the application form, with its name in all three languages.
+   *
+   * @param minAge null = no lower limit; maxAge null = no upper limit
+   * @param annualFee LKR per year, 0 = free
+   */
+  public record MembershipTypeResponse(
+      String code,
+      String nameEn,
+      String nameSi,
+      String nameTa,
+      Integer minAge,
+      Integer maxAge,
+      int maxItems,
+      int loanDays,
+      int maxRenewals,
+      int maxHolds,
+      BigDecimal annualFee,
+      RequiredDocument requiredDocument,
+      boolean requiresGuardian) {
+
+    static MembershipTypeResponse from(MembershipType type) {
+      return new MembershipTypeResponse(
+          type.getCode(),
+          type.getName(Language.EN),
+          type.getName(Language.SI),
+          type.getName(Language.TA),
+          type.getMinAge(),
+          type.getMaxAge(),
+          type.getMaxItems(),
+          type.getLoanDays(),
+          type.getMaxRenewals(),
+          type.getMaxHolds(),
+          type.getAnnualFee().amount(),
+          type.getRequiredDocument(),
+          type.isRequiresGuardian());
+    }
+  }
+
   /** The form fields, sent as the JSON part "application" of a multipart request. */
   public record ApplicationRequest(
       @NotBlank @Size(max = 30) String membershipType,
@@ -67,6 +112,12 @@ public class MembershipApplicationController {
           member.getMembershipType().getCode(),
           member.getAppliedAt());
     }
+  }
+
+  @GetMapping("/types")
+  @Operation(summary = "Membership types open for applications (public)")
+  public List<MembershipTypeResponse> types() {
+    return applications.activeTypes().stream().map(MembershipTypeResponse::from).toList();
   }
 
   @PostMapping(path = "/applications", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -86,6 +86,7 @@
   "MemberNav": {
     "label": "My account",
     "dashboard": "Dashboard",
+    "membership": "Membership",
     "loans": "My loans",
     "holds": "Holds",
     "fines": "Fines & payments",
@@ -284,6 +285,96 @@
       "submit": "Change password",
       "submitting": "Changing…",
       "changed": "Password changed. Your other devices have been logged out."
+    }
+  },
+  "Membership": {
+    "metaTitle": "Membership",
+    "title": "Library membership",
+    "intro": "Apply online in a few minutes. Staff check your application, usually within two working days.",
+    "steps": {
+      "label": "Application steps",
+      "type": "Type",
+      "details": "Your details",
+      "document": "Document",
+      "review": "Check & send",
+      "progress": "Step {current} of {total}"
+    },
+    "type": {
+      "legend": "Choose a membership type",
+      "age": "Age {range}",
+      "ageFrom": "{min}+",
+      "ageUnder": "under {max}",
+      "ageBetween": "{min}–{max}",
+      "free": "Free",
+      "fee": "LKR {fee} per year",
+      "items": "Borrow up to {count} books for {days} days",
+      "needsNic": "NIC needed",
+      "needsStudentId": "Student ID needed",
+      "needsGuardian": "Needs a parent or guardian who is a member"
+    },
+    "details": {
+      "dateOfBirth": "Date of birth",
+      "nic": "NIC number",
+      "nicHint": "Old (851234567V) or new (198512345678) format.",
+      "guardian": "Parent or guardian's member number",
+      "guardianHint": "From their library card, e.g. BH-000123. They must be an adult member.",
+      "address": "Address",
+      "city": "City",
+      "postalCode": "Postal code (optional)"
+    },
+    "document": {
+      "nicTitle": "Photo of your NIC",
+      "studentIdTitle": "Photo of your student ID",
+      "hint": "A clear photo or scan of the front: JPG, PNG, WebP or PDF, up to 5 MB.",
+      "choose": "Choose a file",
+      "selected": "Selected: {name}",
+      "privacy": "Only library staff can see it. It's deleted after your application is decided."
+    },
+    "review": {
+      "intro": "Please check your details before sending.",
+      "type": "Membership type",
+      "edit": "Edit",
+      "noDocument": "No document needed"
+    },
+    "back": "Back",
+    "next": "Next",
+    "submit": "Send application",
+    "submitting": "Sending…",
+    "sent": "Application sent! We'll email you when it's been reviewed.",
+    "rejected": "Your last application was not approved.",
+    "rejectedReason": "Reason: {reason}",
+    "applyAgain": "You can correct this and apply again below.",
+    "status": {
+      "PENDING": "Your application is waiting for review.",
+      "ACTIVE": "You're a member.",
+      "SUSPENDED": "Your membership is suspended.",
+      "EXPIRED": "Your membership has expired.",
+      "REJECTED": "Your application was not approved.",
+      "memberNo": "Member number: {memberNo}",
+      "expires": "Valid until {date}"
+    },
+    "validation": {
+      "ageNotAllowed": "Your age doesn't match this membership type.",
+      "nic": "Enter your NIC, e.g. 851234567V or 198512345678.",
+      "postalCode": "Postal codes have 5 digits.",
+      "document": "Please upload a photo or scan of your document.",
+      "fileTooLarge": "The file is too large. The limit is 5 MB.",
+      "fileType": "Upload a photo (JPG, PNG, WebP) or a PDF."
+    },
+    "errors": {
+      "APPLICATION_EXISTS": "You have already applied.",
+      "MEMBERSHIP_TYPE_UNKNOWN": "Choose one of the membership types.",
+      "AGE_NOT_ALLOWED": "Your age doesn't match this membership type.",
+      "DATE_OF_BIRTH_INVALID": "Enter your date of birth.",
+      "NIC_INVALID": "Enter your NIC, e.g. 851234567V or 198512345678.",
+      "DOCUMENT_REQUIRED": "Please upload a photo or scan of your document.",
+      "GUARDIAN_REQUIRED": "A junior member needs a parent or guardian who is a member.",
+      "GUARDIAN_NOT_FOUND": "No member has this number. Check the guardian's library card.",
+      "GUARDIAN_NOT_ACTIVE": "The guardian's membership is not active.",
+      "GUARDIAN_NOT_ADULT": "The guardian must be an adult member.",
+      "FILE_TOO_LARGE": "The file is too large. The limit is 5 MB.",
+      "FILE_EMPTY": "The file is empty.",
+      "FILE_TYPE_NOT_ALLOWED": "Upload a photo (JPG, PNG, WebP) or a PDF."
     }
   }
 }

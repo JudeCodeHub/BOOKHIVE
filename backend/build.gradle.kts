@@ -24,6 +24,8 @@ val springdocVersion = "3.1.1"
 val archunitVersion = "1.5.1"
 val bucket4jVersion = "8.21.0"
 val awsSdkVersion = "2.46.7"
+val zxingVersion = "3.5.4"
+val openpdfVersion = "3.0.5"
 // 1.37.0 is not yet compatible with Spotless 8.10.4
 val googleJavaFormatVersion = "1.36.1"
 
@@ -57,6 +59,9 @@ dependencies {
         // We only use the blocking client; the async Netty client is not needed
         exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
     }
+    // Library card: Code128 barcode + QR code images, and the printable card PDF
+    implementation("com.google.zxing:core:$zxingVersion")
+    implementation("com.github.librepdf:openpdf:$openpdfVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
