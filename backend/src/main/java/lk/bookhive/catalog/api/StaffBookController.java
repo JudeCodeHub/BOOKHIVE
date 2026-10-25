@@ -1,0 +1,112 @@
+package lk.bookhive.catalog.api;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import lk.bookhive.catalog.api.BookResponses.BookResponse;
+import lk.bookhive.catalog.domain.AuthorRole;
+import lk.bookhive.catalog.domain.BookFormat;
+import lk.bookhive.catalog.service.BookService;
+import lk.bookhive.catalog.service.BookService.BookForm;
+import lk.bookhive.catalog.service.BookService.ContributorForm;
+import lk.bookhive.common.config.OpenApiConfig;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+/** Cataloguing titles (librarians and admins). Reading a book: GET /books/{id}. */
+@RestController
+@RequestMapping("/staff/books")
+@Tag(name = "Staff: books")
+@SecurityRequirement(name = OpenApiConfig.BEARER)
+public class StaffBookController {
+
+  private final BookService books;
+
+  public StaffBookController(BookService books) {
+    this.books = books;
+  }
+
+  public record ContributorRequest(@NotNull UUID authorId, AuthorRole role) {}
+
+  /**
+   * @param isbn ISBN-10 or ISBN-13, hyphens allowed; empty if the book has none
+   * @param language ISO 639-1 code, e.g. si, ta, en
+   * @param contributors in the order printed on the cover; role defaults to AUTHOR
+   */
+  public record BookRequest(
+      @NotBlank @Size(max = 300) String title,
+      @Size(max = 300) String subtitle,
+      @Size(max = 20) String isbn,
+      @Size(max = 50) String edition,
+      @Min(1000) @Max(2100) Short publishYear,
+      @Min(1) @Max(100000) Integer pages,
+      @NotBlank @Pattern(regexp = "^[a-zA-Z]{2,3}$", message = "a language code like si")
+          String language,
+      @Size(max = 10000) String description,
+      BookFormat format,
+      @Size(max = 50) String callNumber,
+      UUID publisherId,
+      @Size(max = 20) List<@Valid ContributorRequest> contributors,
+      @Size(max = 10) Set<UUID> categoryIds) {
+
+    BookForm form() {
+      return new BookForm(
+          title,
+          subtitle,
+          isbn,
+          edition,
+          publishYear,
+          pages,
+          language,
+          description,
+          format,
+          callNumber,
+          publisherId,
+          contributors == null
+              ? List.of()
+              : contributors.stream()
+                  .map(c -> new ContributorForm(c.authorId(), c.role()))
+                  .toList(),
+          categoryIds);
+    }
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Catalogue a new title (409 BOOK_ISBN_EXISTS if the ISBN is taken)")
+  public BookResponse create(
+      @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody BookRequest request) {
+    return BookResponse.from(books.create(request.form(), staffId(jwt)));
+  }
+
+  @PutMapping("/{id}")
+  @Operation(summary = "Edit a title; authors and categories are replaced by the lists sent")
+  public BookResponse update(
+      @AuthenticationPrincipal Jwt jwt,
+      @PathVariable UUID id,
+      @Valid @RequestBody BookRequest request) {
+    return BookResponse.from(books.update(id, request.form(), staffId(jwt)));
+  }
+
+  private static UUID staffId(Jwt jwt) {
+    return UUID.fromString(jwt.getSubject());
+  }
+}
