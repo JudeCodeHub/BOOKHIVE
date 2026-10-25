@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.UUID;
 import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.service.AuthService;
+import lk.bookhive.common.barcode.BarcodeImages;
 import lk.bookhive.common.exception.BusinessRuleException;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.member.domain.Member;
@@ -42,9 +43,10 @@ public class LibraryCardService {
 
   private final MemberRepository members;
   private final AuthService authService;
-  private final CardCodes codes;
+  private final BarcodeImages codes;
 
-  public LibraryCardService(MemberRepository members, AuthService authService, CardCodes codes) {
+  public LibraryCardService(
+      MemberRepository members, AuthService authService, BarcodeImages codes) {
     this.members = members;
     this.authService = authService;
     this.codes = codes;

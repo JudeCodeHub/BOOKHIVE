@@ -5,8 +5,9 @@ import java.util.UUID;
 import lk.bookhive.catalog.domain.Book;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface BookRepository extends JpaRepository<Book, UUID> {
+public interface BookRepository extends JpaRepository<Book, UUID>, JpaSpecificationExecutor<Book> {
 
   /**
    * A book with everything a book page shows, in one query instead of one per author: the
