@@ -14,6 +14,13 @@ bookhive:
     allowed-origins: http://localhost:3000
   jwt:
     allow-generated-keys: true
+  # No S3 server in tests: files go to a folder under build/
+  storage:
+    type: local
+    local-dir: build/test-uploads
+  crypto:
+    # Test-only key (32 zero bytes)
+    field-key: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 
 logging:
   level:

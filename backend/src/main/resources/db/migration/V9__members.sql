@@ -17,6 +17,9 @@ CREATE TABLE members (
 
     -- AES-GCM ciphertext (Base64), never the plain NIC (checklist step 128). NULL for juniors.
     nic_encrypted           TEXT,
+    -- Keyed HMAC of the NIC. The ciphertext uses a random IV, so it can't be searched; equal
+    -- NICs give equal hashes, so staff can find a member by NIC (MEM-8).
+    nic_hash                VARCHAR(64),
     date_of_birth           DATE         NOT NULL,
     address_line            VARCHAR(200) NOT NULL,
     city                    VARCHAR(80)  NOT NULL,
@@ -51,6 +54,8 @@ CREATE TABLE members (
 
 -- Staff queue: "pending applications, oldest first"
 CREATE INDEX ix_members_status_applied ON members (status, applied_at);
+-- Find a member by NIC
+CREATE INDEX ix_members_nic_hash ON members (nic_hash) WHERE nic_hash IS NOT NULL;
 -- "Which juniors does this guardian have?"
 CREATE INDEX ix_members_guardian ON members (guardian_member_id) WHERE guardian_member_id IS NOT NULL;
 

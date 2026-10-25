@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "bookhive-dev",
+      "credentials": [{ "accessKey": "bookhive", "secretKey": "bookhive-dev-secret" }],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

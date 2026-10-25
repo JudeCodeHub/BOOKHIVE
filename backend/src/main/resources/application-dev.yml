@@ -21,6 +21,9 @@ bookhive:
     allow-generated-keys: true
   security:
     public-api-docs: true
+  # Dev-only key for encrypting NIC numbers (your local database only). Prod: FIELD_ENCRYPTION_KEY
+  crypto:
+    field-key: ${FIELD_ENCRYPTION_KEY:Fk1J0KkGb3NewDt9Z7xvq5AzEF6owlpWzU/T68VeMms=}
 
 logging:
   level:

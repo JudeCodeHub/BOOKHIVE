@@ -102,9 +102,20 @@ bookhive:
     email: ${BOOTSTRAP_ADMIN_EMAIL:}
     password: ${BOOTSTRAP_ADMIN_PASSWORD:}
     full-name: ${BOOTSTRAP_ADMIN_NAME:Administrator}
-  # Uploaded files. Local folder for now; MinIO / S3 in checklist step 126
+  # Uploaded files, in an S3 bucket. Defaults: SeaweedFS from infra/docker-compose.yml
   storage:
-    local-dir: ${STORAGE_LOCAL_DIR:uploads}
+    type: s3
+    local-dir: uploads
+    # Presigned download links (staff viewing a member's NIC scan) work this long
+    link-validity: 5m
+    s3:
+      endpoint: ${S3_ENDPOINT:http://localhost:8333}
+      region: ${S3_REGION:ap-south-1}
+      bucket: ${S3_BUCKET:bookhive-uploads}
+      access-key: ${S3_ACCESS_KEY:bookhive}
+      secret-key: ${S3_SECRET_KEY:bookhive-dev-secret}
+      path-style: true
+      create-bucket: true
   # Per-IP limits on endpoints attackers like to hammer (PRD §6 Security)
   rate-limit:
     enabled: true

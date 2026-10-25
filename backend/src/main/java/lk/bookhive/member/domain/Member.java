@@ -1,6 +1,7 @@
 package lk.bookhive.member.domain;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -37,9 +38,14 @@ public class Member extends BaseEntity {
   @Column(nullable = false, length = 20)
   private MemberStatus status;
 
-  // Encrypted with AES-GCM by a JPA converter in checklist step 128
+  // Encrypted in the database (AES-GCM, NicConverter); plain text only in memory
+  @Convert(converter = NicConverter.class)
   @Column(name = "nic_encrypted")
   private String nic;
+
+  // HMAC of the NIC, so staff can still find a member by NIC (MEM-8)
+  @Column(length = 64)
+  private String nicHash;
 
   @Column(nullable = false)
   private LocalDate dateOfBirth;
@@ -95,6 +101,7 @@ public class Member extends BaseEntity {
   private void fill(ApplicationDetails details, Instant now) {
     this.membershipType = details.membershipType();
     this.nic = details.nic();
+    this.nicHash = details.nicHash();
     this.dateOfBirth = details.dateOfBirth();
     this.addressLine = details.addressLine();
     this.city = details.city();
@@ -108,6 +115,7 @@ public class Member extends BaseEntity {
   public record ApplicationDetails(
       MembershipType membershipType,
       String nic,
+      String nicHash,
       LocalDate dateOfBirth,
       String addressLine,
       String city,
