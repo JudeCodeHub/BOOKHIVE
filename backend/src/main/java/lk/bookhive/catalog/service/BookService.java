@@ -22,6 +22,7 @@ import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.catalog.repository.CategoryRepository;
 import lk.bookhive.catalog.repository.PublisherRepository;
 import lk.bookhive.common.audit.AuditService;
+import lk.bookhive.common.cache.PublicCache;
 import lk.bookhive.common.exception.ConflictException;
 import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.exception.NotFoundException;
@@ -37,18 +38,21 @@ public class BookService {
   private final PublisherRepository publishers;
   private final CategoryRepository categories;
   private final AuditService audit;
+  private final PublicCache cache;
 
   public BookService(
       BookRepository books,
       AuthorRepository authors,
       PublisherRepository publishers,
       CategoryRepository categories,
-      AuditService audit) {
+      AuditService audit,
+      PublicCache cache) {
     this.books = books;
     this.authors = authors;
     this.publishers = publishers;
     this.categories = categories;
     this.audit = audit;
+    this.cache = cache;
   }
 
   /** One contributor as sent by the form, in cover order. */
@@ -96,6 +100,7 @@ public class BookService {
     checkIsbnFree(isbn, id);
     book.update(details(form, isbn));
     applyLinks(book, form);
+    cache.evict(CatalogCacheKeys.book(id));
     audit.record("book.updated", staffId, "book", id, summary(book));
     return book;
   }

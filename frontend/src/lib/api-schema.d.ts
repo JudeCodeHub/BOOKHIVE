@@ -813,6 +813,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search books: words, typos and ISBNs; filters, facet counts, sorting, paging */
+        get: operations["search_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** As-you-type suggestions: up to 6 books and 3 authors */
+        get: operations["suggest_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/memberships/types": {
         parameters: {
             query?: never;
@@ -992,6 +1026,40 @@ export interface paths {
         };
         /** How many copies are on the shelf, on loan, waiting... and where */
         get: operations["availability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/books/popular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Most borrowed titles (home page); may be empty */
+        get: operations["popular"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/books/new-arrivals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Latest titles added to the catalog (home page) */
+        get: operations["newArrivals"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1620,6 +1688,59 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        BookSummary: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            subtitle: string;
+            contributors: string[];
+            /** Format: int32 */
+            publishYear: number;
+            language: string;
+            /** @enum {string} */
+            format: "BOOK" | "MAGAZINE" | "NEWSPAPER" | "DVD" | "AUDIOBOOK";
+            callNumber: string;
+            coverVersion: string;
+            /** Format: int64 */
+            copies: number;
+            /** Format: int64 */
+            availableToBorrow: number;
+        };
+        FacetSummary: {
+            value: string;
+            /** Format: int64 */
+            count: number;
+        };
+        FacetsResponse: {
+            languages: components["schemas"]["FacetSummary"][];
+            formats: components["schemas"]["FacetSummary"][];
+            categories: components["schemas"]["FacetSummary"][];
+            /** Format: int64 */
+            availableNow: number;
+        };
+        PageResponseBookSummary: {
+            content: components["schemas"]["BookSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        SearchResponse: {
+            results: components["schemas"]["PageResponseBookSummary"];
+            facets: components["schemas"]["FacetsResponse"];
+        };
+        SuggestionSummary: {
+            /** @enum {string} */
+            type: "BOOK" | "AUTHOR";
+            /** Format: uuid */
+            id: string;
+            label: string;
+            detail: string;
+        };
         MembershipTypeResponse: {
             code: string;
             nameEn: string;
@@ -1672,35 +1793,6 @@ export interface components {
             /** @enum {string} */
             section: "ADULT" | "CHILDREN" | "YOUNG_ADULT" | "REFERENCE";
             children: components["schemas"]["CategoryTreeResponse"][];
-        };
-        BookSummary: {
-            /** Format: uuid */
-            id: string;
-            title: string;
-            subtitle: string;
-            contributors: string[];
-            /** Format: int32 */
-            publishYear: number;
-            language: string;
-            /** @enum {string} */
-            format: "BOOK" | "MAGAZINE" | "NEWSPAPER" | "DVD" | "AUDIOBOOK";
-            callNumber: string;
-            coverVersion: string;
-            /** Format: int64 */
-            copies: number;
-            /** Format: int64 */
-            availableToBorrow: number;
-        };
-        PageResponseBookSummary: {
-            content: components["schemas"]["BookSummary"][];
-            /** Format: int32 */
-            page: number;
-            /** Format: int32 */
-            size: number;
-            /** Format: int64 */
-            totalElements: number;
-            /** Format: int32 */
-            totalPages: number;
         };
         AvailabilityResponse: {
             /** Format: int64 */
@@ -3186,6 +3278,59 @@ export interface operations {
             };
         };
     };
+    search_1: {
+        parameters: {
+            query?: {
+                q?: string;
+                language?: string;
+                format?: "BOOK" | "MAGAZINE" | "NEWSPAPER" | "DVD" | "AUDIOBOOK";
+                category?: string;
+                available?: boolean;
+                yearFrom?: number;
+                yearTo?: number;
+                sort?: "RELEVANCE" | "NEWEST" | "TITLE" | "YEAR";
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SearchResponse"];
+                };
+            };
+        };
+    };
+    suggest_2: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SuggestionSummary"][];
+                };
+            };
+        };
+    };
     types: {
         parameters: {
             query?: never;
@@ -3417,6 +3562,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AvailabilityResponse"];
+                };
+            };
+        };
+    };
+    popular: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BookSummary"][];
+                };
+            };
+        };
+    };
+    newArrivals: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BookSummary"][];
                 };
             };
         };

@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.common.audit.AuditService;
+import lk.bookhive.common.cache.PublicCache;
 import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.storage.FileStorage;
@@ -60,11 +61,14 @@ public class CoverService {
   private final BookRepository books;
   private final FileStorage storage;
   private final AuditService audit;
+  private final PublicCache cache;
 
-  public CoverService(BookRepository books, FileStorage storage, AuditService audit) {
+  public CoverService(
+      BookRepository books, FileStorage storage, AuditService audit, PublicCache cache) {
     this.books = books;
     this.storage = storage;
     this.audit = audit;
+    this.cache = cache;
   }
 
   /** Checks the picture, makes the three sizes, stores them, then removes the old cover. */
@@ -88,6 +92,7 @@ public class CoverService {
     String old = book.getCoverKey();
     book.setCoverKey(base);
     deleteQuietly(old);
+    evictBook(bookId);
     audit.record("book.cover_changed", staffId, "book", bookId, Map.of());
     return book;
   }
@@ -98,6 +103,7 @@ public class CoverService {
     String old = book.getCoverKey();
     book.setCoverKey(null);
     deleteQuietly(old);
+    evictBook(bookId);
     audit.record("book.cover_removed", staffId, "book", bookId, Map.of());
     return book;
   }
@@ -164,6 +170,11 @@ public class CoverService {
         log.warn("Could not delete old cover file {}/{}", base, size.fileName(), e);
       }
     }
+  }
+
+  /** The cover version is part of the cached book details. */
+  private void evictBook(UUID bookId) {
+    cache.evict(CatalogCacheKeys.book(bookId));
   }
 
   private Book require(UUID bookId) {
