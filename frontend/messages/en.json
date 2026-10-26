@@ -1138,6 +1138,33 @@
     "scanReturnLabel": "Scan a returned book",
     "scanReturnHint": "Scan books one after another; each one shows where it goes next.",
     "placeholder": "Scan or type a code and press Enter",
-    "scanned": "Scanned {code}"
+    "scanned": "Scanned {code}",
+    "scanItemLabel": "Scan a book to lend",
+    "scanItemHint": "Or scan another library card to switch member.",
+    "scanCardFirst": "Scan the member's library card first.",
+    "loadingMember": "Loading member",
+    "memberNotFound": "No member has the number {memberNo}.",
+    "nextMember": "Next member",
+    "itemsOut": "Books out",
+    "itemsOutValue": "{out} of {max}",
+    "loanPeriod": "Loan period",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "validUntil": "Valid until",
+    "alerts": "Alerts",
+    "expiresSoon": "Membership ends in {count, plural, =0 {less than a day} one {# day} other {# days}}: remind them to renew.",
+    "readyToBorrow": "Can borrow {count, plural, one {# more book} other {# more books}}.",
+    "atLimit": "At the loan limit: no more books today.",
+    "overridable": "an admin may override",
+    "problems": {
+      "MEMBER_NOT_ACTIVE": "Membership isn't active (pending, suspended or rejected).",
+      "MEMBERSHIP_EXPIRED": "Membership has expired: renew it first.",
+      "LOAN_LIMIT_REACHED": "Over the loan limit.",
+      "FINES_BLOCK_BORROWING": "Unpaid fines block borrowing: they need paying first.",
+      "COPY_NOT_AVAILABLE": "This copy isn't available to lend.",
+      "HELD_FOR_ANOTHER_MEMBER": "This copy is set aside for another member.",
+      "COPY_REFERENCE_ONLY": "Reference only: for use in the library.",
+      "COPY_RESTRICTED": "Restricted: needs staff approval.",
+      "SECTION_NOT_ALLOWED": "Not from a section this member may borrow from."
+    }
   }
 }

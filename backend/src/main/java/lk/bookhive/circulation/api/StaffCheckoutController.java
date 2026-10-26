@@ -58,6 +58,15 @@ public class StaffCheckoutController {
           List<@Size(max = 30) String> barcodes,
       @Size(min = 10, max = 500) String overrideReason) {}
 
+  /**
+   * The preview also works with no items yet: right after the member's card is scanned.
+   *
+   * @param barcodes the items scanned so far (may be empty)
+   */
+  public record CheckoutPreviewRequest(
+      @NotBlank @Size(max = 20) String memberNo,
+      @Size(max = CheckoutService.MAX_ITEMS) List<@Size(max = 30) String> barcodes) {}
+
   /** One reason; {@code overridable} = staff may lend anyway with a reason (step 228). */
   public record ProblemSummary(Reason reason, boolean overridable, String message) {
 
@@ -148,8 +157,10 @@ public class StaffCheckoutController {
 
   @PostMapping("/preview")
   @Operation(summary = "What would happen: member alerts, per-item problems and due dates")
-  public CheckoutPreviewResponse preview(@Valid @RequestBody CheckoutRequest request) {
-    return CheckoutPreviewResponse.from(checkouts.preview(request.memberNo(), request.barcodes()));
+  public CheckoutPreviewResponse preview(@Valid @RequestBody CheckoutPreviewRequest request) {
+    return CheckoutPreviewResponse.from(
+        checkouts.preview(
+            request.memberNo(), request.barcodes() == null ? List.of() : request.barcodes()));
   }
 
   @PostMapping

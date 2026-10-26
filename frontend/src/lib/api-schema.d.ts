@@ -1738,6 +1738,10 @@ export interface components {
             overridable: boolean;
             message: string;
         };
+        CheckoutPreviewRequest: {
+            memberNo: string;
+            barcodes?: string[];
+        };
         CheckoutPreviewResponse: {
             member: components["schemas"]["MemberCardSummary"];
             items: components["schemas"]["ItemSummary"][];
@@ -3067,7 +3071,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CheckoutRequest"];
+                "application/json": components["schemas"]["CheckoutPreviewRequest"];
             };
         };
         responses: {
