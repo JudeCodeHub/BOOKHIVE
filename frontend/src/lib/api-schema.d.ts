@@ -847,6 +847,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Loans out now, soonest due first; overdue=true: only overdue, longest overdue first */
+        get: operations["list_5"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/loans/{loanId}/renewal": {
         parameters: {
             query?: never;
@@ -1297,7 +1314,7 @@ export interface paths {
             cookie?: never;
         };
         /** Browse books page by page; q = ISBN or part of the title */
-        get: operations["list_5"];
+        get: operations["list_6"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2069,6 +2086,27 @@ export interface components {
             expiresAt: string;
             guardian: components["schemas"]["MemberSummary"];
             juniors: components["schemas"]["MemberSummary"][];
+        };
+        OpenLoanSummary: {
+            loan: components["schemas"]["LoanSummary"];
+            /** Format: uuid */
+            memberId: string;
+            memberNo: string;
+            fullName: string;
+            phone: string;
+            /** Format: int64 */
+            daysOverdue: number;
+        };
+        PageResponseOpenLoanSummary: {
+            content: components["schemas"]["OpenLoanSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
         };
         RenewalCheckResponse: {
             canRenew: boolean;
@@ -3932,6 +3970,30 @@ export interface operations {
             };
         };
     };
+    list_5: {
+        parameters: {
+            query?: {
+                overdue?: boolean;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseOpenLoanSummary"];
+                };
+            };
+        };
+    };
     check: {
         parameters: {
             query?: never;
@@ -4498,7 +4560,7 @@ export interface operations {
             };
         };
     };
-    list_5: {
+    list_6: {
         parameters: {
             query?: {
                 q?: string;

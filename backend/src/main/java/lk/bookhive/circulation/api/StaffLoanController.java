@@ -5,21 +5,26 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.UUID;
+import lk.bookhive.circulation.api.LoanViews.OpenLoanSummary;
 import lk.bookhive.circulation.api.RenewalResponses.LoanRenewalResponse;
 import lk.bookhive.circulation.api.RenewalResponses.RenewalCheckResponse;
 import lk.bookhive.circulation.domain.LoanStatus;
+import lk.bookhive.circulation.service.LoanHistoryService;
 import lk.bookhive.circulation.service.LossService;
 import lk.bookhive.circulation.service.LossService.Charge;
 import lk.bookhive.circulation.service.RenewalService;
 import lk.bookhive.circulation.service.RenewalService.RenewalRefusedException;
 import lk.bookhive.common.config.OpenApiConfig;
 import lk.bookhive.common.domain.Money;
+import lk.bookhive.common.web.PageResponse;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -29,9 +34,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Loans at the desk (librarians and admins): renewing, lost and damaged (steps 227-229). */
+/**
+ * Loans at the desk (librarians and admins): the lists of current and overdue loans (step 232),
+ * renewing, lost and damaged (steps 227-229).
+ */
 @RestController
 @RequestMapping("/staff/loans")
 @Tag(name = "Staff: circulation")
@@ -40,10 +49,24 @@ public class StaffLoanController {
 
   private final RenewalService renewals;
   private final LossService losses;
+  private final LoanHistoryService history;
 
-  public StaffLoanController(RenewalService renewals, LossService losses) {
+  public StaffLoanController(
+      RenewalService renewals, LossService losses, LoanHistoryService history) {
     this.renewals = renewals;
     this.losses = losses;
+    this.history = history;
+  }
+
+  @GetMapping
+  @Operation(
+      summary =
+          "Loans out now, soonest due first; overdue=true: only overdue, longest overdue first")
+  public PageResponse<OpenLoanSummary> list(
+      @RequestParam(defaultValue = "false") boolean overdue,
+      @RequestParam(defaultValue = "0") @Min(0) int page,
+      @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+    return PageResponse.from(history.openLoans(overdue, page, size), OpenLoanSummary::from);
   }
 
   /**
