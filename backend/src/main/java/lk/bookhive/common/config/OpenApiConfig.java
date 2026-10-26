@@ -52,7 +52,13 @@ public class OpenApiConfig {
             .getSchemas()
             .forEach(
                 (name, schema) -> {
-                  boolean isResponse = name.endsWith("Response") || name.endsWith("Summary");
+                  // Naming convention for response types: ...Response, ...Summary, and the
+                  // ...Report / ...Result records some services return as they are
+                  boolean isResponse =
+                      name.endsWith("Response")
+                          || name.endsWith("Summary")
+                          || name.endsWith("Report")
+                          || name.endsWith("Result");
                   if (isResponse && schema.getProperties() != null) {
                     schema.setRequired(new ArrayList<>(schema.getProperties().keySet()));
                   }

@@ -714,6 +714,59 @@
       "ONE_COPY_PER_BARCODE": "With your own barcode, add one copy at a time."
     }
   },
+  "CopyDetail": {
+    "title": "Copy {barcode}",
+    "details": "Details",
+    "edit": "Save changes",
+    "editing": "Saving…",
+    "edited": "Copy updated.",
+    "withdraw": "Withdraw",
+    "withdrawTitle": "Withdraw this copy",
+    "withdrawHelp": "For copies leaving the collection for good: damaged beyond repair, outdated, or lost and written off. It stays in the history.",
+    "withdrawReason": "Reason",
+    "withdrawConfirm": "Withdraw copy",
+    "withdrawn": "Copy withdrawn.",
+    "cannotWithdraw": "It can't be withdrawn while it's on loan or waiting on the hold shelf.",
+    "history": "History",
+    "historyEmpty": "No history yet.",
+    "by": "by {name}",
+    "system": "automatic",
+    "added": "Added",
+    "close": "Close",
+    "errors": {
+      "COPY_IN_USE": "This copy is on loan or on the hold shelf.",
+      "COPY_ALREADY_WITHDRAWN": "This copy is already withdrawn."
+    }
+  },
+  "CatalogImport": {
+    "metaTitle": "Import CSV",
+    "title": "Import books from CSV",
+    "back": "Back to catalog",
+    "intro": "Add many books at once from a spreadsheet saved as CSV (UTF-8). Rows whose ISBN is already in the catalog add copies to that book. Authors and publishers are matched by name or created.",
+    "template": "Download the template",
+    "file": "CSV file",
+    "check": "Check file",
+    "checking": "Checking…",
+    "previewTitle": "Preview: nothing has been saved yet",
+    "resultTitle": "Import finished",
+    "summary": "{rows} rows: {created} new books, {copies} copies, {failed} with problems",
+    "fixHint": "Rows with problems will be skipped. You can fix them in the file and import it again later; rows already imported will then add copies instead of duplicates, so remove them from the file first.",
+    "confirm": "{count, plural, one {Import # good row} other {Import # good rows}}",
+    "importing": "Importing…",
+    "startOver": "Import another file",
+    "line": "Line",
+    "outcome": "Result",
+    "bookTitle": "Title",
+    "copies": "Copies",
+    "problem": "Problem",
+    "outcomes": {
+      "CREATED": "New book",
+      "COPIES_ADDED": "Copies added",
+      "FAILED": "Problem"
+    },
+    "onlyProblems": "Show only problems",
+    "imported": "Import finished: {created} new books, {copies} copies."
+  },
   "MemberStatusLabel": {
     "PENDING": "Pending",
     "ACTIVE": "Active",

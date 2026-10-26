@@ -87,8 +87,16 @@ public class CatalogImportService {
   public record RowResult(
       long line, RowOutcome outcome, UUID bookId, String title, int copiesAdded, String error) {}
 
+  /**
+   * @param dryRun true = a preview: every row was checked and then rolled back, nothing is saved
+   */
   public record ImportReport(
-      int rows, int created, int copiesAdded, int failed, List<RowResult> results) {}
+      boolean dryRun,
+      int rows,
+      int created,
+      int copiesAdded,
+      int failed,
+      List<RowResult> results) {}
 
   private final BookService bookService;
   private final CopyService copyService;
@@ -120,7 +128,13 @@ public class CatalogImportService {
     this.rowTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
   }
 
-  public ImportReport importCsv(InputStream content, UUID staffId) throws IOException {
+  /**
+   * @param dryRun preview only (checklist step 180): each row runs exactly like a real import, then
+   *     its transaction is rolled back, so the report shows what would happen. (Generated barcodes
+   *     are used up even then; gaps in barcode numbers are harmless.)
+   */
+  public ImportReport importCsv(InputStream content, UUID staffId, boolean dryRun)
+      throws IOException {
     List<RowResult> results = new ArrayList<>();
     try (Reader reader = withoutBom(content);
         CSVParser parser =
@@ -139,10 +153,13 @@ public class CatalogImportService {
           throw new FieldValidationException(
               "file", "IMPORT_TOO_MANY_ROWS", "Import at most " + MAX_ROWS + " rows at a time.");
         }
-        results.add(importRow(record, staffId));
+        results.add(importRow(record, staffId, dryRun));
       }
     }
-    ImportReport report = summarise(results);
+    ImportReport report = summarise(results, dryRun);
+    if (dryRun) {
+      return report;
+    }
     audit.record(
         "catalog.imported",
         staffId,
@@ -156,11 +173,18 @@ public class CatalogImportService {
     return report;
   }
 
-  private RowResult importRow(CSVRecord record, UUID staffId) {
+  private RowResult importRow(CSVRecord record, UUID staffId, boolean dryRun) {
     long line = record.getRecordNumber() + 1;
     String title = value(record, "title");
     try {
-      return rowTransaction.execute(status -> saveRow(record, line, staffId));
+      return rowTransaction.execute(
+          status -> {
+            RowResult result = saveRow(record, line, staffId);
+            if (dryRun) {
+              status.setRollbackOnly();
+            }
+            return result;
+          });
     } catch (FieldValidationException e) {
       return failed(line, title, e.getField() + ": " + e.getMessage());
     } catch (BookHiveException | IllegalArgumentException e) {
@@ -336,7 +360,7 @@ public class CatalogImportService {
     return new RowResult(line, RowOutcome.FAILED, null, title, 0, error);
   }
 
-  private static ImportReport summarise(List<RowResult> results) {
+  private static ImportReport summarise(List<RowResult> results, boolean dryRun) {
     int created = 0;
     int copies = 0;
     int failed = 0;
@@ -348,7 +372,7 @@ public class CatalogImportService {
       }
       copies += result.copiesAdded();
     }
-    return new ImportReport(results.size(), created, copies, failed, results);
+    return new ImportReport(dryRun, results.size(), created, copies, failed, results);
   }
 
   /** The template file staff fill in: the header line and one example row. */

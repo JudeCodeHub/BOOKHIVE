@@ -5,7 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import lk.bookhive.auth.domain.User;
+import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.domain.Copy;
 import lk.bookhive.catalog.domain.CopyStatusChange;
@@ -31,6 +35,7 @@ public class CopyService {
   private final BookRepository books;
   private final CopyStatusChangeRepository history;
   private final DonationService donations;
+  private final AuthService authService;
   private final AuditService audit;
   private final LibraryTime time;
 
@@ -39,21 +44,45 @@ public class CopyService {
       BookRepository books,
       CopyStatusChangeRepository history,
       DonationService donations,
+      AuthService authService,
       AuditService audit,
       LibraryTime time) {
     this.copies = copies;
     this.books = books;
     this.history = history;
     this.donations = donations;
+    this.authService = authService;
     this.audit = audit;
     this.time = time;
   }
 
+  /** One history line with the name of the person who made the change (null for system jobs). */
+  public record HistoryLine(CopyStatusChange change, String changedByName) {}
+
   /** Where a copy has been, newest first (CAT-9). */
   @Transactional(readOnly = true)
-  public List<CopyStatusChange> history(UUID copyId) {
+  public List<HistoryLine> history(UUID copyId) {
     require(copyId);
-    return history.findByCopyIdOrderByChangedAtDesc(copyId);
+    List<CopyStatusChange> changes = history.findByCopyIdOrderByChangedAtDesc(copyId);
+    Map<UUID, User> users =
+        authService.findUsers(
+            changes.stream()
+                .map(CopyStatusChange::getChangedBy)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet()));
+    return changes.stream()
+        .map(
+            change -> {
+              User user = change.getChangedBy() == null ? null : users.get(change.getChangedBy());
+              return new HistoryLine(change, user == null ? null : user.getFullName());
+            })
+        .toList();
+  }
+
+  /** One copy with its book (copy detail). */
+  @Transactional(readOnly = true)
+  public Copy get(UUID copyId) {
+    return require(copyId);
   }
 
   @Transactional(readOnly = true)

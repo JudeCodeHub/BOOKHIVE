@@ -290,7 +290,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Import books and copies from CSV; returns what happened to every row */
+        /** Import books and copies from CSV (dryRun=true: preview, nothing saved) */
         post: operations["importCsv"];
         delete?: never;
         options?: never;
@@ -614,7 +614,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** One copy */
+        get: operations["get_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -803,7 +804,7 @@ export interface paths {
             cookie?: never;
         };
         /** One application with its documents */
-        get: operations["get_3"];
+        get: operations["get_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -956,7 +957,7 @@ export interface paths {
             cookie?: never;
         };
         /** One book with its authors, publisher and categories */
-        get: operations["get_4"];
+        get: operations["get_5"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1241,27 +1242,28 @@ export interface components {
             donationId?: string;
         };
         ImportReport: {
+            dryRun: boolean;
             /** Format: int32 */
-            rows?: number;
+            rows: number;
             /** Format: int32 */
-            created?: number;
+            created: number;
             /** Format: int32 */
-            copiesAdded?: number;
+            copiesAdded: number;
             /** Format: int32 */
-            failed?: number;
-            results?: components["schemas"]["RowResult"][];
+            failed: number;
+            results: components["schemas"]["RowResult"][];
         };
         RowResult: {
             /** Format: int64 */
-            line?: number;
+            line: number;
             /** @enum {string} */
-            outcome?: "CREATED" | "COPIES_ADDED" | "FAILED";
+            outcome: "CREATED" | "COPIES_ADDED" | "FAILED";
             /** Format: uuid */
-            bookId?: string;
-            title?: string;
+            bookId: string;
+            title: string;
             /** Format: int32 */
-            copiesAdded?: number;
-            error?: string;
+            copiesAdded: number;
+            error: string;
         };
         RejectRequest: {
             reason: string;
@@ -1572,6 +1574,7 @@ export interface components {
             reason: string;
             /** Format: uuid */
             changedBy: string;
+            changedByName: string;
             /** Format: date-time */
             changedAt: string;
         };
@@ -2352,7 +2355,9 @@ export interface operations {
     };
     importCsv: {
         parameters: {
-            query?: never;
+            query?: {
+                dryRun?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2861,6 +2866,28 @@ export interface operations {
             };
         };
     };
+    get_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CopyResponse"];
+                };
+            };
+        };
+    };
     update_6: {
         parameters: {
             query?: never;
@@ -3133,7 +3160,7 @@ export interface operations {
             };
         };
     };
-    get_3: {
+    get_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -3323,7 +3350,7 @@ export interface operations {
             };
         };
     };
-    get_4: {
+    get_5: {
         parameters: {
             query?: never;
             header?: never;
