@@ -30,6 +30,7 @@ export function EntityCombobox({
   search,
   queryKey,
   placeholder,
+  allowCreate = true,
   ...field
 }: FieldControlProps & {
   value: EntityChoice | null;
@@ -39,6 +40,8 @@ export function EntityCombobox({
   /** Cache key prefix, e.g. "authors" */
   queryKey: string;
   placeholder?: string;
+  /** false = only existing entries can be chosen (no "Create" option) */
+  allowCreate?: boolean;
 }) {
   const t = useTranslations("Combobox");
   const listId = useId();
@@ -93,7 +96,7 @@ export function EntityCombobox({
   // The options: matches, then "Create" when the typed name isn't one of them
   const options: EntityChoice[] = [
     ...matches,
-    ...(typed.length >= 2 && !exact ? [{ name: typed }] : []),
+    ...(allowCreate && typed.length >= 2 && !exact ? [{ name: typed }] : []),
   ];
   const showList = open && options.length > 0;
 
