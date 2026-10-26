@@ -53,4 +53,8 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
    */
   Page<Loan> findByStatusInAndDueDateBeforeOrderByDueDate(
       Collection<LoanStatus> statuses, LocalDate today, Pageable pageable);
+
+  /** Staff list "due soon": open loans due between two dates (inclusive), soonest first. */
+  Page<Loan> findByStatusInAndDueDateBetweenOrderByDueDate(
+      Collection<LoanStatus> statuses, LocalDate from, LocalDate to, Pageable pageable);
 }

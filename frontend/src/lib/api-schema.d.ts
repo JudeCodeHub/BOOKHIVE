@@ -854,7 +854,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Loans out now, soonest due first; overdue=true: only overdue, longest overdue first */
+        /** Loans out now, soonest due first; overdue=true: only overdue, longest first; dueWithinDays=N: only those due in the next N days */
         get: operations["list_5"];
         put?: never;
         post?: never;
@@ -3979,6 +3979,7 @@ export interface operations {
         parameters: {
             query?: {
                 overdue?: boolean;
+                dueWithinDays?: number;
                 page?: number;
                 size?: number;
             };

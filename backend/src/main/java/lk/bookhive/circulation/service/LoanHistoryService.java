@@ -84,18 +84,27 @@ public class LoanHistoryService {
   }
 
   /**
-   * Everything out now, soonest due first, or only the overdue loans, longest overdue first (step
-   * 232). Current loans are operational data, so staff see the borrower (PRD §4.5).
+   * Everything out now, soonest due first; only the overdue loans, longest overdue first; or only
+   * those due in the next few days (steps 232, 243). Current loans are operational data, so staff
+   * see the borrower (PRD §4.5).
+   *
+   * @param dueWithinDays when set (and not overdueOnly): due from today to today + this many days
    */
   @Transactional(readOnly = true)
-  public Page<OpenLoan> openLoans(boolean overdueOnly, int page, int size) {
+  public Page<OpenLoan> openLoans(boolean overdueOnly, Integer dueWithinDays, int page, int size) {
     LocalDate today = time.today();
     PageRequest request = PageRequest.of(page, size);
-    Page<Loan> found =
-        overdueOnly
-            ? loans.findByStatusInAndDueDateBeforeOrderByDueDate(
-                LoanRepository.OPEN, today, request)
-            : loans.findByStatusInOrderByDueDate(LoanRepository.OPEN, request);
+    Page<Loan> found;
+    if (overdueOnly) {
+      found =
+          loans.findByStatusInAndDueDateBeforeOrderByDueDate(LoanRepository.OPEN, today, request);
+    } else if (dueWithinDays != null) {
+      found =
+          loans.findByStatusInAndDueDateBetweenOrderByDueDate(
+              LoanRepository.OPEN, today, today.plusDays(dueWithinDays), request);
+    } else {
+      found = loans.findByStatusInOrderByDueDate(LoanRepository.OPEN, request);
+    }
     List<LoanView> views = withCopies(found.getContent());
     // One lookup per member on the page, not per loan
     Map<UUID, Borrower> members = new HashMap<>();

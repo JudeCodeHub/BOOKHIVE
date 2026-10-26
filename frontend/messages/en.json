@@ -1210,5 +1210,37 @@
       "noCamera": "No camera was found on this device.",
       "other": "The camera couldn't be started. Close other apps using it and try again."
     }
+  },
+  "StaffLoans": {
+    "metaTitle": "Loans",
+    "title": "Loans",
+    "views": "Which loans",
+    "all": "All out",
+    "dueSoon": "Due in {days} days",
+    "overdue": "Overdue",
+    "empty": {
+      "all": "No books are out right now.",
+      "dueSoon": "Nothing is due in the next few days.",
+      "overdue": "Nothing is overdue. 🎉"
+    },
+    "count": "{count, plural, one {# loan} other {# loans}}",
+    "book": "Book",
+    "member": "Member",
+    "due": "Due",
+    "status": "Status",
+    "renewals": "Renewals",
+    "actions": "Actions",
+    "daysOverdue": "{count, plural, one {# day overdue} other {# days overdue}}",
+    "onLoan": "On loan",
+    "renew": "Renew",
+    "renewed": "Renewed “{title}”: now due {date}.",
+    "renewRefused": "Can't renew this loan.",
+    "renewalProblems": {
+      "MAX_RENEWALS_REACHED": "All renewals are used.",
+      "RESERVED_BY_ANOTHER_MEMBER": "Another member has reserved this book.",
+      "MEMBER_BLOCKED": "The member is blocked (status, expiry or fines).",
+      "LOAN_OVERDUE": "It's overdue: it has to come back first.",
+      "NOT_NEEDED_YET": "Renewing now wouldn't give a later due date."
+    }
   }
 }
