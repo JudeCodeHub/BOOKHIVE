@@ -949,6 +949,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/library/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Address, phone, email and map location */
+        get: operations["info"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/library/hours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Opening hours, upcoming holidays and whether the library is open now */
+        get: operations["hours"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/categories": {
         parameters: {
             query?: never;
@@ -1799,6 +1833,43 @@ export interface components {
             membershipType: string;
             /** Format: date */
             expiresAt: string;
+        };
+        LibraryInfoResponse: {
+            name: string;
+            addressLine: string;
+            city: string;
+            postalCode: string;
+            phone: string;
+            email: string;
+            /** Format: double */
+            latitude: number;
+            /** Format: double */
+            longitude: number;
+        };
+        DaySummary: {
+            /** @enum {string} */
+            day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+            /** Format: time-local */
+            opensAt: string;
+            /** Format: time-local */
+            closesAt: string;
+        };
+        HolidaySummary: {
+            /** Format: date */
+            date: string;
+            nameEn: string;
+            nameSi: string;
+            nameTa: string;
+        };
+        HoursResponse: {
+            openNow: boolean;
+            /** Format: time-local */
+            closesAt: string;
+            /** Format: date-time */
+            nextOpening: string;
+            todayHoliday: components["schemas"]["HolidaySummary"];
+            week: components["schemas"]["DaySummary"][];
+            upcomingHolidays: components["schemas"]["HolidaySummary"][];
         };
         CategoryTreeResponse: {
             /** Format: uuid */
@@ -3473,6 +3544,46 @@ export interface operations {
                 };
                 content: {
                     "application/pdf": string;
+                };
+            };
+        };
+    };
+    info: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LibraryInfoResponse"];
+                };
+            };
+        };
+    };
+    hours: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HoursResponse"];
                 };
             };
         };
