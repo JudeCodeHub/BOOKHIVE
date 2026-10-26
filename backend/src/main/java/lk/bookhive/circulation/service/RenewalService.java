@@ -19,6 +19,7 @@ import lk.bookhive.member.service.BorrowerService;
 import lk.bookhive.member.service.BorrowerService.Borrower;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
  * type are used up, someone has reserved the title, the member is blocked, or the loan is already
  * overdue (it has to come back to the desk; staff can override, step 228). The new due date is
  * counted from today, moved to an open day. Every refusal reason is reported at once.
+ *
+ * <p>An admin may renew anyway with a written reason (step 228), unless someone else is waiting for
+ * the book or the member's account itself isn't valid.
  */
 @Service
 public class RenewalService {
@@ -40,7 +44,10 @@ public class RenewalService {
     NOT_NEEDED_YET
   }
 
-  public record RenewalProblem(RenewalReason reason, String message) {}
+  /**
+   * @param overridable an admin may renew anyway with a reason
+   */
+  public record RenewalProblem(RenewalReason reason, boolean overridable, String message) {}
 
   /** A loan with its copy, for the response. */
   public record Renewed(Loan loan, LendableCopy copy) {}
@@ -84,24 +91,39 @@ public class RenewalService {
     return problems(loan, borrower(loan), copy(loan), time.today());
   }
 
+  /** Why the member's own loan can't be renewed; NOT_FOUND if it isn't theirs. */
+  @Transactional(readOnly = true)
+  public List<RenewalProblem> checkOwn(UUID loanId, UUID memberId) {
+    Loan loan = requireOwn(loanId, memberId);
+    return problems(loan, borrower(loan), copy(loan), time.today());
+  }
+
+  /** A member renews their own loan (no overrides). */
+  @Transactional
+  public Renewed renewOwn(UUID loanId, UUID memberId, UUID userId) {
+    return renew(requireOwn(loanId, memberId), userId, null);
+  }
+
   /**
-   * Renews the loan.
+   * Staff renew a loan.
    *
-   * @param asMemberId when a member renews their own loan: refused if it isn't theirs
+   * @param overrideReason admins only: renew despite overridable problems, for this reason
    * @throws RenewalRefusedException with every reason when it isn't allowed
    */
+  @PreAuthorize("#overrideReason == null or hasRole('ADMIN')")
   @Transactional
-  public Renewed renew(UUID loanId, UUID asMemberId, UUID actorId) {
-    Loan loan = require(loanId);
-    if (asMemberId != null && !asMemberId.equals(loan.getMemberId())) {
-      // Not "forbidden": don't confirm that someone else's loan exists
-      throw new NotFoundException("LOAN_NOT_FOUND", "Loan not found.");
-    }
+  public Renewed renew(UUID loanId, UUID actorId, String overrideReason) {
+    return renew(require(loanId), actorId, overrideReason);
+  }
+
+  private Renewed renew(Loan loan, UUID actorId, String overrideReason) {
     Borrower borrower = borrower(loan);
     LendableCopy copy = copy(loan);
     LocalDate today = time.today();
     List<RenewalProblem> problems = problems(loan, borrower, copy, today);
-    if (!problems.isEmpty()) {
+    boolean overriding = !problems.isEmpty() && overrideReason != null;
+    if (!problems.isEmpty()
+        && !(overriding && problems.stream().allMatch(RenewalProblem::overridable))) {
       throw new RenewalRefusedException(problems);
     }
 
@@ -121,6 +143,17 @@ public class RenewalService {
         "loan",
         loan.getId(),
         Map.of("from", oldDue.toString(), "to", loan.getDueDate().toString()));
+    if (overriding) {
+      audit.record(
+          "loan.override",
+          actorId,
+          "loan",
+          loan.getId(),
+          Map.of(
+              "action", "renewal",
+              "reason", overrideReason.strip(),
+              "overridden", problems.stream().map(p -> p.reason().name()).distinct().toList()));
+    }
     return new Renewed(loan, copy);
   }
 
@@ -134,6 +167,7 @@ public class RenewalService {
       problems.add(
           new RenewalProblem(
               RenewalReason.MAX_RENEWALS_REACHED,
+              true,
               "Already renewed "
                   + loan.getRenewCount()
                   + " of "
@@ -144,22 +178,31 @@ public class RenewalService {
       problems.add(
           new RenewalProblem(
               RenewalReason.RESERVED_BY_ANOTHER_MEMBER,
+              false,
               "Another member has reserved this book, so it has to come back."));
     }
     // Status, expiry and fines block renewing like borrowing (the loan limit doesn't apply)
     eligibility.member(borrower, today, 0).stream()
         .filter(p -> p.reason() != EligibilityChecker.Reason.LOAN_LIMIT_REACHED)
-        .forEach(p -> problems.add(new RenewalProblem(RenewalReason.MEMBER_BLOCKED, p.message())));
+        .forEach(
+            p ->
+                problems.add(
+                    new RenewalProblem(
+                        RenewalReason.MEMBER_BLOCKED, p.reason().overridable(), p.message())));
     if (loan.isOverdueOn(today)) {
       problems.add(
           new RenewalProblem(
-              RenewalReason.LOAN_OVERDUE, "This loan is overdue: please return it to the desk."));
+              RenewalReason.LOAN_OVERDUE,
+              true,
+              "This loan is overdue: please return it to the desk."));
     }
     // Renewing on the day of checkout would give the same due date: nothing to gain
     if (!dueDates.dueDate(today, borrower.loanDays()).isAfter(loan.getDueDate())) {
       problems.add(
           new RenewalProblem(
-              RenewalReason.NOT_NEEDED_YET, "Renewing now wouldn't give you a later due date."));
+              RenewalReason.NOT_NEEDED_YET,
+              false,
+              "Renewing now wouldn't give you a later due date."));
     }
     return problems;
   }
@@ -174,6 +217,15 @@ public class RenewalService {
     return catalog
         .byId(loan.getCopyId())
         .orElseThrow(() -> new NotFoundException("COPY_NOT_FOUND", "Copy not found."));
+  }
+
+  private Loan requireOwn(UUID loanId, UUID memberId) {
+    Loan loan = require(loanId);
+    if (!loan.getMemberId().equals(memberId)) {
+      // Not "forbidden": don't confirm that someone else's loan exists
+      throw new NotFoundException("LOAN_NOT_FOUND", "Loan not found.");
+    }
+    return loan;
   }
 
   private Loan require(UUID loanId) {

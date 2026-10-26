@@ -193,6 +193,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/loans/{loanId}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew a loan (422 RENEWAL_REFUSED lists every reason; admins may override with a reason) */
+        post: operations["renew_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/donations": {
         parameters: {
             query?: never;
@@ -237,7 +254,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Check out: all items or none (422 CHECKOUT_REFUSED lists the problems) */
+        /** Check out: all items or none (422 CHECKOUT_REFUSED lists the problems; admins may override with a reason) */
         post: operations["checkOut"];
         delete?: never;
         options?: never;
@@ -463,7 +480,24 @@ export interface paths {
         get?: never;
         put?: never;
         /** Renew for another year (from 30 days before expiry) */
-        post: operations["renew_1"];
+        post: operations["renew_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/loans/{loanId}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew my loan (422 RENEWAL_REFUSED lists every reason) */
+        post: operations["renew_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -762,6 +796,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/loans/{loanId}/renewal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Can this loan be renewed now, and if not, why */
+        get: operations["check"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/isbn/{isbn}": {
         parameters: {
             query?: never;
@@ -975,6 +1026,23 @@ export interface paths {
         };
         /** My membership or application (204 if none) */
         get: operations["mine_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/loans/{loanId}/renewal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Can I renew this loan now, and if not, why */
+        get: operations["check_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1455,6 +1523,19 @@ export interface components {
         ReactivateRequest: {
             note?: string;
         };
+        RenewRequest: {
+            overrideReason?: string;
+        };
+        LoanRenewalResponse: {
+            /** Format: uuid */
+            loanId: string;
+            barcode: string;
+            title: string;
+            /** Format: date */
+            dueDate: string;
+            /** Format: int32 */
+            renewCount: number;
+        };
         WithdrawRequest: {
             reason: string;
         };
@@ -1483,6 +1564,7 @@ export interface components {
         CheckoutRequest: {
             memberNo: string;
             barcodes: string[];
+            overrideReason?: string;
         };
         CheckoutReceiptResponse: {
             member: components["schemas"]["MemberCardSummary"];
@@ -1525,6 +1607,7 @@ export interface components {
             member: components["schemas"]["MemberCardSummary"];
             items: components["schemas"]["ItemSummary"][];
             canCheckOut: boolean;
+            canOverride: boolean;
         };
         ItemSummary: {
             barcode: string;
@@ -1847,6 +1930,17 @@ export interface components {
             expiresAt: string;
             guardian: components["schemas"]["MemberSummary"];
             juniors: components["schemas"]["MemberSummary"][];
+        };
+        RenewalCheckResponse: {
+            canRenew: boolean;
+            canOverride: boolean;
+            problems: components["schemas"]["RenewalProblemSummary"][];
+        };
+        RenewalProblemSummary: {
+            /** @enum {string} */
+            reason: "MAX_RENEWALS_REACHED" | "RESERVED_BY_ANOTHER_MEMBER" | "MEMBER_BLOCKED" | "LOAN_OVERDUE" | "NOT_NEEDED_YET";
+            overridable: boolean;
+            message: string;
         };
         IsbnLookupResponse: {
             isbn13: string;
@@ -2574,6 +2668,32 @@ export interface operations {
             };
         };
     };
+    renew_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loanId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RenewRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoanRenewalResponse"];
+                };
+            };
+        };
+    };
     list_1: {
         parameters: {
             query?: {
@@ -3064,7 +3184,7 @@ export interface operations {
             };
         };
     };
-    renew_1: {
+    renew_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -3080,6 +3200,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RenewalResponse"];
+                };
+            };
+        };
+    };
+    renew_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loanId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoanRenewalResponse"];
                 };
             };
         };
@@ -3540,6 +3682,28 @@ export interface operations {
             };
         };
     };
+    check: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loanId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RenewalCheckResponse"];
+                };
+            };
+        };
+    };
     lookup: {
         parameters: {
             query?: never;
@@ -3830,6 +3994,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MembershipResponse"];
+                };
+            };
+        };
+    };
+    check_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loanId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RenewalCheckResponse"];
                 };
             };
         };
