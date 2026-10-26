@@ -12,6 +12,8 @@ import java.util.UUID;
 import lk.bookhive.catalog.api.BookResponses.BookResponse;
 import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.domain.BookFormat;
+import lk.bookhive.catalog.service.AvailabilityService;
+import lk.bookhive.catalog.service.AvailabilityService.Availability;
 import lk.bookhive.catalog.service.BookListService;
 import lk.bookhive.catalog.service.BookListService.BookListItem;
 import lk.bookhive.catalog.service.BookListService.BookSort;
@@ -39,11 +41,51 @@ public class BookController {
   private final BookService books;
   private final BookListService bookList;
   private final CoverService covers;
+  private final AvailabilityService availability;
 
-  public BookController(BookService books, BookListService bookList, CoverService covers) {
+  public BookController(
+      BookService books,
+      BookListService bookList,
+      CoverService covers,
+      AvailabilityService availability) {
     this.books = books;
     this.bookList = bookList;
     this.covers = covers;
+    this.availability = availability;
+  }
+
+  /** Counts per state; see {@link Availability} for what each number means. */
+  public record AvailabilityResponse(
+      long total,
+      long available,
+      long availableToBorrow,
+      long referenceOnly,
+      long onLoan,
+      long onHoldShelf,
+      long inTransit,
+      long inRepair,
+      long holdsWaiting,
+      List<String> shelves) {
+
+    static AvailabilityResponse from(Availability a) {
+      return new AvailabilityResponse(
+          a.total(),
+          a.available(),
+          a.availableToBorrow(),
+          a.referenceOnly(),
+          a.onLoan(),
+          a.onHoldShelf(),
+          a.inTransit(),
+          a.inRepair(),
+          a.holdsWaiting(),
+          a.shelves());
+    }
+  }
+
+  @GetMapping("/{id}/availability")
+  @Operation(summary = "How many copies are on the shelf, on loan, waiting... and where")
+  public AvailabilityResponse availability(@PathVariable UUID id) {
+    return AvailabilityResponse.from(availability.forBook(id));
   }
 
   /** One book in a list: enough for a result card (cover and availability come later). */

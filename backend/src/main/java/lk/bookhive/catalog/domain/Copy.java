@@ -1,5 +1,6 @@
 package lk.bookhive.catalog.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,9 +8,14 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lk.bookhive.common.domain.BaseEntity;
 import lk.bookhive.common.domain.Money;
 import lk.bookhive.common.exception.ConflictException;
@@ -57,6 +63,11 @@ public class Copy extends BaseEntity {
   @Column(length = 500)
   private String notes;
 
+  // Written through moveTo() only; saved together with the copy. Never read through here
+  // (CopyStatusChangeRepository lists it), so it stays unloaded.
+  @OneToMany(mappedBy = "copy", cascade = CascadeType.PERSIST)
+  private List<CopyStatusChange> history = new ArrayList<>();
+
   protected Copy() {
     // for JPA
   }
@@ -71,12 +82,12 @@ public class Copy extends BaseEntity {
       Money price,
       String notes) {}
 
-  /** A new copy goes straight onto the shelf. */
-  public Copy(Book book, String barcode, Details details) {
+  /** A new copy goes straight onto the shelf; that's the first line of its history. */
+  public Copy(Book book, String barcode, Details details, UUID addedBy, Instant now) {
     this.book = book;
     this.barcode = barcode;
-    this.status = CopyStatus.AVAILABLE;
     update(details);
+    moveTo(CopyStatus.AVAILABLE, "Added to the catalog", addedBy, now);
   }
 
   public void update(Details details) {
@@ -94,7 +105,7 @@ public class Copy extends BaseEntity {
    * written off). Not while someone has it or it's waiting for a member: that would break their
    * loan or hold (checklist step 165). The row stays, so loan and fine history remain correct.
    */
-  public void withdraw() {
+  public void withdraw(String reason, UUID staffId, Instant now) {
     if (status == CopyStatus.WITHDRAWN) {
       throw new ConflictException("COPY_ALREADY_WITHDRAWN", "This copy is already withdrawn.");
     }
@@ -105,7 +116,19 @@ public class Copy extends BaseEntity {
               ? "This copy is on loan. Check it in first."
               : "This copy is waiting on the hold shelf for a member.");
     }
-    this.status = CopyStatus.WITHDRAWN;
+    moveTo(CopyStatus.WITHDRAWN, reason, staffId, now);
+  }
+
+  /**
+   * The one place where the status changes (CAT-9, checklist step 166): every change also adds a
+   * line to the copy's history, so no code path can forget to record it. Loans and holds will
+   * change the status through methods that call this too.
+   *
+   * @param actorId who did it; null for automatic jobs
+   */
+  void moveTo(CopyStatus next, String reason, UUID actorId, Instant now) {
+    history.add(new CopyStatusChange(this, status, next, reason, actorId, now));
+    this.status = next;
   }
 
   private static String blankToNull(String value) {
