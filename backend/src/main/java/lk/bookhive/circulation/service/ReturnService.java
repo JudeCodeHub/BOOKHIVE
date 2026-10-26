@@ -3,6 +3,7 @@ package lk.bookhive.circulation.service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,7 +12,9 @@ import lk.bookhive.catalog.domain.CopyStatus;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
 import lk.bookhive.circulation.domain.Loan;
+import lk.bookhive.circulation.domain.LoanStatus;
 import lk.bookhive.circulation.event.LoanReturned;
+import lk.bookhive.circulation.event.LostLoanFound;
 import lk.bookhive.circulation.repository.LoanRepository;
 import lk.bookhive.circulation.service.BorrowingPorts.HoldQueue;
 import lk.bookhive.circulation.service.FineCalculator.LateFine;
@@ -30,6 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Returns at the desk (checklist steps 223-224): scan a copy, the loan closes, any late fine is
  * worked out, and staff are told where the book goes next, to its shelf or to the hold shelf for
  * the next member in the queue.
+ *
+ * <p>A copy marked lost that turns up is returned the same way (step 230): its lost charges are
+ * cancelled or refunded by the fine module ({@link LostLoanFound}); the late fine still applies.
  */
 @Service
 public class ReturnService {
@@ -79,7 +85,16 @@ public class ReturnService {
    *     it's open, but keeps the type honest)
    */
   public record ReturnResult(
-      Loan loan, LendableCopy copy, Borrower borrower, LateFine fine, Routing routing) {}
+      Loan loan,
+      LendableCopy copy,
+      Borrower borrower,
+      LateFine fine,
+      Routing routing,
+      boolean wasLost) {}
+
+  /** Open loans, plus lost ones: a lost copy scanned at the desk has been found. */
+  private static final List<LoanStatus> RETURNABLE =
+      List.of(LoanStatus.ACTIVE, LoanStatus.OVERDUE, LoanStatus.LOST);
 
   @Transactional
   public ReturnResult returnCopy(String barcode, UUID staffId) {
@@ -94,7 +109,7 @@ public class ReturnService {
     LendableCopy copy = catalog.lockForLending(copyId);
     Loan loan =
         loans
-            .findFirstByCopyIdAndStatusIn(copyId, LoanRepository.OPEN)
+            .findFirstByCopyIdAndStatusIn(copyId, RETURNABLE)
             .orElseThrow(
                 () ->
                     new BusinessRuleException(
@@ -106,6 +121,7 @@ public class ReturnService {
     LocalDate today = time.today();
     Instant now = time.now();
     LateFine fine = FineCalculator.lateFine(loan.getDueDate(), today, settings.fines());
+    boolean wasLost = loan.getStatus() == LoanStatus.LOST;
     loan.returnBack(staffId, now);
 
     Optional<UUID> nextMember = holdQueue.nextMemberFor(copy.bookId(), copyId);
@@ -130,15 +146,22 @@ public class ReturnService {
             nextMember.orElse(null),
             staffId));
 
+    if (wasLost) {
+      events.publishEvent(
+          new LostLoanFound(
+              loan.getId(), loan.getMemberId(), copyId, copy.bookId(), copy.title(), now, staffId));
+    }
+
     Map<String, Object> details = new HashMap<>();
     details.put("barcode", copy.barcode());
     details.put("daysLate", fine.daysLate());
     details.put("fine", fine.amount().amount().toPlainString());
     details.put("destination", routing.destination().name());
+    details.put("wasLost", wasLost);
     audit.record("loan.returned", staffId, "loan", loan.getId(), details);
 
     Borrower borrower =
         loan.getMemberId() == null ? null : borrowers.byId(loan.getMemberId()).orElse(null);
-    return new ReturnResult(loan, copy, borrower, fine, routing);
+    return new ReturnResult(loan, copy, borrower, fine, routing, wasLost);
   }
 }
