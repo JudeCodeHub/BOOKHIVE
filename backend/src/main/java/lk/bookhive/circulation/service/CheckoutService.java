@@ -26,6 +26,7 @@ import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.member.service.BorrowerService;
 import lk.bookhive.member.service.BorrowerService.Borrower;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,9 @@ import org.springframework.transaction.annotation.Transactional;
  * </ol>
  *
  * The unique index "one open loan per copy" (V21) is the last safety net behind the lock.
+ *
+ * <p>An admin may lend anyway with a written reason (step 228) when every problem is overridable
+ * (e.g. over the limit, unpaid fines); never when the copy is out or the membership isn't active.
  */
 @Service
 public class CheckoutService {
@@ -91,7 +95,11 @@ public class CheckoutService {
   public record ItemCheck(
       String barcode, LendableCopy copy, LocalDate dueDate, List<Problem> problems) {}
 
-  public record Preview(MemberSummary member, List<ItemCheck> items, boolean canCheckOut) {}
+  /**
+   * @param canOverride refused, but only for reasons an admin may override (step 228)
+   */
+  public record Preview(
+      MemberSummary member, List<ItemCheck> items, boolean canCheckOut, boolean canOverride) {}
 
   /** A loan that was made, for the receipt. */
   public record Lent(Loan loan, LendableCopy copy) {}
@@ -113,16 +121,19 @@ public class CheckoutService {
       Optional<LendableCopy> copy = catalog.byBarcode(barcode);
       items.add(itemCheck(borrower, barcode, copy.orElse(null), today, itemsOut + i));
     }
-    return new Preview(member, items, canCheckOut(member, items));
+    return preview(member, items);
   }
 
   /**
    * Lends the copies, or nothing.
    *
+   * @param overrideReason admins only: lend despite overridable problems, for this reason (audited)
    * @throws CheckoutRefusedException with every problem per item, when anything isn't allowed
    */
+  @PreAuthorize("#overrideReason == null or hasRole('ADMIN')")
   @Transactional
-  public Receipt checkOut(String memberNo, List<String> barcodes, UUID staffId) {
+  public Receipt checkOut(
+      String memberNo, List<String> barcodes, UUID staffId, String overrideReason) {
     Borrower borrower = requireBorrower(memberNo);
     List<String> scanned = normalise(barcodes);
     if (scanned.isEmpty()) {
@@ -151,8 +162,10 @@ public class CheckoutService {
       items.add(
           itemCheck(borrower, barcode, id == null ? null : locked.get(id), today, itemsOut + i));
     }
-    if (!canCheckOut(member, items)) {
-      throw new CheckoutRefusedException(new Preview(member, items, false));
+    Preview checked = preview(member, items);
+    boolean overriding = !checked.canCheckOut() && overrideReason != null;
+    if (!checked.canCheckOut() && !(overriding && checked.canOverride())) {
+      throw new CheckoutRefusedException(checked);
     }
 
     List<Lent> lent = new ArrayList<>();
@@ -182,6 +195,18 @@ public class CheckoutService {
         "member",
         borrower.memberId(),
         Map.of("copies", lent.stream().map(l -> l.copy().barcode()).toList()));
+    if (overriding) {
+      audit.record(
+          "loan.override",
+          staffId,
+          "member",
+          borrower.memberId(),
+          Map.of(
+              "action", "checkout",
+              "reason", overrideReason.strip(),
+              "overridden", overridden(member, items),
+              "copies", lent.stream().map(l -> l.copy().barcode()).toList()));
+    }
     return new Receipt(summary(borrower, itemsOut + lent.size(), today), lent);
   }
 
@@ -218,10 +243,23 @@ public class CheckoutService {
     return new MemberSummary(borrower, name, itemsOut, problems);
   }
 
-  private static boolean canCheckOut(MemberSummary member, List<ItemCheck> items) {
-    return member.problems().isEmpty()
-        && !items.isEmpty()
-        && items.stream().allMatch(item -> item.problems().isEmpty());
+  private static Preview preview(MemberSummary member, List<ItemCheck> items) {
+    List<Problem> all = allProblems(member, items);
+    boolean ok = all.isEmpty() && !items.isEmpty();
+    boolean overridable =
+        !ok && !items.isEmpty() && all.stream().allMatch(p -> p.reason().overridable());
+    return new Preview(member, items, ok, overridable);
+  }
+
+  private static List<Problem> allProblems(MemberSummary member, List<ItemCheck> items) {
+    List<Problem> all = new ArrayList<>(member.problems());
+    items.forEach(item -> all.addAll(item.problems()));
+    return all;
+  }
+
+  /** For the audit log: which rules were set aside, e.g. [LOAN_LIMIT_REACHED]. */
+  private static List<String> overridden(MemberSummary member, List<ItemCheck> items) {
+    return allProblems(member, items).stream().map(p -> p.reason().name()).distinct().toList();
   }
 
   private int itemsOut(Borrower borrower) {

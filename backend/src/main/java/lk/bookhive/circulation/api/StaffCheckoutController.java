@@ -49,11 +49,14 @@ public class StaffCheckoutController {
   /**
    * @param memberNo the scanned library card, e.g. BH-000123
    * @param barcodes the scanned copy labels, e.g. C0000123
+   * @param overrideReason admins only: lend despite overridable problems (step 228); ignored by the
+   *     preview
    */
   public record CheckoutRequest(
       @NotBlank @Size(max = 20) String memberNo,
       @NotNull @Size(min = 1, max = CheckoutService.MAX_ITEMS)
-          List<@Size(max = 30) String> barcodes) {}
+          List<@Size(max = 30) String> barcodes,
+      @Size(min = 10, max = 500) String overrideReason) {}
 
   /** One reason; {@code overridable} = staff may lend anyway with a reason (step 228). */
   public record ProblemSummary(Reason reason, boolean overridable, String message) {
@@ -107,14 +110,18 @@ public class StaffCheckoutController {
     }
   }
 
+  /**
+   * @param canOverride refused, but an admin may lend anyway with a reason
+   */
   public record CheckoutPreviewResponse(
-      MemberCardSummary member, List<ItemSummary> items, boolean canCheckOut) {
+      MemberCardSummary member, List<ItemSummary> items, boolean canCheckOut, boolean canOverride) {
 
     static CheckoutPreviewResponse from(Preview preview) {
       return new CheckoutPreviewResponse(
           MemberCardSummary.from(preview.member()),
           preview.items().stream().map(ItemSummary::from).toList(),
-          preview.canCheckOut());
+          preview.canCheckOut(),
+          preview.canOverride());
     }
   }
 
@@ -147,12 +154,22 @@ public class StaffCheckoutController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Check out: all items or none (422 CHECKOUT_REFUSED lists the problems)")
+  @Operation(
+      summary =
+          "Check out: all items or none (422 CHECKOUT_REFUSED lists the problems; admins may"
+              + " override with a reason)")
   public CheckoutReceiptResponse checkOut(
       @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CheckoutRequest request) {
     return CheckoutReceiptResponse.from(
         checkouts.checkOut(
-            request.memberNo(), request.barcodes(), UUID.fromString(jwt.getSubject())));
+            request.memberNo(),
+            request.barcodes(),
+            UUID.fromString(jwt.getSubject()),
+            blankToNull(request.overrideReason())));
+  }
+
+  static String blankToNull(String text) {
+    return text == null || text.isBlank() ? null : text;
   }
 
   /** The refusal carries the same per-item report as the preview, in the error body. */
