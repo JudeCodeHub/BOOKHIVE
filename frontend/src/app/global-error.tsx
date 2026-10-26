@@ -19,7 +19,8 @@ export default function GlobalError({ retry }: { error: unknown; retry: () => vo
           onClick={() => retry()}
           className="mt-4 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground"
         >
-          Try again
+          Try again · <span lang="si">නැවත උත්සාහ කරන්න</span> ·{" "}
+          <span lang="ta">மீண்டும் முயற்சிக்கவும்</span>
         </button>
       </body>
     </html>

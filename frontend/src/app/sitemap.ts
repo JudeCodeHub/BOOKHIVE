@@ -8,7 +8,7 @@ type CategoryNode = Schema<"CategoryTreeResponse">;
 type Entry = Schema<"SitemapEntrySummary">;
 
 /** Public pages that aren't tied to a book, author or category. */
-const PAGES = ["/", "/search", "/visit", "/rules", "/register"];
+const PAGES = ["/", "/search", "/visit", "/rules", "/register", "/privacy", "/terms"];
 
 /**
  * Main sitemap (checklist step 209): the public pages, every category and every author, each
