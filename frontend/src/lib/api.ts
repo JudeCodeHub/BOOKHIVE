@@ -48,6 +48,8 @@ type ProblemDetail = {
   instance?: string;
   code?: string;
   errors?: ValidationError[];
+  /** Extra details some errors carry, e.g. `renewal` on RENEWAL_REFUSED */
+  [property: string]: unknown;
 };
 
 export class ApiError extends Error {
@@ -58,6 +60,8 @@ export class ApiError extends Error {
   readonly errors: ValidationError[];
   /** X-Request-Id: lets us find this exact request in the backend logs. */
   readonly requestId?: string;
+  /** The whole error body, for errors with extra details (e.g. the reasons a renewal was refused). */
+  readonly body: Record<string, unknown>;
 
   constructor(options: {
     status: number;
@@ -65,6 +69,7 @@ export class ApiError extends Error {
     message: string;
     errors?: ValidationError[];
     requestId?: string;
+    body?: Record<string, unknown>;
   }) {
     super(options.message);
     this.name = "ApiError";
@@ -72,6 +77,7 @@ export class ApiError extends Error {
     this.code = options.code;
     this.errors = options.errors ?? [];
     this.requestId = options.requestId;
+    this.body = options.body ?? {};
   }
 
   get isValidation() {
@@ -298,6 +304,7 @@ async function toApiError(response: Response, requestId?: string): Promise<ApiEr
     message: problem.detail ?? problem.title ?? response.statusText ?? "Request failed",
     errors: problem.errors,
     requestId,
+    body: problem,
   });
 }
 

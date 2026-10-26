@@ -61,12 +61,15 @@ public class StaffLoanController {
   @GetMapping
   @Operation(
       summary =
-          "Loans out now, soonest due first; overdue=true: only overdue, longest overdue first")
+          "Loans out now, soonest due first; overdue=true: only overdue, longest first;"
+              + " dueWithinDays=N: only those due in the next N days")
   public PageResponse<OpenLoanSummary> list(
       @RequestParam(defaultValue = "false") boolean overdue,
+      @RequestParam(required = false) @Min(0) @Max(60) Integer dueWithinDays,
       @RequestParam(defaultValue = "0") @Min(0) int page,
       @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
-    return PageResponse.from(history.openLoans(overdue, page, size), OpenLoanSummary::from);
+    return PageResponse.from(
+        history.openLoans(overdue, dueWithinDays, page, size), OpenLoanSummary::from);
   }
 
   /**
