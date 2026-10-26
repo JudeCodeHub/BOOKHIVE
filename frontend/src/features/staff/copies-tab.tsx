@@ -32,6 +32,8 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { ApiError, api, type Schema } from "@/lib/api";
 import { applyServerErrors } from "@/lib/forms";
+import { EntityCombobox, type EntityChoice } from "@/components/forms/entity-combobox";
+import { searchDonations } from "@/features/staff/donations";
 import { CopyDetail } from "@/features/staff/copy-detail";
 
 type Copy = Schema<"CopyResponse">;
@@ -232,10 +234,12 @@ export function CopiesTab({ bookId }: { bookId: string }) {
 
 function AddCopiesForm({ bookId, onDone }: { bookId: string; onDone: () => void }) {
   const t = useTranslations("Copies");
+  const tDonations = useTranslations("Donations");
   const v = useTranslations("Auth.validation");
   const errorMessage = useAuthErrorMessage();
   const queryClient = useQueryClient();
   const [formError, setFormError] = useState<string | null>(null);
+  const [donation, setDonation] = useState<EntityChoice | null>(null);
 
   const optionalNumber = (value: unknown) =>
     value === "" || value === null || value === undefined ? undefined : Number(value);
@@ -288,6 +292,8 @@ function AddCopiesForm({ bookId, onDone }: { bookId: string; onDone: () => void 
         acquisitionSource: values.acquisitionSource,
         price: values.price,
         notes: values.notes || undefined,
+        // Linking a donation also sets the source to DONATION on the server
+        donationId: donation?.id,
       },
     };
     try {
@@ -395,6 +401,22 @@ function AddCopiesForm({ bookId, onDone }: { bookId: string; onDone: () => void 
       </div>
       <FormField label={t("notes")} error={errors.notes?.message}>
         {(field) => <Input {...field} {...form.register("notes")} />}
+      </FormField>
+      <FormField label={tDonations("fromDonation")}>
+        {(field) => (
+          <EntityCombobox
+            {...field}
+            value={donation}
+            onChange={(choice) => {
+              setDonation(choice);
+              if (choice) form.setValue("acquisitionSource", "DONATION");
+            }}
+            search={searchDonations}
+            queryKey="donations"
+            placeholder={tDonations("fromDonationPlaceholder")}
+            allowCreate={false}
+          />
+        )}
       </FormField>
 
       <DialogFooter>
