@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { CategoryTreePicker } from "@/components/forms/category-tree-picker";
 import { EntityCombobox, type EntityChoice } from "@/components/forms/entity-combobox";
 import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,6 @@ const searchPublishers = async (text: string) =>
       query: { q: text, size: 10 },
     })
   ).content;
-
-function flatten(nodes: CategoryNode[], depth = 0): { node: CategoryNode; depth: number }[] {
-  return nodes.flatMap((node) => [{ node, depth }, ...flatten(node.children, depth + 1)]);
-}
 
 /**
  * Add a title to the catalog (checklist step 173): "Lookup ISBN" fills what Open Library knows,
@@ -203,8 +200,6 @@ export function BookForm() {
     }
   });
 
-  const categoryName = (node: CategoryNode) =>
-    locale === "si" ? node.nameSi : locale === "ta" ? node.nameTa : node.nameEn;
   const selectClass = "h-8 rounded-lg border bg-transparent px-2.5 text-sm";
 
   return (
@@ -438,34 +433,18 @@ export function BookForm() {
           {(field) => <Textarea rows={4} {...field} {...form.register("description")} />}
         </FormField>
 
-        {/* Plain checkbox list for now; the searchable tree picker is checklist step 175 */}
-        <fieldset className="grid gap-1">
-          <legend className="text-sm font-medium">{t("categories")}</legend>
-          <p className="text-sm text-muted-foreground">{t("categoriesHint")}</p>
-          <div className="max-h-56 overflow-y-auto rounded-lg border p-2 text-sm">
-            {flatten(categories.data ?? []).map(({ node, depth }) => (
-              <label
-                key={node.id}
-                className="flex items-center gap-2 py-0.5"
-                style={{ paddingInlineStart: `${depth * 1.25}rem` }}
-              >
-                <input
-                  type="checkbox"
-                  className="accent-primary"
-                  checked={categoryIds.includes(node.id)}
-                  disabled={!categoryIds.includes(node.id) && categoryIds.length >= MAX_CATEGORIES}
-                  onChange={(event) =>
-                    setCategoryIds((ids) =>
-                      event.target.checked ? [...ids, node.id] : ids.filter((id) => id !== node.id),
-                    )
-                  }
-                />
-                {node.ddcCode && <span className="font-mono text-xs">{node.ddcCode}</span>}
-                {categoryName(node)}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <div className="grid gap-1">
+          <span id="book-categories-label" className="text-sm font-medium">
+            {t("categories")}
+          </span>
+          <CategoryTreePicker
+            tree={categories.data ?? []}
+            value={categoryIds}
+            onChange={setCategoryIds}
+            max={MAX_CATEGORIES}
+            labelledBy="book-categories-label"
+          />
+        </div>
       </section>
 
       <Button type="submit" className="justify-self-start" disabled={isSubmitting}>
