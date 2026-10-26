@@ -107,6 +107,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/returns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Return a copy by barcode: closes the loan, fine, where it goes next */
+        post: operations["returnCopy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/publishers": {
         parameters: {
             query?: never;
@@ -1392,6 +1409,28 @@ export interface components {
             allowedSections: string[];
             active: boolean;
         };
+        ReturnRequest: {
+            barcode: string;
+        };
+        ReturnResponse: {
+            /** Format: uuid */
+            loanId: string;
+            barcode: string;
+            title: string;
+            memberNo: string;
+            /** Format: date */
+            dueDate: string;
+            /** Format: date-time */
+            returnedAt: string;
+            /** Format: int64 */
+            daysLate: number;
+            fine: number;
+            /** @enum {string} */
+            destination: "SHELF" | "HOLD_SHELF";
+            shelfLocation: string;
+            callNumber: string;
+            heldForMemberNo: string;
+        };
         SuspendRequest: {
             reason: string;
         };
@@ -2385,6 +2424,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminMembershipTypeResponse"];
+                };
+            };
+        };
+    };
+    returnCopy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReturnResponse"];
                 };
             };
         };

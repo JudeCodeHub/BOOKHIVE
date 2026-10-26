@@ -18,6 +18,14 @@ public final class BorrowingPorts {
     Money of(UUID memberId);
   }
 
+  /**
+   * Is a member waiting for this title? The returned copy then goes to the hold shelf for them
+   * (hold module; the hold module also records which copy was set aside).
+   */
+  public interface HoldQueue {
+    Optional<UUID> nextMemberFor(UUID bookId, UUID returnedCopyId);
+  }
+
   /** Which member a copy on the hold shelf is waiting for (hold module). */
   public interface HoldShelf {
     Optional<UUID> reservedFor(UUID copyId);

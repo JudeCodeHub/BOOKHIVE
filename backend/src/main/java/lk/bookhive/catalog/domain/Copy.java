@@ -145,6 +145,21 @@ public class Copy extends BaseEntity {
   }
 
   /**
+   * Back from a loan (checklist step 223): onto the shelf, or onto the hold shelf when a member is
+   * waiting for this title. Also when a "lost" copy turns up again (step 230).
+   */
+  public void checkIn(boolean toHoldShelf, UUID staffId, Instant now) {
+    if (status != CopyStatus.ON_LOAN && status != CopyStatus.LOST) {
+      throw new ConflictException("COPY_NOT_ON_LOAN", "This copy isn't out on loan.");
+    }
+    moveTo(
+        toHoldShelf ? CopyStatus.ON_HOLD_SHELF : CopyStatus.AVAILABLE,
+        toHoldShelf ? "Returned, held for a member" : "Returned",
+        staffId,
+        now);
+  }
+
+  /**
    * The one place where the status changes (CAT-9, checklist step 166): every change also adds a
    * line to the copy's history, so no code path can forget to record it. Loans and holds will
    * change the status through methods that call this too.
