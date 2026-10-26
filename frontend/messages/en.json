@@ -1165,6 +1165,17 @@
       "COPY_REFERENCE_ONLY": "Reference only: for use in the library.",
       "COPY_RESTRICTED": "Restricted: needs staff approval.",
       "SECTION_NOT_ALLOWED": "Not from a section this member may borrow from."
-    }
+    },
+    "listEmpty": "No books yet: scan the first book.",
+    "listTitle": "{count, plural, one {# book} other {# books}} to lend",
+    "listReady": "{ready} of {total} ready",
+    "unknownBarcode": "Unknown barcode",
+    "dueOn": "Due {date}",
+    "remove": "Remove {title}",
+    "listAllReady": "Everything is ready to check out.",
+    "listFixProblems": "Remove the books marked in red, or an admin may override the amber ones.",
+    "listMemberBlocked": "This member can't borrow right now: see the alerts on their card.",
+    "alreadyInList": "{code} is already in the list.",
+    "tooManyItems": "At most {max} books in one checkout."
   }
 }
