@@ -1,8 +1,13 @@
 package lk.bookhive.circulation.service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lk.bookhive.auth.domain.User;
+import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
 import lk.bookhive.circulation.domain.Loan;
@@ -47,6 +52,14 @@ public class LoanHistoryService {
   public record CopyLoan(Loan loan, String memberNo) {}
 
   /**
+   * An open loan for the staff lists, with who has it and how to reach them.
+   *
+   * @param daysOverdue 0 when not overdue
+   */
+  public record OpenLoan(
+      LoanView view, Borrower borrower, String fullName, String phone, long daysOverdue) {}
+
+  /**
    * @param historyEnabled false when the member switched reading history off: nothing is listed
    */
   public record ReadingHistory(boolean historyEnabled, Page<LoanView> loans) {}
@@ -54,17 +67,61 @@ public class LoanHistoryService {
   private final LoanRepository loans;
   private final LendingCatalogService catalog;
   private final BorrowerService borrowers;
+  private final AuthService authService;
   private final LibraryTime time;
 
   public LoanHistoryService(
       LoanRepository loans,
       LendingCatalogService catalog,
       BorrowerService borrowers,
+      AuthService authService,
       LibraryTime time) {
     this.loans = loans;
     this.catalog = catalog;
     this.borrowers = borrowers;
+    this.authService = authService;
     this.time = time;
+  }
+
+  /**
+   * Everything out now, soonest due first, or only the overdue loans, longest overdue first (step
+   * 232). Current loans are operational data, so staff see the borrower (PRD §4.5).
+   */
+  @Transactional(readOnly = true)
+  public Page<OpenLoan> openLoans(boolean overdueOnly, int page, int size) {
+    LocalDate today = time.today();
+    PageRequest request = PageRequest.of(page, size);
+    Page<Loan> found =
+        overdueOnly
+            ? loans.findByStatusInAndDueDateBeforeOrderByDueDate(
+                LoanRepository.OPEN, today, request)
+            : loans.findByStatusInOrderByDueDate(LoanRepository.OPEN, request);
+    List<LoanView> views = withCopies(found.getContent());
+    // One lookup per member on the page, not per loan
+    Map<UUID, Borrower> members = new HashMap<>();
+    Map<UUID, User> users = new HashMap<>();
+    List<OpenLoan> rows =
+        views.stream()
+            .map(
+                view -> {
+                  Borrower borrower =
+                      members.computeIfAbsent(
+                          view.loan().getMemberId(), id -> borrowers.byId(id).orElse(null));
+                  User user =
+                      borrower == null
+                          ? null
+                          : users.computeIfAbsent(borrower.userId(), authService::getProfile);
+                  long late =
+                      view.overdue() ? ChronoUnit.DAYS.between(view.loan().getDueDate(), today) : 0;
+                  return new OpenLoan(
+                      view,
+                      borrower,
+                      user == null ? null : user.getFullName(),
+                      user == null ? null : user.getPhone(),
+                      late);
+                })
+            .toList();
+    return new PageImpl<>(rows, request, found.getTotalElements());
   }
 
   /** What the member has out (or lost), soonest due first. For the member and for staff. */
@@ -113,7 +170,7 @@ public class LoanHistoryService {
 
   private List<LoanView> withCopies(List<Loan> list) {
     Map<UUID, LendableCopy> copies = catalog.byIds(list.stream().map(Loan::getCopyId).toList());
-    var today = time.today();
+    LocalDate today = time.today();
     return list.stream()
         .map(loan -> new LoanView(loan, copies.get(loan.getCopyId()), loan.isOverdueOn(today)))
         .toList();

@@ -44,6 +44,13 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
           + " AND l.dueDate < :today")
   List<Loan> findBecomingOverdue(@Param("today") LocalDate today);
 
-  /** Staff lists: open loans, optionally only overdue ones, soonest due first. */
+  /** Staff list: open loans, soonest due first. */
   Page<Loan> findByStatusInOrderByDueDate(Collection<LoanStatus> statuses, Pageable pageable);
+
+  /**
+   * Staff list: open loans due before {@code today}, longest overdue first. By date, not by the
+   * OVERDUE status, so it's right even before the nightly job has run.
+   */
+  Page<Loan> findByStatusInAndDueDateBeforeOrderByDueDate(
+      Collection<LoanStatus> statuses, LocalDate today, Pageable pageable);
 }

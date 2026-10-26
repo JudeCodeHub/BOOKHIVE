@@ -6,6 +6,7 @@ import java.util.UUID;
 import lk.bookhive.circulation.domain.LoanStatus;
 import lk.bookhive.circulation.service.LoanHistoryService.CopyLoan;
 import lk.bookhive.circulation.service.LoanHistoryService.LoanView;
+import lk.bookhive.circulation.service.LoanHistoryService.OpenLoan;
 
 /** Loan list rows shared by the member and staff endpoints (step 231). */
 public final class LoanViews {
@@ -46,6 +47,30 @@ public final class LoanViews {
           loan.getStatus(),
           view.overdue(),
           loan.getReturnedAt());
+    }
+  }
+
+  /**
+   * A loan in the staff lists (step 232).
+   *
+   * @param daysOverdue 0 when not overdue
+   */
+  public record OpenLoanSummary(
+      LoanSummary loan,
+      UUID memberId,
+      String memberNo,
+      String fullName,
+      String phone,
+      long daysOverdue) {
+
+    static OpenLoanSummary from(OpenLoan row) {
+      return new OpenLoanSummary(
+          LoanSummary.from(row.view()),
+          row.view().loan().getMemberId(),
+          row.borrower() == null ? null : row.borrower().memberNo(),
+          row.fullName(),
+          row.phone(),
+          row.daysOverdue());
     }
   }
 
