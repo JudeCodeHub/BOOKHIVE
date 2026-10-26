@@ -42,7 +42,13 @@
         "title": "Pay fines online",
         "text": "Pay by card, eZ Cash or mCash and get a receipt by email."
       }
-    }
+    },
+    "newArrivals": "New arrivals",
+    "newArrivalsSubtitle": "The latest books on our shelves.",
+    "popular": "Popular right now",
+    "popularSubtitle": "What other readers are borrowing.",
+    "seeAll": "See all",
+    "subjectBooks": "Browse {name}"
   },
   "Common": {
     "loading": "Loading",
@@ -160,7 +166,11 @@
     "searchLabel": "Search the catalog",
     "suggestions": "Suggestions",
     "author": "Author",
-    "seeAll": "See all results for “{q}”"
+    "seeAll": "See all results for “{q}”",
+    "emptyTitle": "No books found for “{q}”.",
+    "emptyNoQuery": "No books match these filters.",
+    "suggestPurchase": "Can't find it? Suggest it for the library",
+    "clearFilters": "Remove the filters"
   },
   "AccountMenu": {
     "account": "My account",

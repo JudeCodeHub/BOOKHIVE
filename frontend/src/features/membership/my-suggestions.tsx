@@ -30,7 +30,7 @@ const STATUS_VARIANT = {
 } as const;
 
 /** A member suggests a book for the library to buy, and sees the answers (step 185, CAT-11). */
-export function MySuggestions() {
+export function MySuggestions({ initialTitle }: { initialTitle?: string } = {}) {
   const t = useTranslations("MySuggestions");
   const v = useTranslations("Auth.validation");
   const tCommon = useTranslations("Common");
@@ -53,7 +53,8 @@ export function MySuggestions() {
   type Values = z.infer<typeof schema>;
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { title: "", author: "", isbn: "", reason: "" },
+    // From "Can't find it? Suggest it" on an empty search: the search text becomes the title
+    defaultValues: { title: initialTitle ?? "", author: "", isbn: "", reason: "" },
   });
   const { errors, isSubmitting } = form.formState;
 

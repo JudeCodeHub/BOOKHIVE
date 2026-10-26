@@ -1,7 +1,7 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { LayoutGrid, List, SlidersHorizontal } from "lucide-react";
+import { BookX, LayoutGrid, Lightbulb, List, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -20,7 +20,7 @@ import { useAuthErrorMessage } from "@/features/auth/errors";
 import { BookCard } from "@/features/catalog/book-card";
 import { SearchFilters } from "@/features/search/search-filters";
 import { readSearch, writeSearch, type SearchState } from "@/features/search/search-params";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -151,10 +151,29 @@ export function SearchPage() {
         )}
         {results.isError && <FormAlert>{errorMessage(results.error)}</FormAlert>}
         {data && data.results.totalElements === 0 && (
-          <div className="rounded-lg border p-8 text-center">
-            <p className="font-medium">{t("noResults")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("tryLess")}</p>
-          </div>
+          <EmptyResults
+            q={state.q}
+            hasFilters={
+              !!(
+                state.language ||
+                state.format ||
+                state.category ||
+                state.available ||
+                state.yearFrom ||
+                state.yearTo
+              )
+            }
+            onClearFilters={() =>
+              update({
+                language: "",
+                format: "",
+                category: "",
+                available: false,
+                yearFrom: "",
+                yearTo: "",
+              })
+            }
+          />
         )}
         {data && data.results.content.length > 0 && (
           <ul
@@ -196,6 +215,45 @@ export function SearchPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+/**
+ * Nothing found (checklist step 201): help the reader on, instead of a dead end. Fewer filters,
+ * or ask the library to buy the book: the suggestion form opens with the title filled in.
+ */
+function EmptyResults({
+  q,
+  hasFilters,
+  onClearFilters,
+}: {
+  q: string;
+  hasFilters: boolean;
+  onClearFilters: () => void;
+}) {
+  const t = useTranslations("Search");
+  return (
+    <div className="grid justify-items-center gap-3 rounded-lg border p-8 text-center">
+      <BookX aria-hidden className="size-10 text-muted-foreground" />
+      <p className="font-medium">{q ? t("emptyTitle", { q }) : t("emptyNoQuery")}</p>
+      <p className="text-sm text-muted-foreground">{t("tryLess")}</p>
+      <div className="flex flex-wrap justify-center gap-2">
+        {hasFilters && (
+          <Button variant="secondary" onClick={onClearFilters}>
+            {t("clearFilters")}
+          </Button>
+        )}
+        {q && (
+          <Button asChild>
+            {/* Visitors are asked to log in first, then land back on the form */}
+            <Link href={`/account/suggestions?title=${encodeURIComponent(q)}`}>
+              <Lightbulb aria-hidden />
+              {t("suggestPurchase")}
+            </Link>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
