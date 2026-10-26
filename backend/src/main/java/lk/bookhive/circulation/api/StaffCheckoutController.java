@@ -49,14 +49,15 @@ public class StaffCheckoutController {
   /**
    * @param memberNo the scanned library card, e.g. BH-000123
    * @param barcodes the scanned copy labels, e.g. C0000123
-   * @param overrideReason admins only: lend despite overridable problems (step 228); ignored by the
-   *     preview
+   * @param overrideReason admins only: lend despite overridable problems (step 228)
+   * @param emailReceipt also email the receipt to the member (step 239)
    */
   public record CheckoutRequest(
       @NotBlank @Size(max = 20) String memberNo,
       @NotNull @Size(min = 1, max = CheckoutService.MAX_ITEMS)
           List<@Size(max = 30) String> barcodes,
-      @Size(min = 10, max = 500) String overrideReason) {}
+      @Size(min = 10, max = 500) String overrideReason,
+      boolean emailReceipt) {}
 
   /**
    * The preview also works with no items yet: right after the member's card is scanned.
@@ -176,7 +177,8 @@ public class StaffCheckoutController {
             request.memberNo(),
             request.barcodes(),
             UUID.fromString(jwt.getSubject()),
-            blankToNull(request.overrideReason())));
+            blankToNull(request.overrideReason()),
+            request.emailReceipt()));
   }
 
   static String blankToNull(String text) {

@@ -197,3 +197,13 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='98' viewBox='0 0 56 98'%3E%3Cpath d='M28 66 0 50V18L28 2l28 16v32zm0 32V66m0-64V-30' fill='none' stroke='%23F59E0B' stroke-opacity='.18' stroke-width='1.5'/%3E%3C/svg%3E");
   background-size: 56px 98px;
 }
+
+/*
+ * Printing a slip (desk receipt, step 239): <PrintArea> renders the slip straight into <body>.
+ * While one is on the page, printing shows only the slip, not the console around it.
+ */
+@media print {
+  body:has(> .print-area) > :not(.print-area) {
+    display: none !important;
+  }
+}

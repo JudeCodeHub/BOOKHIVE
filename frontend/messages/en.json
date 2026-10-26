@@ -1176,6 +1176,16 @@
     "listFixProblems": "Remove the books marked in red, or an admin may override the amber ones.",
     "listMemberBlocked": "This member can't borrow right now: see the alerts on their card.",
     "alreadyInList": "{code} is already in the list.",
-    "tooManyItems": "At most {max} books in one checkout."
+    "tooManyItems": "At most {max} books in one checkout.",
+    "emailReceipt": "Email the receipt to the member",
+    "confirmCheckout": "Check out {count, plural, one {# book} other {# books}}",
+    "checkingOut": "Checking out…",
+    "checkoutRefused": "Nothing was lent: something changed since the last check. See the list.",
+    "receiptTitle": "{count, plural, one {# book} other {# books}} checked out to {name}",
+    "receiptEmailed": "Receipt emailed to the member.",
+    "printReceipt": "Print receipt",
+    "slipHeading": "Loan receipt",
+    "slipCount": "{count, plural, one {# book} other {# books}} borrowed",
+    "slipFooter": "Please return or renew by the due date. Renew online in My loans."
   }
 }
