@@ -47,7 +47,14 @@ const searchPublishers = async (text: string) =>
  * staff check it, pick or create authors and publisher (step 174), and save. New authors and
  * publishers are created only when the book is saved. Copies are added on the book's page.
  */
-export function BookForm() {
+export function BookForm({
+  book,
+  onSaved,
+}: {
+  /** Editing this book (checklist step 177); without it the form adds a new one */
+  book?: Book;
+  onSaved?: (book: Book) => void;
+} = {}) {
   const t = useTranslations("BookForm");
   const tCatalog = useTranslations("StaffCatalog");
   const v = useTranslations("Auth.validation");
@@ -56,12 +63,20 @@ export function BookForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [contributors, setContributors] = useState<Contributor[]>([
-    { key: 0, person: null, role: "AUTHOR" },
-  ]);
-  const [nextKey, setNextKey] = useState(1);
-  const [publisher, setPublisher] = useState<EntityChoice | null>(null);
-  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [contributors, setContributors] = useState<Contributor[]>(() =>
+    book && book.contributors.length > 0
+      ? book.contributors.map((c, i) => ({
+          key: i,
+          person: { id: c.authorId, name: c.name },
+          role: c.role,
+        }))
+      : [{ key: 0, person: null, role: "AUTHOR" }],
+  );
+  const [nextKey, setNextKey] = useState(() => Math.max(1, book?.contributors.length ?? 0));
+  const [publisher, setPublisher] = useState<EntityChoice | null>(book?.publisher ?? null);
+  const [categoryIds, setCategoryIds] = useState<string[]>(
+    () => book?.categories.map((c) => c.id) ?? [],
+  );
   const [lookup, setLookup] = useState<IsbnLookup | null>(null);
   const [lookupMessage, setLookupMessage] = useState<string | null>(null);
   const [lookingUp, setLookingUp] = useState(false);
@@ -94,14 +109,16 @@ export function BookForm() {
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
-      isbn: "",
-      title: "",
-      subtitle: "",
-      edition: "",
-      language: locale,
-      format: "BOOK",
-      callNumber: "",
-      description: "",
+      isbn: book?.isbn13 ?? book?.isbn10 ?? "",
+      title: book?.title ?? "",
+      subtitle: book?.subtitle ?? "",
+      edition: book?.edition ?? "",
+      publishYear: book?.publishYear ?? undefined,
+      pages: book?.pages ?? undefined,
+      language: book?.language ?? locale,
+      format: book?.format ?? "BOOK",
+      callNumber: book?.callNumber ?? "",
+      description: book?.description ?? "",
     },
   });
   const { errors, isSubmitting } = form.formState;
@@ -183,10 +200,17 @@ export function BookForm() {
         contributors: chosen.map((c, i) => ({ authorId: authorIds[i], role: c.role })),
         categoryIds,
       };
-      const book = await api.post<Book>("/staff/books", body);
-      toast.success(t("saved", { title: book.title }));
       await queryClient.invalidateQueries({ queryKey: ["staff", "catalog"] });
-      router.push(`/staff/catalog?q=${encodeURIComponent(book.isbn13 ?? book.title)}`);
+      if (book) {
+        const saved = await api.put<Book>(`/staff/books/${book.id}`, body);
+        toast.success(t("updated"));
+        onSaved?.(saved);
+      } else {
+        const saved = await api.post<Book>("/staff/books", body);
+        toast.success(t("saved", { title: saved.title }));
+        // Straight on to adding its copies
+        router.push(`/staff/catalog/${saved.id}?tab=copies`);
+      }
     } catch (error) {
       const translate = ({ code }: { code: string }) =>
         t.has(`errors.${code}` as never) ? t(`errors.${code}` as never) : undefined;
@@ -213,7 +237,7 @@ export function BookForm() {
             <div className="flex gap-2">
               <Input
                 inputMode="numeric"
-                autoFocus
+                autoFocus={!book}
                 {...field}
                 {...form.register("isbn")}
                 onKeyDown={(event) => {
@@ -236,7 +260,7 @@ export function BookForm() {
             </div>
           )}
         </FormField>
-        {lookup?.existingBookId && (
+        {lookup?.existingBookId && lookup.existingBookId !== book?.id && (
           <FormAlert>
             {t("alreadyInCatalog")}{" "}
             <Link
@@ -448,7 +472,7 @@ export function BookForm() {
       </section>
 
       <Button type="submit" className="justify-self-start" disabled={isSubmitting}>
-        {isSubmitting ? t("saving") : t("save")}
+        {isSubmitting ? t("saving") : book ? t("saveChanges") : t("save")}
       </Button>
     </form>
   );

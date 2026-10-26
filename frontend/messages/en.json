@@ -645,6 +645,73 @@
       "PUBLISHER_NOT_FOUND": "The publisher doesn't exist any more.",
       "CATEGORY_NOT_FOUND": "A chosen category doesn't exist any more.",
       "PUBLISHER_EXISTS": "That publisher already exists; pick it from the list."
+    },
+    "saveChanges": "Save changes",
+    "updated": "Changes saved."
+  },
+  "StaffBook": {
+    "metaTitle": "Book",
+    "back": "Back to catalog",
+    "tabs": "Book sections",
+    "details": "Details",
+    "copies": "Copies",
+    "isbn": "ISBN {isbn}",
+    "noIsbn": "No ISBN"
+  },
+  "Copies": {
+    "empty": "No copies yet. Add the ones on the shelf.",
+    "add": "Add copies",
+    "printSelected": "{count, plural, one {Print # label} other {Print # labels}}",
+    "printAll": "Print all labels",
+    "preparing": "Preparing labels…",
+    "selectAll": "Select all copies",
+    "select": "Select {barcode}",
+    "barcode": "Barcode",
+    "status": "Status",
+    "lendingType": "Lending",
+    "condition": "Condition",
+    "shelf": "Shelf",
+    "price": "Price",
+    "statuses": {
+      "AVAILABLE": "On shelf",
+      "ON_LOAN": "On loan",
+      "ON_HOLD_SHELF": "Hold shelf",
+      "IN_TRANSIT": "In transit",
+      "IN_REPAIR": "In repair",
+      "LOST": "Lost",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "lendingTypes": {
+      "LENDABLE": "Lendable",
+      "REFERENCE_ONLY": "Reference only",
+      "RESTRICTED": "Restricted"
+    },
+    "conditions": {
+      "NEW": "New",
+      "GOOD": "Good",
+      "FAIR": "Fair",
+      "POOR": "Poor",
+      "DAMAGED": "Damaged"
+    },
+    "sources": {
+      "PURCHASE": "Purchase",
+      "DONATION": "Donation",
+      "OTHER": "Other"
+    },
+    "addTitle": "Add copies",
+    "count": "How many",
+    "barcodeOptional": "Existing barcode (optional)",
+    "barcodeHint": "Only if the copy already has a label. Leave empty to get new barcodes.",
+    "acquiredAt": "Acquired on",
+    "source": "Source",
+    "notes": "Notes",
+    "cancel": "Cancel",
+    "save": "Add",
+    "saving": "Adding…",
+    "added": "{count, plural, one {# copy added} other {# copies added}}: {barcodes}",
+    "errors": {
+      "BARCODE_EXISTS": "Another copy already has this barcode.",
+      "ONE_COPY_PER_BARCODE": "With your own barcode, add one copy at a time."
     }
   },
   "MemberStatusLabel": {

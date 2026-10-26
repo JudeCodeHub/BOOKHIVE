@@ -645,6 +645,73 @@
       "PUBLISHER_NOT_FOUND": "ප්‍රකාශකයා තවදුරටත් නැත.",
       "CATEGORY_NOT_FOUND": "තෝරාගත් කාණ්ඩයක් තවදුරටත් නැත.",
       "PUBLISHER_EXISTS": "එම ප්‍රකාශකයා දැනටමත් ඇත; ලැයිස්තුවෙන් තෝරන්න."
+    },
+    "saveChanges": "වෙනස්කම් සුරකින්න",
+    "updated": "වෙනස්කම් සුරකින ලදී."
+  },
+  "StaffBook": {
+    "metaTitle": "පොත",
+    "back": "නාමාවලියට ආපසු",
+    "tabs": "පොතේ කොටස්",
+    "details": "විස්තර",
+    "copies": "පිටපත්",
+    "isbn": "ISBN {isbn}",
+    "noIsbn": "ISBN නැත"
+  },
+  "Copies": {
+    "empty": "තවම පිටපත් නැත. රාක්කයේ ඇති ඒවා එක් කරන්න.",
+    "add": "පිටපත් එක් කරන්න",
+    "printSelected": "{count, plural, one {ලේබල් # මුද්‍රණය} other {ලේබල් # මුද්‍රණය}}",
+    "printAll": "සියලු ලේබල් මුද්‍රණය",
+    "preparing": "ලේබල් සූදානම් කරමින්…",
+    "selectAll": "සියලු පිටපත් තෝරන්න",
+    "select": "{barcode} තෝරන්න",
+    "barcode": "බාර්කෝඩය",
+    "status": "තත්ත්වය",
+    "lendingType": "ණය දීම",
+    "condition": "තත්ත්වය (භෞතික)",
+    "shelf": "රාක්කය",
+    "price": "මිල",
+    "statuses": {
+      "AVAILABLE": "රාක්කයේ",
+      "ON_LOAN": "ණයට දී ඇත",
+      "ON_HOLD_SHELF": "වෙන් කළ රාක්කය",
+      "IN_TRANSIT": "ගමනේ",
+      "IN_REPAIR": "අලුත්වැඩියාවේ",
+      "LOST": "නැති වී ඇත",
+      "WITHDRAWN": "ඉවත් කර ඇත"
+    },
+    "lendingTypes": {
+      "LENDABLE": "ණයට දිය හැක",
+      "REFERENCE_ONLY": "යොමු සඳහා පමණි",
+      "RESTRICTED": "සීමා සහිත"
+    },
+    "conditions": {
+      "NEW": "නව",
+      "GOOD": "හොඳ",
+      "FAIR": "සාමාන්‍ය",
+      "POOR": "දුර්වල",
+      "DAMAGED": "හානි වී ඇත"
+    },
+    "sources": {
+      "PURCHASE": "මිලදී ගැනීම",
+      "DONATION": "පරිත්‍යාගය",
+      "OTHER": "වෙනත්"
+    },
+    "addTitle": "පිටපත් එක් කරන්න",
+    "count": "කීයද",
+    "barcodeOptional": "පවතින බාර්කෝඩය (අත්‍යවශ්‍ය නොවේ)",
+    "barcodeHint": "පිටපතට දැනටමත් ලේබලයක් ඇත්නම් පමණි. නව බාර්කෝඩ සඳහා හිස්ව තබන්න.",
+    "acquiredAt": "ලබාගත් දිනය",
+    "source": "මූලාශ්‍රය",
+    "notes": "සටහන්",
+    "cancel": "අවලංගු කරන්න",
+    "save": "එක් කරන්න",
+    "saving": "එක් කරමින්…",
+    "added": "{count, plural, one {පිටපත් #ක් එක් කරන ලදී} other {පිටපත් #ක් එක් කරන ලදී}}: {barcodes}",
+    "errors": {
+      "BARCODE_EXISTS": "වෙනත් පිටපතකට දැනටමත් මෙම බාර්කෝඩය ඇත.",
+      "ONE_COPY_PER_BARCODE": "ඔබේම බාර්කෝඩයක් සමඟ, වරකට එක් පිටපතක් එක් කරන්න."
     }
   },
   "MemberStatusLabel": {
