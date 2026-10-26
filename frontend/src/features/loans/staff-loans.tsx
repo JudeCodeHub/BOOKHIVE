@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -19,7 +20,9 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
-import { refusedRenewal } from "@/features/loans/renewal-reasons";
+import { useSession } from "@/features/auth/use-session";
+import { OverrideDialog } from "@/features/desk/override-dialog";
+import { type RenewalCheck, refusedRenewal } from "@/features/loans/renewal-reasons";
 import { Pager } from "@/features/staff/pager";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { api, type PageResponse, type Schema } from "@/lib/api";
@@ -36,8 +39,8 @@ const DUE_SOON_DAYS = 3;
 /**
  * Staff loans list (checklist step 243): everything out now, what's due soon, or what's overdue
  * (longest first, with the phone number to call). The view and page are in the URL, so the
- * overdue list can be bookmarked. Each loan can be renewed from here; an admin override for
- * refused renewals comes with step 246.
+ * overdue list can be bookmarked. Each loan can be renewed from here; when a renewal is refused
+ * only for reasons that may be bent, an admin can override it with a reason (step 246).
  */
 export function StaffLoans() {
   const t = useTranslations("StaffLoans");
@@ -50,6 +53,8 @@ export function StaffLoans() {
   const params = useSearchParams();
   const view: View = VIEWS.find((v) => v === params.get("view")) ?? "all";
   const page = Math.max(0, Number(params.get("page")) || 0);
+  const isAdmin = useSession().hasRole("ADMIN");
+  const [override, setOverride] = useState<{ loan: OpenLoan; check: RenewalCheck } | null>(null);
 
   const go = (next: { view?: View; page?: number }) => {
     const v = next.view ?? view;
@@ -76,8 +81,10 @@ export function StaffLoans() {
   });
 
   const renew = useMutation({
-    mutationFn: (loan: OpenLoan) => api.post<Renewal>(`/staff/loans/${loan.loan.loanId}/renew`, {}),
+    mutationFn: ({ loan, overrideReason }: { loan: OpenLoan; overrideReason?: string }) =>
+      api.post<Renewal>(`/staff/loans/${loan.loan.loanId}/renew`, { overrideReason }),
     onSuccess: (renewal) => {
+      setOverride(null);
       toast.success(
         t("renewed", {
           title: renewal.title,
@@ -86,11 +93,17 @@ export function StaffLoans() {
       );
       void queryClient.invalidateQueries({ queryKey: ["staff", "loans"] });
     },
-    onError: (error) => {
+    onError: (error, { loan, overrideReason }) => {
       const refused = refusedRenewal(error);
       if (refused) {
+        setOverride(null);
         toast.error(t("renewRefused"), {
           description: refused.problems.map((p) => t(`renewalProblems.${p.reason}`)).join(" "),
+          // Admins can bend these rules with a reason (not again if an override just failed)
+          action:
+            isAdmin && refused.canOverride && !overrideReason
+              ? { label: t("override"), onClick: () => setOverride({ loan, check: refused }) }
+              : undefined,
         });
       } else {
         toast.error(errorMessage(error));
@@ -183,8 +196,10 @@ export function StaffLoans() {
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={renew.isPending && renew.variables?.loan.loanId === row.loan.loanId}
-                      onClick={() => renew.mutate(row)}
+                      disabled={
+                        renew.isPending && renew.variables?.loan.loan.loanId === row.loan.loanId
+                      }
+                      onClick={() => renew.mutate({ loan: row })}
                     >
                       <RefreshCw aria-hidden />
                       {t("renew")}
@@ -198,6 +213,18 @@ export function StaffLoans() {
           <Pager page={page} totalPages={data.totalPages} onChange={(p) => go({ page: p })} />
         </>
       )}
+
+      <OverrideDialog
+        open={override !== null}
+        onOpenChange={(open) => !open && setOverride(null)}
+        title={t("overrideTitle", { title: override?.loan.loan.title ?? "" })}
+        rules={(override?.check.problems ?? []).map((p) => t(`renewalProblems.${p.reason}`))}
+        confirmLabel={t("overrideConfirm")}
+        pending={renew.isPending}
+        onConfirm={(reason) =>
+          override && renew.mutate({ loan: override.loan, overrideReason: reason })
+        }
+      />
     </div>
   );
 }

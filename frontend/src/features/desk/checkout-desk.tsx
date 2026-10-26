@@ -2,16 +2,18 @@
 
 import { useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { LogOut } from "lucide-react";
+import { LogOut, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useSession } from "@/features/auth/use-session";
 import { CheckoutList } from "@/features/desk/checkout-list";
 import { CheckoutReceiptView } from "@/features/desk/checkout-receipt";
 import { Kbd } from "@/features/desk/kbd";
 import { MemberCard } from "@/features/desk/member-card";
+import { OverrideDialog } from "@/features/desk/override-dialog";
 import { ScanInput } from "@/features/desk/scan-input";
 import { playSound, soundForProblems } from "@/features/desk/sounds";
 import { useShortcuts } from "@/features/desk/use-shortcuts";
@@ -32,6 +34,8 @@ const MAX_ITEMS = 20;
  * after that is checked by the server right away: due date, or what's wrong (step 238). Confirm
  * lends them all (or none) and shows the receipt (step 239).
  *
+ * When every problem may be bent, an admin can lend anyway with a written reason (step 246).
+ *
  * Every scan sounds its result (step 241). Shortcuts: F8 check out, F9 print the receipt, Esc next
  * member.
  */
@@ -42,6 +46,8 @@ export function CheckoutDesk() {
   const [barcodes, setBarcodes] = useState<string[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
   const [emailReceipt, setEmailReceipt] = useState(true);
+  const [overriding, setOverriding] = useState(false);
+  const isAdmin = useSession().hasRole("ADMIN");
   const [receipt, setReceipt] = useState<{ data: CheckoutReceipt; emailed: boolean } | null>(null);
   // The code just scanned: the next check's result is sounded for it (not for removals)
   const soundFor = useRef<string | null>(null);
@@ -79,16 +85,23 @@ export function CheckoutDesk() {
   });
 
   const checkout = useMutation({
-    mutationFn: () =>
-      api.post<CheckoutReceipt>("/staff/checkouts", { memberNo, barcodes, emailReceipt }),
+    mutationFn: (overrideReason?: string) =>
+      api.post<CheckoutReceipt>("/staff/checkouts", {
+        memberNo,
+        barcodes,
+        emailReceipt,
+        overrideReason,
+      }),
     onSuccess: (data) => {
       playSound("success");
+      setOverriding(false);
       setReceipt({ data, emailed: emailReceipt });
       setBarcodes([]);
       setNotice(null);
     },
     onError: (error) => {
       playSound("error");
+      setOverriding(false);
       // Something changed since the last check (e.g. another desk lent a copy): show it
       setNotice(
         error instanceof ApiError && error.code === "CHECKOUT_REFUSED"
@@ -138,10 +151,23 @@ export function CheckoutDesk() {
   // Only a check of exactly this list counts, not the one shown while re-checking
   const canConfirm =
     preview.data?.canCheckOut === true && !preview.isPlaceholderData && !preview.isFetching;
+  const canOverride =
+    isAdmin &&
+    preview.data?.canOverride === true &&
+    !preview.isPlaceholderData &&
+    !preview.isFetching;
+  // The rules an override sets aside, once each, in the desk's language
+  const overriddenRules = [
+    ...new Set(
+      [...(member?.problems ?? []), ...items.flatMap((item) => item.problems)].map((p) =>
+        t(`problems.${p.reason}`),
+      ),
+    ),
+  ];
 
   useShortcuts({
     F8: () => {
-      if (!canConfirm || checkout.isPending || receipt) return false;
+      if (overriding || !canConfirm || checkout.isPending || receipt) return false;
       checkout.mutate();
     },
     F9: () => {
@@ -149,7 +175,8 @@ export function CheckoutDesk() {
       window.print();
     },
     Escape: () => {
-      if (!memberNo && !receipt) return false;
+      // While the override dialog is open, Esc only closes the dialog
+      if (overriding || (!memberNo && !receipt)) return false;
       clear();
     },
   });
@@ -184,6 +211,16 @@ export function CheckoutDesk() {
           </FormAlert>
         </div>
       )}
+      <OverrideDialog
+        open={overriding}
+        onOpenChange={setOverriding}
+        title={t("overrideTitle", { count: items.length })}
+        rules={overriddenRules}
+        confirmLabel={t("overrideConfirm", { count: items.length })}
+        pending={checkout.isPending}
+        onConfirm={(reason) => checkout.mutate(reason)}
+      />
+
       {receipt && (
         <CheckoutReceiptView
           receipt={receipt.data}
@@ -214,10 +251,16 @@ export function CheckoutDesk() {
                   />
                   {t("emailReceipt")}
                 </label>
+                {canOverride && (
+                  <Button variant="outline" size="lg" onClick={() => setOverriding(true)}>
+                    <ShieldAlert aria-hidden />
+                    {t("overrideButton")}
+                  </Button>
+                )}
                 <Button
                   size="lg"
                   disabled={!canConfirm || checkout.isPending}
-                  onClick={() => checkout.mutate()}
+                  onClick={() => checkout.mutate(undefined)}
                 >
                   <LogOut aria-hidden />
                   {checkout.isPending

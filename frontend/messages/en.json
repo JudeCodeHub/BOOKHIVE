@@ -1209,7 +1209,10 @@
       "denied": "Camera access was blocked. Allow the camera for this site in the browser settings, then try again.",
       "noCamera": "No camera was found on this device.",
       "other": "The camera couldn't be started. Close other apps using it and try again."
-    }
+    },
+    "overrideButton": "Override (admin)",
+    "overrideTitle": "Lend {count, plural, one {this book} other {these # books}} anyway?",
+    "overrideConfirm": "Override and lend"
   },
   "StaffLoans": {
     "metaTitle": "Loans",
@@ -1241,7 +1244,10 @@
       "MEMBER_BLOCKED": "The member is blocked (status, expiry or fines).",
       "LOAN_OVERDUE": "It's overdue: it has to come back first.",
       "NOT_NEEDED_YET": "Renewing now wouldn't give a later due date."
-    }
+    },
+    "override": "Override",
+    "overrideTitle": "Renew “{title}” anyway?",
+    "overrideConfirm": "Override and renew"
   },
   "MyLoans": {
     "metaTitle": "My loans",
@@ -1285,5 +1291,14 @@
     "turnOff": "Turn off",
     "turnedOn": "Reading history is on again.",
     "turnedOff": "Reading history is turned off."
+  },
+  "Override": {
+    "intro": "These library rules will be set aside. Your name, the reason and the rules are recorded in the audit log.",
+    "reason": "Reason",
+    "reasonPlaceholder": "e.g. Exam next week; fine agreed to be paid on Friday",
+    "reasonHint": "{count} / {max} characters",
+    "reasonTooShort": "Please explain in at least {min} characters.",
+    "cancel": "Cancel",
+    "working": "Saving…"
   }
 }
