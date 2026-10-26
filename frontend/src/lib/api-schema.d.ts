@@ -1700,6 +1700,7 @@ export interface components {
             memberNo: string;
             barcodes: string[];
             overrideReason?: string;
+            emailReceipt?: boolean;
         };
         CheckoutReceiptResponse: {
             member: components["schemas"]["MemberCardSummary"];

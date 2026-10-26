@@ -11,10 +11,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
 import lk.bookhive.circulation.domain.Loan;
+import lk.bookhive.circulation.event.CheckoutReceiptRequested;
 import lk.bookhive.circulation.event.LoanCreated;
 import lk.bookhive.circulation.repository.LoanRepository;
 import lk.bookhive.circulation.service.EligibilityChecker.Problem;
@@ -128,12 +130,17 @@ public class CheckoutService {
    * Lends the copies, or nothing.
    *
    * @param overrideReason admins only: lend despite overridable problems, for this reason (audited)
+   * @param emailReceipt also email the receipt to the member (after the checkout commits)
    * @throws CheckoutRefusedException with every problem per item, when anything isn't allowed
    */
   @PreAuthorize("#overrideReason == null or hasRole('ADMIN')")
   @Transactional
   public Receipt checkOut(
-      String memberNo, List<String> barcodes, UUID staffId, String overrideReason) {
+      String memberNo,
+      List<String> barcodes,
+      UUID staffId,
+      String overrideReason,
+      boolean emailReceipt) {
     Borrower borrower = requireBorrower(memberNo);
     List<String> scanned = normalise(barcodes);
     if (scanned.isEmpty()) {
@@ -206,6 +213,22 @@ public class CheckoutService {
               "reason", overrideReason.strip(),
               "overridden", overridden(member, items),
               "copies", lent.stream().map(l -> l.copy().barcode()).toList()));
+    }
+    if (emailReceipt) {
+      User user = authService.getProfile(borrower.userId());
+      events.publishEvent(
+          new CheckoutReceiptRequested(
+              user.getEmail(),
+              user.getFullName(),
+              user.getPreferredLanguage(),
+              borrower.memberNo(),
+              now,
+              lent.stream()
+                  .map(
+                      l ->
+                          new CheckoutReceiptRequested.Line(
+                              l.copy().title(), l.copy().barcode(), l.loan().getDueDate()))
+                  .toList()));
     }
     return new Receipt(summary(borrower, itemsOut + lent.size(), today), lent);
   }
