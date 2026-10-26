@@ -44,6 +44,17 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
           + " AND l.dueDate < :today")
   List<Loan> findBecomingOverdue(@Param("today") LocalDate today);
 
+  /** Does the member have a copy of this book out right now? (Hold rules: no hold on it then.) */
+  @Query(
+      value =
+          """
+          SELECT EXISTS (SELECT 1 FROM loans l JOIN copies c ON c.id = l.copy_id
+                         WHERE l.member_id = :memberId AND c.book_id = :bookId
+                           AND l.status IN ('ACTIVE', 'OVERDUE'))
+          """,
+      nativeQuery = true)
+  boolean memberHasBookOut(@Param("memberId") UUID memberId, @Param("bookId") UUID bookId);
+
   /** Staff list: open loans, soonest due first. */
   Page<Loan> findByStatusInOrderByDueDate(Collection<LoanStatus> statuses, Pageable pageable);
 
