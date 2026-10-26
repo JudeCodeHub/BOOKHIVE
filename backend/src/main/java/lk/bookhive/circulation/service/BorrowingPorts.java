@@ -26,6 +26,11 @@ public final class BorrowingPorts {
     Optional<UUID> nextMemberFor(UUID bookId, UUID returnedCopyId);
   }
 
+  /** Has anyone reserved this title? Then loans of it can't be renewed (PRD §4.2). */
+  public interface HoldDemand {
+    boolean isWanted(UUID bookId);
+  }
+
   /** Which member a copy on the hold shelf is waiting for (hold module). */
   public interface HoldShelf {
     Optional<UUID> reservedFor(UUID copyId);
