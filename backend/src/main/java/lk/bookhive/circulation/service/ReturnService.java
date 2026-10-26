@@ -11,6 +11,7 @@ import lk.bookhive.catalog.domain.CopyStatus;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
 import lk.bookhive.circulation.domain.Loan;
+import lk.bookhive.circulation.event.LoanReturned;
 import lk.bookhive.circulation.repository.LoanRepository;
 import lk.bookhive.circulation.service.BorrowingPorts.HoldQueue;
 import lk.bookhive.circulation.service.FineCalculator.LateFine;
@@ -21,6 +22,7 @@ import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.member.service.BorrowerService;
 import lk.bookhive.member.service.BorrowerService.Borrower;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +40,7 @@ public class ReturnService {
   private final SettingsService settings;
   private final HoldQueue holdQueue;
   private final AuditService audit;
+  private final ApplicationEventPublisher events;
   private final LibraryTime time;
 
   public ReturnService(
@@ -47,6 +50,7 @@ public class ReturnService {
       SettingsService settings,
       ObjectProvider<HoldQueue> holdQueue,
       AuditService audit,
+      ApplicationEventPublisher events,
       LibraryTime time) {
     this.catalog = catalog;
     this.loans = loans;
@@ -55,6 +59,7 @@ public class ReturnService {
     // Until the hold module exists, nobody is waiting: every book goes back to its shelf
     this.holdQueue = holdQueue.getIfAvailable(() -> (bookId, copyId) -> Optional.empty());
     this.audit = audit;
+    this.events = events;
     this.time = time;
   }
 
@@ -110,6 +115,20 @@ public class ReturnService {
             nextMember.isPresent() ? Destination.HOLD_SHELF : Destination.SHELF,
             copy.shelfLocation(),
             nextMember.flatMap(borrowers::byId).orElse(null));
+
+    events.publishEvent(
+        new LoanReturned(
+            loan.getId(),
+            loan.getMemberId(),
+            copyId,
+            copy.bookId(),
+            copy.title(),
+            loan.getDueDate(),
+            now,
+            fine.daysLate(),
+            fine.amount(),
+            nextMember.orElse(null),
+            staffId));
 
     Map<String, Object> details = new HashMap<>();
     details.put("barcode", copy.barcode());

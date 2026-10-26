@@ -15,6 +15,7 @@ import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
 import lk.bookhive.circulation.domain.Loan;
+import lk.bookhive.circulation.event.LoanCreated;
 import lk.bookhive.circulation.repository.LoanRepository;
 import lk.bookhive.circulation.service.EligibilityChecker.Problem;
 import lk.bookhive.common.audit.AuditService;
@@ -24,6 +25,7 @@ import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.member.service.BorrowerService;
 import lk.bookhive.member.service.BorrowerService.Borrower;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,7 @@ public class CheckoutService {
   private final DueDateCalculator dueDates;
   private final AuthService authService;
   private final AuditService audit;
+  private final ApplicationEventPublisher events;
   private final LibraryTime time;
 
   public CheckoutService(
@@ -62,6 +65,7 @@ public class CheckoutService {
       DueDateCalculator dueDates,
       AuthService authService,
       AuditService audit,
+      ApplicationEventPublisher events,
       LibraryTime time) {
     this.borrowers = borrowers;
     this.catalog = catalog;
@@ -70,6 +74,7 @@ public class CheckoutService {
     this.dueDates = dueDates;
     this.authService = authService;
     this.audit = audit;
+    this.events = events;
     this.time = time;
   }
 
@@ -158,6 +163,18 @@ public class CheckoutService {
                   item.copy().copyId(), borrower.memberId(), item.dueDate(), staffId, now));
       catalog.lend(item.copy().copyId(), staffId, now);
       lent.add(new Lent(loan, item.copy()));
+      // Listeners use @TransactionalEventListener: they only hear it if the checkout commits
+      events.publishEvent(
+          new LoanCreated(
+              loan.getId(),
+              borrower.memberId(),
+              item.copy().copyId(),
+              item.copy().bookId(),
+              item.copy().barcode(),
+              item.copy().title(),
+              now,
+              loan.getDueDate(),
+              staffId));
     }
     audit.record(
         "loan.checked_out",
