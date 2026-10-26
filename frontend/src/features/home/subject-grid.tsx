@@ -37,8 +37,7 @@ const SUBJECTS = [
 
 /**
  * "Browse by subject" (checklist step 202): one tile per Dewey main class, linked to the books in
- * it. Category pages (/categories/...) arrive in step 203; until then the tiles open the search
- * page filtered to that subject.
+ * it (its category page).
  */
 export function SubjectGrid() {
   const t = useTranslations("Home");
@@ -66,7 +65,7 @@ export function SubjectGrid() {
           return (
             <li key={ddc}>
               <Link
-                href={node ? `/search?category=${node.id}` : "/search"}
+                href={node ? `/categories/${node.id}` : "/search"}
                 aria-label={t("subjectBooks", { name: label })}
                 className="group flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-colors hover:border-primary hover:bg-accent"
               >

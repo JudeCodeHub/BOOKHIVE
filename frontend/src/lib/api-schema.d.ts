@@ -1068,6 +1068,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/authors/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An author's name, bio and number of books */
+        get: operations["get_6"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1814,6 +1831,14 @@ export interface components {
             /** Format: int64 */
             holdsWaiting: number;
             shelves: string[];
+        };
+        PublicAuthorResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            bio: string;
+            /** Format: int64 */
+            bookCount: number;
         };
     };
     responses: never;
@@ -3285,6 +3310,7 @@ export interface operations {
                 language?: string;
                 format?: "BOOK" | "MAGAZINE" | "NEWSPAPER" | "DVD" | "AUDIOBOOK";
                 category?: string;
+                author?: string;
                 available?: boolean;
                 yearFrom?: number;
                 yearTo?: number;
@@ -3606,6 +3632,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["BookSummary"][];
+                };
+            };
+        };
+    };
+    get_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PublicAuthorResponse"];
                 };
             };
         };

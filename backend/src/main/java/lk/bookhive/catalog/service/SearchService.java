@@ -63,6 +63,7 @@ public class SearchService {
       String language,
       BookFormat format,
       UUID categoryId,
+      UUID authorId,
       boolean availableOnly,
       Integer yearFrom,
       Integer yearTo,
@@ -102,6 +103,7 @@ public class SearchService {
     params.put("language", query.language());
     params.put("format", query.format() == null ? null : query.format().name());
     params.put("category", query.categoryId());
+    params.put("author", query.authorId());
     params.put("yearFrom", query.yearFrom());
     params.put("yearTo", query.yearTo());
 
@@ -194,6 +196,11 @@ public class SearchService {
               + "WITH RECURSIVE sub AS (SELECT id FROM categories WHERE id = :category"
               + " UNION ALL SELECT c.id FROM categories c JOIN sub ON c.parent_id = sub.id)"
               + " SELECT id FROM sub))");
+    }
+    if (query.authorId() != null) {
+      // Author pages: every book they wrote, edited, translated or illustrated
+      conditions.add(
+          "b.id IN (SELECT ba.book_id FROM book_authors ba WHERE ba.author_id = :author)");
     }
     if (query.availableOnly() && skip != Part.AVAILABLE) {
       conditions.add(AVAILABLE_NOW);

@@ -45,10 +45,8 @@ export function HeaderSearch() {
 
   function go(item: Suggestion) {
     setOpen(false);
-    setText(item.type === "AUTHOR" ? item.label : "");
-    if (item.type === "BOOK") router.push(`/books/${item.id}`);
-    // Author pages come with checklist step 204; until then, search their name
-    else router.push(`/search?q=${encodeURIComponent(item.label)}`);
+    setText("");
+    router.push(item.type === "BOOK" ? `/books/${item.id}` : `/authors/${item.id}`);
   }
 
   return (

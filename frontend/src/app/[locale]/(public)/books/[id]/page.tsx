@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { BookAvailability } from "@/features/catalog/book-availability";
 import { coverUrl } from "@/features/catalog/cover";
 import { getPublicBook, type Book } from "@/features/catalog/data";
+import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
 /**
@@ -106,11 +107,13 @@ async function BookDetails({ params }: PageProps<"/[locale]/books/[id]">) {
           <h1 className="font-heading text-3xl font-semibold">{book.title}</h1>
           {book.subtitle && <p className="text-lg text-muted-foreground">{book.subtitle}</p>}
           {authors.length > 0 && (
-            <p className="text-lg">{t("by", { names: authors.map((a) => a.name).join(", ") })}</p>
+            <p className="text-lg">
+              {t.rich("by", { names: () => <PeopleLinks people={authors} /> })}
+            </p>
           )}
           {others.length > 0 && (
             <p className="text-sm text-muted-foreground">
-              {others.map((c) => `${c.name} (${t(`roles.${c.role}`)})`).join(", ")}
+              <PeopleLinks people={others} withRole={(role) => t(`roles.${role}`)} />
             </p>
           )}
         </header>
@@ -149,13 +152,46 @@ async function BookDetails({ params }: PageProps<"/[locale]/books/[id]">) {
             )}
             {book.categories.length > 0 && (
               <Detail label={t("categories")}>
-                {book.categories.map(categoryName).join(", ")}
+                {book.categories.map((c, i) => (
+                  <span key={c.id}>
+                    {i > 0 && ", "}
+                    <Link
+                      href={`/categories/${c.id}`}
+                      className="underline-offset-4 hover:underline"
+                    >
+                      {categoryName(c)}
+                    </Link>
+                  </span>
+                ))}
               </Detail>
             )}
           </dl>
         </section>
       </div>
     </article>
+  );
+}
+
+/** Names linking to their author pages, separated by commas. */
+function PeopleLinks({
+  people,
+  withRole,
+}: {
+  people: Book["contributors"];
+  withRole?: (role: Book["contributors"][number]["role"]) => string;
+}) {
+  return (
+    <>
+      {people.map((person, i) => (
+        <span key={`${person.authorId}-${person.role}`}>
+          {i > 0 && ", "}
+          <Link href={`/authors/${person.authorId}`} className="underline-offset-4 hover:underline">
+            {person.name}
+          </Link>
+          {withRole && ` (${withRole(person.role)})`}
+        </span>
+      ))}
+    </>
   );
 }
 
