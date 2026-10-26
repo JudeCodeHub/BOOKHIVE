@@ -1267,5 +1267,23 @@
       "LOAN_OVERDUE": "It's overdue: please return it to the library.",
       "NOT_NEEDED_YET": "Renewing today wouldn't give you a later due date. Try again closer to the due date."
     }
+  },
+  "ReadingHistory": {
+    "metaTitle": "Reading history",
+    "title": "Reading history",
+    "notMember": "You aren't a library member yet. <link>Apply for membership</link> to borrow books.",
+    "settingTitle": "Keep my reading history",
+    "settingOnHelp": "Only you can see this list. Library staff never see what you've read, only the books you have out now.",
+    "settingOffHelp": "Your history isn't kept. Books you return lose your name after {days} days.",
+    "off": "Reading history is turned off.",
+    "empty": "Books you return will appear here.",
+    "count": "{count, plural, one {# book read} other {# books read}}",
+    "borrowed": "Borrowed {from} · returned {to}",
+    "confirmTitle": "Stop keeping your reading history?",
+    "confirmText": "The list is hidden straight away. After {days} days the library removes your name from the books you returned, and that can't be undone. If you turn it back on before then, they show again.",
+    "keep": "Keep it",
+    "turnOff": "Turn off",
+    "turnedOn": "Reading history is on again.",
+    "turnedOff": "Reading history is turned off."
   }
 }

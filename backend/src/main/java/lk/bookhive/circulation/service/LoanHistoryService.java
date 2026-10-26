@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lk.bookhive.admin.settings.SettingsService;
 import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.service.LendingCatalogService;
@@ -61,13 +62,16 @@ public class LoanHistoryService {
 
   /**
    * @param historyEnabled false when the member switched reading history off: nothing is listed
+   * @param anonymiseAfterDays when it's off, returned loans lose the member's name after this
    */
-  public record ReadingHistory(boolean historyEnabled, Page<LoanView> loans) {}
+  public record ReadingHistory(
+      boolean historyEnabled, int anonymiseAfterDays, Page<LoanView> loans) {}
 
   private final LoanRepository loans;
   private final LendingCatalogService catalog;
   private final BorrowerService borrowers;
   private final AuthService authService;
+  private final SettingsService settings;
   private final LibraryTime time;
 
   public LoanHistoryService(
@@ -75,11 +79,13 @@ public class LoanHistoryService {
       LendingCatalogService catalog,
       BorrowerService borrowers,
       AuthService authService,
+      SettingsService settings,
       LibraryTime time) {
     this.loans = loans;
     this.catalog = catalog;
     this.borrowers = borrowers;
     this.authService = authService;
+    this.settings = settings;
     this.time = time;
   }
 
@@ -148,15 +154,17 @@ public class LoanHistoryService {
             .byId(memberId)
             .orElseThrow(() -> new NotFoundException("MEMBER_NOT_FOUND", "Member not found."));
     PageRequest request = PageRequest.of(page, size);
+    int anonymiseAfterDays = settings.membership().historyAnonymiseDays();
     if (!borrower.readingHistoryEnabled()) {
       // Loans returned recently may not be anonymised yet (step 399): don't show them either
-      return new ReadingHistory(false, Page.empty(request));
+      return new ReadingHistory(false, anonymiseAfterDays, Page.empty(request));
     }
     Page<Loan> returned =
         loans.findByMemberIdAndStatusOrderByCheckedOutAtDesc(
             memberId, LoanStatus.RETURNED, request);
     return new ReadingHistory(
         true,
+        anonymiseAfterDays,
         new PageImpl<>(withCopies(returned.getContent()), request, returned.getTotalElements()));
   }
 

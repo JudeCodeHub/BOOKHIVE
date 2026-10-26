@@ -65,6 +65,22 @@ public class MembershipService {
     return renew(member, userId);
   }
 
+  /** The member switches their reading history on or off (PRD §4.5, step 245). */
+  @Transactional
+  public Member setReadingHistory(UUID userId, boolean enabled) {
+    Member member =
+        members
+            .findByUserId(userId)
+            .orElseThrow(
+                () -> new NotFoundException("MEMBERSHIP_NOT_FOUND", "You are not a member yet."));
+    if (member.isReadingHistoryEnabled() != enabled) {
+      member.setReadingHistoryEnabled(enabled);
+      audit.record(
+          "member.reading_history", userId, "member", member.getId(), Map.of("enabled", enabled));
+    }
+    return member;
+  }
+
   /** Staff renew at the desk, e.g. when the member pays in cash. */
   @Transactional
   public Renewal renewByStaff(UUID memberId, UUID staffId) {

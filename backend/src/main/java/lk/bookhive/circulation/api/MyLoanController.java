@@ -49,8 +49,10 @@ public class MyLoanController {
 
   /**
    * @param historyEnabled false when I switched reading history off (then the list is empty)
+   * @param anonymiseAfterDays when it's off, returned loans are anonymised after this many days
    */
-  public record ReadingHistoryResponse(boolean historyEnabled, PageResponse<LoanSummary> loans) {}
+  public record ReadingHistoryResponse(
+      boolean historyEnabled, int anonymiseAfterDays, PageResponse<LoanSummary> loans) {}
 
   @GetMapping
   @Operation(summary = "My current loans (out or lost), soonest due first")
@@ -66,7 +68,9 @@ public class MyLoanController {
       @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
     ReadingHistory result = history.readingHistory(memberId(jwt), page, size);
     return new ReadingHistoryResponse(
-        result.historyEnabled(), PageResponse.from(result.loans(), LoanSummary::from));
+        result.historyEnabled(),
+        result.anonymiseAfterDays(),
+        PageResponse.from(result.loans(), LoanSummary::from));
   }
 
   @GetMapping("/{loanId}/renewal")

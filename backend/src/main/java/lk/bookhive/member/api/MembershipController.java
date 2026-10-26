@@ -3,6 +3,8 @@ package lk.bookhive.member.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -17,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -79,6 +83,19 @@ public class MembershipController {
     return member == null
         ? ResponseEntity.noContent().build()
         : ResponseEntity.ok(MembershipResponse.from(member));
+  }
+
+  public record ReadingHistoryRequest(@NotNull Boolean enabled) {}
+
+  public record ReadingHistorySettingResponse(boolean enabled) {}
+
+  @PutMapping("/reading-history")
+  @Operation(summary = "Keep my reading history, or stop keeping it (privacy)")
+  public ReadingHistorySettingResponse readingHistory(
+      @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ReadingHistoryRequest request) {
+    Member member =
+        memberships.setReadingHistory(UUID.fromString(jwt.getSubject()), request.enabled());
+    return new ReadingHistorySettingResponse(member.isReadingHistoryEnabled());
   }
 
   @PostMapping("/renew")
