@@ -10,6 +10,7 @@ bookhive:
       reset-password: { capacity: 100000 }
       accept-invite: { capacity: 100000 }
       verify-email: { capacity: 100000 }
+      contact: { capacity: 100000 }
   cors:
     allowed-origins: http://localhost:3000
   jwt:
@@ -18,6 +19,9 @@ bookhive:
   storage:
     type: local
     local-dir: build/test-uploads
+  # Tests don't call Cloudflare
+  turnstile:
+    enabled: false
   crypto:
     # Test-only key (32 zero bytes)
     field-key: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
