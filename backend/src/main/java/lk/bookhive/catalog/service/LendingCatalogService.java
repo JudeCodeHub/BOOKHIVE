@@ -9,9 +9,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.domain.Copy;
 import lk.bookhive.catalog.domain.CopyStatus;
 import lk.bookhive.catalog.domain.LendingType;
+import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.catalog.repository.CopyRepository;
 import lk.bookhive.common.domain.Money;
 import lk.bookhive.common.exception.NotFoundException;
@@ -25,8 +27,50 @@ public class LendingCatalogService {
 
   private final CopyRepository copies;
 
-  public LendingCatalogService(CopyRepository copies) {
+  private final BookRepository books;
+
+  public LendingCatalogService(CopyRepository copies, BookRepository books) {
     this.copies = copies;
+    this.books = books;
+  }
+
+  /**
+   * A title as the hold rules see it (step 251).
+   *
+   * @param lendableCopies copies the library has that may go home (not reference-only, lost or
+   *     withdrawn): with none, there is nothing to wait for
+   * @param availableToBorrow of those, on the shelf right now
+   * @param sections the library sections of its categories (no category = ADULT)
+   */
+  public record HoldableTitle(
+      UUID bookId,
+      String title,
+      Set<String> sections,
+      long lendableCopies,
+      long availableToBorrow) {}
+
+  @Transactional(readOnly = true)
+  public Optional<HoldableTitle> holdableTitle(UUID bookId) {
+    return books
+        .findById(bookId)
+        .map(
+            book -> {
+              long lendable = 0;
+              long available = 0;
+              for (CopyRepository.StatusCount row : copies.countByStatus(bookId)) {
+                if (row.getLendingType() != LendingType.LENDABLE
+                    || row.getStatus() == CopyStatus.LOST
+                    || row.getStatus() == CopyStatus.WITHDRAWN) {
+                  continue;
+                }
+                lendable += row.getCount();
+                if (row.getStatus() == CopyStatus.AVAILABLE) {
+                  available += row.getCount();
+                }
+              }
+              return new HoldableTitle(
+                  book.getId(), book.getTitle(), sections(book), lendable, available);
+            });
   }
 
   /**
@@ -127,10 +171,7 @@ public class LendingCatalogService {
   }
 
   private static LendableCopy lendable(Copy copy) {
-    Set<String> sections =
-        copy.getBook().getCategories().stream()
-            .map(category -> category.getSection().name())
-            .collect(Collectors.toSet());
+    Set<String> sections = sections(copy.getBook());
     return new LendableCopy(
         copy.getId(),
         copy.getBarcode(),
@@ -138,10 +179,19 @@ public class LendingCatalogService {
         copy.getBook().getTitle(),
         copy.getStatus(),
         copy.getLendingType(),
-        sections.isEmpty() ? Set.of("ADULT") : Set.copyOf(sections),
+        sections,
         copy.getShelfLocation(),
         copy.getBook().getCallNumber(),
         copy.getPrice(),
         CoverService.version(copy.getBook()));
+  }
+
+  /** The sections of a book's categories; a book with no category counts as ADULT. */
+  private static Set<String> sections(Book book) {
+    Set<String> sections =
+        book.getCategories().stream()
+            .map(category -> category.getSection().name())
+            .collect(Collectors.toSet());
+    return sections.isEmpty() ? Set.of("ADULT") : Set.copyOf(sections);
   }
 }
