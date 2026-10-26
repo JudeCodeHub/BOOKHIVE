@@ -116,6 +116,17 @@ bookhive:
       secret-key: ${S3_SECRET_KEY:bookhive-dev-secret}
       path-style: true
       create-bucket: true
+  # Shown on the visit page. Placeholder values: set the real ones in backend/.env or prod config.
+  library:
+    name: ${LIBRARY_NAME:BookHive Public Library}
+    address-line: ${LIBRARY_ADDRESS:Library Road}
+    city: ${LIBRARY_CITY:Colombo 07}
+    postal-code: ${LIBRARY_POSTAL_CODE:00700}
+    phone: ${LIBRARY_PHONE:+94 11 000 0000}
+    email: ${LIBRARY_EMAIL:info@bookhive.lk}
+    # Map pin (Colombo by default)
+    latitude: ${LIBRARY_LATITUDE:6.9147}
+    longitude: ${LIBRARY_LONGITUDE:79.8612}
   # "Lookup ISBN" while cataloguing (Open Library). Cached in Redis.
   isbn-lookup:
     base-url: ${ISBN_LOOKUP_URL:https://openlibrary.org}
