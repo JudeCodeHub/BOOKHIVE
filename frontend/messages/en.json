@@ -567,6 +567,32 @@
     "clear": "Remove {name}",
     "create": "Create “{name}”"
   },
+  "CategoryPicker": {
+    "search": "Search categories or a DDC number",
+    "expand": "Show categories under {name}",
+    "collapse": "Hide categories under {name}",
+    "chosen": "Chosen categories",
+    "remove": "Remove {name}",
+    "noMatch": "No category matches.",
+    "count": "{count} of {max} chosen"
+  },
+  "CoverUpload": {
+    "current": "Current cover",
+    "none": "No cover yet",
+    "upload": "Upload cover",
+    "replace": "Replace cover",
+    "remove": "Remove cover",
+    "removed": "Cover removed.",
+    "cropTitle": "Fit the cover",
+    "cropHelp": "Drag the picture and zoom so the frame shows just the book's front cover.",
+    "zoom": "Zoom",
+    "cancel": "Cancel",
+    "save": "Save cover",
+    "saving": "Uploading…",
+    "saved": "Cover saved.",
+    "wrongType": "Choose a JPG or PNG picture.",
+    "tooLarge": "This picture is too large. Try a smaller photo."
+  },
   "BookForm": {
     "metaTitle": "Add book",
     "title": "Add a book",
@@ -609,7 +635,6 @@
     "callNumberHint": "The shelf label, e.g. 891.483 WIC (Dewey number + first letters of the author).",
     "description": "Description",
     "categories": "Categories",
-    "categoriesHint": "Pick up to 10.",
     "save": "Save book",
     "saving": "Saving…",
     "saved": "“{title}” added to the catalog. Now add its copies.",
