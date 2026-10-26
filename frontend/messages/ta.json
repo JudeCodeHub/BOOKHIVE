@@ -519,6 +519,49 @@
       "working": "சேமிக்கப்படுகிறது…"
     }
   },
+  "StaffCatalog": {
+    "metaTitle": "நூல் பட்டியல்",
+    "title": "நூல் பட்டியல்",
+    "addBook": "நூலைச் சேர்",
+    "import": "CSV இறக்குமதி",
+    "searchLabel": "நூலைத் தேடு",
+    "searchPlaceholder": "தலைப்பு அல்லது ISBN",
+    "search": "தேடு",
+    "language": "மொழி",
+    "anyLanguage": "எந்த மொழியும்",
+    "format": "வடிவம்",
+    "anyFormat": "எந்த வடிவமும்",
+    "category": "வகை",
+    "anyCategory": "எந்த வகையும்",
+    "sort": "வரிசை",
+    "sorts": {
+      "TITLE": "தலைப்பு A–Z",
+      "NEWEST": "புதிதாகச் சேர்க்கப்பட்டவை",
+      "YEAR": "புதிதாக வெளியானவை"
+    },
+    "formats": {
+      "BOOK": "நூல்",
+      "MAGAZINE": "சஞ்சிகை",
+      "NEWSPAPER": "செய்தித்தாள்",
+      "DVD": "DVD",
+      "AUDIOBOOK": "ஒலிநூல்"
+    },
+    "languages": {
+      "si": "சிங்களம்",
+      "ta": "தமிழ்",
+      "en": "ஆங்கிலம்"
+    },
+    "clear": "வடிகட்டிகளை அழி",
+    "results": "{count, plural, =0 {நூல்கள் இல்லை} one {# நூல்} other {# நூல்கள்}}",
+    "empty": "பொருந்தும் நூல்கள் இல்லை. வேறு வடிகட்டிகளை முயற்சிக்கவும், அல்லது நூலைச் சேர்க்கவும்.",
+    "cover": "அட்டைப்படம்",
+    "book": "நூல்",
+    "authors": "ஆசிரியர்கள்",
+    "year": "ஆண்டு",
+    "callNumber": "அழைப்பு எண்",
+    "edit": "திருத்து",
+    "noCover": "அட்டைப்படம் இல்லை"
+  },
   "MemberStatusLabel": {
     "PENDING": "நிலுவையில்",
     "ACTIVE": "செயலில்",

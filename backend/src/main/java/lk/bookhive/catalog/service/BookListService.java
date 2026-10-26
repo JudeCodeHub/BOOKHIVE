@@ -2,6 +2,7 @@ package lk.bookhive.catalog.service;
 
 import jakarta.persistence.criteria.Join;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.domain.BookAuthor;
 import lk.bookhive.catalog.domain.BookFormat;
 import lk.bookhive.catalog.domain.Category;
+import lk.bookhive.catalog.domain.Isbn;
 import lk.bookhive.catalog.repository.BookAuthorRepository;
 import lk.bookhive.catalog.repository.BookRepository;
 import org.springframework.data.domain.Page;
@@ -49,8 +51,13 @@ public class BookListService {
     }
   }
 
-  /** Optional filters; null means "any". */
-  public record Filters(String language, BookFormat format, UUID categoryId) {}
+  /**
+   * Optional filters; null means "any".
+   *
+   * @param text an ISBN (exact match) or part of the title. Ranked, typo-tolerant keyword search is
+   *     the search phase; this is for finding a known book quickly.
+   */
+  public record Filters(String text, String language, BookFormat format, UUID categoryId) {}
 
   /** A book in a list, with its contributors' names in cover order. */
   public record BookListItem(Book book, List<String> contributorNames) {}
@@ -72,8 +79,28 @@ public class BookListService {
     return found.map(book -> new BookListItem(book, names.getOrDefault(book.getId(), List.of())));
   }
 
+  /** Typed % and _ are searched for literally, not as wildcards. */
+  private static String escapeLike(String text) {
+    return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+  }
+
   private static Specification<Book> specification(Filters filters) {
     Specification<Book> spec = Specification.unrestricted();
+    if (filters.text() != null && !filters.text().isBlank()) {
+      String text = filters.text().strip();
+      spec =
+          spec.and(
+              Isbn.parse(text)
+                  .<Specification<Book>>map(
+                      isbn -> (root, query, cb) -> cb.equal(root.get("isbn13"), isbn.isbn13()))
+                  .orElseGet(
+                      () ->
+                          (root, query, cb) ->
+                              cb.like(
+                                  cb.lower(root.get("title")),
+                                  "%" + escapeLike(text.toLowerCase(Locale.ROOT)) + "%",
+                                  '\\')));
+    }
     if (filters.language() != null) {
       spec = spec.and((root, query, cb) -> cb.equal(root.get("language"), filters.language()));
     }

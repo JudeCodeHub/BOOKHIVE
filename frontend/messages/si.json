@@ -519,6 +519,49 @@
       "working": "සුරකිමින්…"
     }
   },
+  "StaffCatalog": {
+    "metaTitle": "නාමාවලිය",
+    "title": "නාමාවලිය",
+    "addBook": "පොතක් එක් කරන්න",
+    "import": "CSV ආයාත කරන්න",
+    "searchLabel": "පොතක් සොයන්න",
+    "searchPlaceholder": "මාතෘකාව හෝ ISBN",
+    "search": "සොයන්න",
+    "language": "භාෂාව",
+    "anyLanguage": "ඕනෑම භාෂාවක්",
+    "format": "ආකෘතිය",
+    "anyFormat": "ඕනෑම ආකෘතියක්",
+    "category": "කාණ්ඩය",
+    "anyCategory": "ඕනෑම කාණ්ඩයක්",
+    "sort": "පිළිවෙළ",
+    "sorts": {
+      "TITLE": "මාතෘකාව A–Z",
+      "NEWEST": "අලුතින් එක් කළ",
+      "YEAR": "අලුතින් ප්‍රකාශිත"
+    },
+    "formats": {
+      "BOOK": "පොත",
+      "MAGAZINE": "සඟරාව",
+      "NEWSPAPER": "පුවත්පත",
+      "DVD": "DVD",
+      "AUDIOBOOK": "ශ්‍රව්‍ය පොත"
+    },
+    "languages": {
+      "si": "සිංහල",
+      "ta": "දෙමළ",
+      "en": "ඉංග්‍රීසි"
+    },
+    "clear": "පෙරහන් ඉවත් කරන්න",
+    "results": "{count, plural, =0 {පොත් නැත} one {පොත් #} other {පොත් #}}",
+    "empty": "ගැළපෙන පොත් නැත. වෙනත් පෙරහන් උත්සාහ කරන්න, නැතහොත් පොත එක් කරන්න.",
+    "cover": "කවරය",
+    "book": "පොත",
+    "authors": "කතුවරුන්",
+    "year": "වර්ෂය",
+    "callNumber": "ඇමතුම් අංකය",
+    "edit": "සංස්කරණය",
+    "noCover": "කවරයක් නැත"
+  },
   "MemberStatusLabel": {
     "PENDING": "රැඳී ඇත",
     "ACTIVE": "සක්‍රිය",
