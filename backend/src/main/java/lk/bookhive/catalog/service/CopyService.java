@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.UUID;
 import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.domain.Copy;
+import lk.bookhive.catalog.domain.CopyStatusChange;
 import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.catalog.repository.CopyRepository;
+import lk.bookhive.catalog.repository.CopyStatusChangeRepository;
 import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.exception.NotFoundException;
+import lk.bookhive.common.time.LibraryTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +28,28 @@ public class CopyService {
 
   private final CopyRepository copies;
   private final BookRepository books;
+  private final CopyStatusChangeRepository history;
   private final AuditService audit;
+  private final LibraryTime time;
 
-  public CopyService(CopyRepository copies, BookRepository books, AuditService audit) {
+  public CopyService(
+      CopyRepository copies,
+      BookRepository books,
+      CopyStatusChangeRepository history,
+      AuditService audit,
+      LibraryTime time) {
     this.copies = copies;
     this.books = books;
+    this.history = history;
     this.audit = audit;
+    this.time = time;
+  }
+
+  /** Where a copy has been, newest first (CAT-9). */
+  @Transactional(readOnly = true)
+  public List<CopyStatusChange> history(UUID copyId) {
+    require(copyId);
+    return history.findByCopyIdOrderByChangedAtDesc(copyId);
   }
 
   @Transactional(readOnly = true)
@@ -58,10 +77,10 @@ public class CopyService {
         throw new FieldValidationException(
             "barcode", "BARCODE_EXISTS", "Another copy already has this barcode.");
       }
-      added.add(copies.save(new Copy(book, normalised, details)));
+      added.add(copies.save(new Copy(book, normalised, details, staffId, time.now())));
     } else {
       for (int i = 0; i < count; i++) {
-        added.add(copies.save(new Copy(book, nextBarcode(), details)));
+        added.add(copies.save(new Copy(book, nextBarcode(), details, staffId, time.now())));
       }
     }
     Map<String, Object> audited = new HashMap<>();
@@ -79,11 +98,11 @@ public class CopyService {
     return copy;
   }
 
-  /** The reason is required and kept in the audit log (and copy history from step 166). */
+  /** The reason is required; it goes into the copy's history and the audit log. */
   @Transactional
   public Copy withdraw(UUID copyId, String reason, UUID staffId) {
     Copy copy = require(copyId);
-    copy.withdraw();
+    copy.withdraw(reason.strip(), staffId, time.now());
     audit.record(
         "copy.withdrawn",
         staffId,
