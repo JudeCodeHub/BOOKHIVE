@@ -211,6 +211,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/checkouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check out: all items or none (422 CHECKOUT_REFUSED lists the problems) */
+        post: operations["checkOut"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/checkouts/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** What would happen: member alerts, per-item problems and due dates */
+        post: operations["preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/categories": {
         parameters: {
             query?: never;
@@ -1407,6 +1441,61 @@ export interface components {
             /** Format: uuid */
             donationId: string;
         };
+        CheckoutRequest: {
+            memberNo: string;
+            barcodes: string[];
+        };
+        CheckoutReceiptResponse: {
+            member: components["schemas"]["MemberCardSummary"];
+            loans: components["schemas"]["LoanReceiptSummary"][];
+        };
+        LoanReceiptSummary: {
+            /** Format: uuid */
+            loanId: string;
+            barcode: string;
+            title: string;
+            /** Format: date-time */
+            checkedOutAt: string;
+            /** Format: date */
+            dueDate: string;
+        };
+        MemberCardSummary: {
+            /** Format: uuid */
+            memberId: string;
+            memberNo: string;
+            fullName: string;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "SUSPENDED" | "EXPIRED" | "REJECTED";
+            /** Format: date */
+            expiresAt: string;
+            /** Format: int32 */
+            itemsOut: number;
+            /** Format: int32 */
+            maxItems: number;
+            /** Format: int32 */
+            loanDays: number;
+            problems: components["schemas"]["ProblemSummary"][];
+        };
+        ProblemSummary: {
+            /** @enum {string} */
+            reason: "MEMBER_NOT_ACTIVE" | "MEMBERSHIP_EXPIRED" | "LOAN_LIMIT_REACHED" | "FINES_BLOCK_BORROWING" | "COPY_NOT_AVAILABLE" | "HELD_FOR_ANOTHER_MEMBER" | "COPY_REFERENCE_ONLY" | "COPY_RESTRICTED" | "SECTION_NOT_ALLOWED";
+            overridable: boolean;
+            message: string;
+        };
+        CheckoutPreviewResponse: {
+            member: components["schemas"]["MemberCardSummary"];
+            items: components["schemas"]["ItemSummary"][];
+            canCheckOut: boolean;
+        };
+        ItemSummary: {
+            barcode: string;
+            /** Format: uuid */
+            copyId: string;
+            title: string;
+            /** Format: date */
+            dueDate: string;
+            problems: components["schemas"]["ProblemSummary"][];
+        };
         AddCopiesRequest: {
             barcode?: string;
             /** Format: int32 */
@@ -2492,6 +2581,54 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CopyResponse"];
+                };
+            };
+        };
+    };
+    checkOut: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CheckoutReceiptResponse"];
+                };
+            };
+        };
+    };
+    preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CheckoutPreviewResponse"];
                 };
             };
         };

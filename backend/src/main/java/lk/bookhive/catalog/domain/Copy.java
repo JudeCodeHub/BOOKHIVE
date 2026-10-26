@@ -135,6 +135,16 @@ public class Copy extends BaseEntity {
   }
 
   /**
+   * Lent at the desk (checklist step 221). From the shelf, or from the hold shelf for its member.
+   */
+  public void lend(UUID staffId, Instant now) {
+    if (status != CopyStatus.AVAILABLE && status != CopyStatus.ON_HOLD_SHELF) {
+      throw new ConflictException("COPY_NOT_AVAILABLE", "This copy isn't available to lend.");
+    }
+    moveTo(CopyStatus.ON_LOAN, "Checked out", staffId, now);
+  }
+
+  /**
    * The one place where the status changes (CAT-9, checklist step 166): every change also adds a
    * line to the copy's history, so no code path can forget to record it. Loans and holds will
    * change the status through methods that call this too.
