@@ -419,6 +419,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a message to the library */
+        post: operations["send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/verify-email": {
         parameters: {
             query?: never;
@@ -941,6 +958,23 @@ export interface paths {
         };
         /** Printable card (PDF, bank-card size) */
         get: operations["pdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/library/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Borrowing rules: fines, lost items, holds, membership */
+        get: operations["rules"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1481,6 +1515,15 @@ export interface components {
             roles: ("MEMBER" | "LIBRARIAN" | "ADMIN")[];
             preferredLanguage: string;
         };
+        ContactRequest: {
+            name: string;
+            /** Format: email */
+            email: string;
+            subject: string;
+            message: string;
+            language?: string;
+            turnstileToken?: string;
+        };
         VerifyEmailRequest: {
             token: string;
         };
@@ -1833,6 +1876,21 @@ export interface components {
             membershipType: string;
             /** Format: date */
             expiresAt: string;
+        };
+        RulesResponse: {
+            finePerDay: number;
+            /** Format: int32 */
+            fineGraceDays: number;
+            fineMaxPerItem: number;
+            lostDefaultPrice: number;
+            lostProcessingFee: number;
+            blockBorrowingAt: number;
+            /** Format: int32 */
+            holdPickupOpenDays: number;
+            /** Format: int32 */
+            membershipValidityYears: number;
+            /** Format: int32 */
+            documentRetentionDays: number;
         };
         LibraryInfoResponse: {
             name: string;
@@ -2786,6 +2844,28 @@ export interface operations {
             };
         };
     };
+    send: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     verifyEmail: {
         parameters: {
             query?: never;
@@ -3544,6 +3624,26 @@ export interface operations {
                 };
                 content: {
                     "application/pdf": string;
+                };
+            };
+        };
+    };
+    rules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RulesResponse"];
                 };
             };
         };

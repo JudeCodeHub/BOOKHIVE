@@ -127,6 +127,24 @@ bookhive:
     # Map pin (Colombo by default)
     latitude: ${LIBRARY_LATITUDE:6.9147}
     longitude: ${LIBRARY_LONGITUDE:79.8612}
+  # Library-wide borrowing rules (PRD §4). Shown on the public rules page. Amounts in LKR.
+  rules:
+    fine-per-day: 5.00
+    fine-grace-days: 1
+    fine-max-per-item: 300.00
+    lost-default-price: 1500.00
+    lost-processing-fee: 200.00
+    block-borrowing-at: 500.00
+    hold-pickup-open-days: 3
+    membership-validity-years: 1
+    document-retention-days: 90
+  # "I'm not a robot" check on public forms. Default: Cloudflare's test secret, which accepts
+  # every token (dev). Prod: TURNSTILE_SECRET from the Cloudflare dashboard.
+  turnstile:
+    enabled: true
+    secret: ${TURNSTILE_SECRET:1x0000000000000000000000000000000AA}
+    verify-url: https://challenges.cloudflare.com/turnstile/v0/siteverify
+    timeout: 5s
   # "Lookup ISBN" while cataloguing (Open Library). Cached in Redis.
   isbn-lookup:
     base-url: ${ISBN_LOOKUP_URL:https://openlibrary.org}
@@ -144,6 +162,7 @@ bookhive:
       reset-password: { path: /api/v1/auth/reset-password, capacity: 10, period: 1h }
       accept-invite: { path: /api/v1/auth/accept-invite, capacity: 10, period: 1h }
       verify-email: { path: /api/v1/auth/verify-email, capacity: 20, period: 1h }
+      contact: { path: /api/v1/contact, capacity: 5, period: 1h }
   security:
     # Swagger UI and /v3/api-docs reachable without login (dev only)
     public-api-docs: false
