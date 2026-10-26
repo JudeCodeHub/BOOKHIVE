@@ -751,7 +751,8 @@
       "reactivated": "Member reactivated.",
       "note": "Note (optional)",
       "cancel": "Cancel",
-      "working": "Saving…"
+      "working": "Saving…",
+      "historyPrivate": "Reading history is private: staff only see the books a member has out now (Loans tab)."
     }
   },
   "StaffCatalog": {
@@ -1300,5 +1301,19 @@
     "reasonTooShort": "Please explain in at least {min} characters.",
     "cancel": "Cancel",
     "working": "Saving…"
+  },
+  "MemberLoansTab": {
+    "empty": "No books out right now.",
+    "outSince": "out since {date}",
+    "due": "due {date}",
+    "renewals": "{count, plural, one {renewed once} other {renewed # times}}",
+    "lost": "Lost (charged)",
+    "markLost": "Mark lost",
+    "privacy": "Only current loans are shown. What a member has read before is private.",
+    "lostTitle": "Mark “{title}” as lost?",
+    "lostText": "The member is charged the replacement cost plus the processing fee. If the book turns up later, scanning it at Returns reverses the charge.",
+    "lostConfirm": "Mark lost and charge",
+    "cancel": "Cancel",
+    "markedLost": "“{title}” marked lost: {total} charged."
   }
 }
