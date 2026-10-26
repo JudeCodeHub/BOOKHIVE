@@ -75,6 +75,10 @@ logging:
     correlation: "[%X{requestId:-}] "
 
 bookhive:
+  # Scheduled jobs (cron in library time, Asia/Colombo; Spring format: sec min hour day month weekday)
+  jobs:
+    # Mark loans overdue just after midnight
+    overdue-cron: "0 5 0 * * *"
   auth:
     email-verification-ttl: 24h
     password-reset-ttl: 1h
