@@ -1,13 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScanInput, type ScanInputHandle } from "@/features/desk/scan-input";
+import { CheckoutDesk } from "@/features/desk/checkout-desk";
+import { ScanInput } from "@/features/desk/scan-input";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 type Mode = "checkout" | "returns";
+
+/** Every desk mode's scan box has this id, so a click anywhere can put the cursor back. */
+const focusScanBox = () => document.getElementById("desk-scan")?.focus();
 
 /**
  * Desk mode (checklist step 236): one big scan box, always ready. Checkout: scan the member's
@@ -19,8 +23,6 @@ export function DeskMode() {
   const router = useRouter();
   const pathname = usePathname();
   const mode: Mode = useSearchParams().get("mode") === "returns" ? "returns" : "checkout";
-  const scanBox = useRef<ScanInputHandle>(null);
-  const [lastScan, setLastScan] = useState<string | null>(null);
 
   return (
     <div
@@ -30,16 +32,14 @@ export function DeskMode() {
         if (
           !(event.target as HTMLElement).closest("a, button, input, textarea, select, [role=tab]")
         ) {
-          scanBox.current?.focus();
+          focusScanBox();
         }
       }}
     >
       <Tabs
         value={mode}
         onValueChange={(next) => {
-          setLastScan(null);
           router.replace(next === "returns" ? `${pathname}?mode=returns` : pathname);
-          scanBox.current?.focus();
         }}
       >
         <TabsList aria-label={t("modes")}>
@@ -48,20 +48,27 @@ export function DeskMode() {
         </TabsList>
       </Tabs>
 
+      {/* A fresh desk per mode: switching starts clean, with the scan box focused */}
+      {mode === "checkout" ? <CheckoutDesk key="checkout" /> : <ReturnsDesk key="returns" />}
+    </div>
+  );
+}
+
+/** Returns mode; the return itself and its routing message arrive in step 240. */
+function ReturnsDesk() {
+  const t = useTranslations("Desk");
+  const [lastScan, setLastScan] = useState<string | null>(null);
+  return (
+    <div className="grid gap-6">
       <ScanInput
-        // A fresh box per mode, focused right away
-        key={mode}
-        ref={scanBox}
         id="desk-scan"
-        label={mode === "checkout" ? t("scanMemberLabel") : t("scanReturnLabel")}
-        hint={mode === "checkout" ? t("scanMemberHint") : t("scanReturnHint")}
+        label={t("scanReturnLabel")}
+        hint={t("scanReturnHint")}
         placeholder={t("placeholder")}
         onScan={setLastScan}
         className="max-w-2xl"
       />
-
-      {/* Screen readers hear each scan; steps 237-240 replace this with the real result */}
-      <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
+      <p role="status" aria-live="polite" className="min-h-5 text-sm text-muted-foreground">
         {lastScan && t("scanned", { code: lastScan })}
       </p>
     </div>
