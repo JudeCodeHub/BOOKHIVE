@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -125,11 +126,13 @@ public class StaffBookController {
   }
 
   @PostMapping(path = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @Operation(summary = "Import books and copies from CSV; returns what happened to every row")
+  @Operation(summary = "Import books and copies from CSV (dryRun=true: preview, nothing saved)")
   public ImportReport importCsv(
-      @AuthenticationPrincipal Jwt jwt, @RequestPart("file") MultipartFile file)
+      @AuthenticationPrincipal Jwt jwt,
+      @RequestPart("file") MultipartFile file,
+      @RequestParam(defaultValue = "false") boolean dryRun)
       throws IOException {
-    return importer.importCsv(file.getInputStream(), staffId(jwt));
+    return importer.importCsv(file.getInputStream(), staffId(jwt), dryRun);
   }
 
   @GetMapping(path = "/import/template.csv", produces = "text/csv")

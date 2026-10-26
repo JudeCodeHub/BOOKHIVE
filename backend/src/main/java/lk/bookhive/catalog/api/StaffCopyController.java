@@ -25,6 +25,7 @@ import lk.bookhive.catalog.domain.CopyStatus;
 import lk.bookhive.catalog.domain.CopyStatusChange;
 import lk.bookhive.catalog.domain.LendingType;
 import lk.bookhive.catalog.service.CopyService;
+import lk.bookhive.catalog.service.CopyService.HistoryLine;
 import lk.bookhive.catalog.service.LabelSheetService;
 import lk.bookhive.common.config.OpenApiConfig;
 import lk.bookhive.common.domain.Money;
@@ -179,16 +180,25 @@ public class StaffCopyController {
       CopyStatus toStatus,
       String reason,
       UUID changedBy,
+      String changedByName,
       Instant changedAt) {
 
-    static CopyHistoryResponse from(CopyStatusChange change) {
+    static CopyHistoryResponse from(HistoryLine line) {
+      CopyStatusChange change = line.change();
       return new CopyHistoryResponse(
           change.getFromStatus(),
           change.getToStatus(),
           change.getReason(),
           change.getChangedBy(),
+          line.changedByName(),
           change.getChangedAt());
     }
+  }
+
+  @GetMapping("/copies/{id}")
+  @Operation(summary = "One copy")
+  public CopyResponse get(@PathVariable UUID id) {
+    return CopyResponse.from(copies.get(id));
   }
 
   @GetMapping("/copies/{id}/history")

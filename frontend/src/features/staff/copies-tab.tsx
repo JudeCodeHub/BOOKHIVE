@@ -32,6 +32,7 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { ApiError, api, type Schema } from "@/lib/api";
 import { applyServerErrors } from "@/lib/forms";
+import { CopyDetail } from "@/features/staff/copy-detail";
 
 type Copy = Schema<"CopyResponse">;
 type AddCopiesRequest = Schema<"AddCopiesRequest">;
@@ -62,9 +63,11 @@ export function CopiesTab({ bookId }: { bookId: string }) {
   const tCommon = useTranslations("Common");
   const format = useFormatter();
   const errorMessage = useAuthErrorMessage();
+  const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string[]>([]);
   const [adding, setAdding] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const [openCopyId, setOpenCopyId] = useState<string | null>(null);
 
   const query = useQuery({
     queryKey: copiesQueryKey(bookId),
@@ -105,6 +108,7 @@ export function CopiesTab({ bookId }: { bookId: string }) {
   }
 
   const copies = query.data;
+  const openCopy = copies.find((c) => c.id === openCopyId);
   const allSelected = copies.length > 0 && selected.length === copies.length;
 
   return (
@@ -174,7 +178,15 @@ export function CopiesTab({ bookId }: { bookId: string }) {
                     }
                   />
                 </TableCell>
-                <TableCell className="font-mono">{copy.barcode}</TableCell>
+                <TableCell className="font-mono">
+                  <button
+                    type="button"
+                    className="underline-offset-4 hover:underline"
+                    onClick={() => setOpenCopyId(copy.id)}
+                  >
+                    {copy.barcode}
+                  </button>
+                </TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANT[copy.status]}>
                     {t(`statuses.${copy.status}`)}
@@ -193,6 +205,21 @@ export function CopiesTab({ bookId }: { bookId: string }) {
           </TableBody>
         </Table>
       )}
+
+      <Dialog open={openCopy !== undefined} onOpenChange={(open) => !open && setOpenCopyId(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+          {openCopy && (
+            // key: a fresh form when another copy is opened or this one changed
+            <CopyDetail
+              key={`${openCopy.id}-${openCopy.status}`}
+              copy={openCopy}
+              onChanged={() =>
+                void queryClient.invalidateQueries({ queryKey: copiesQueryKey(bookId) })
+              }
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={adding} onOpenChange={setAdding}>
         <DialogContent className="sm:max-w-lg">
