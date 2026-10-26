@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
+import { MemberLoansTab } from "@/features/loans/member-loans-tab";
 import { yearsSince } from "@/features/staff/applications-queue";
 import { MemberStatusBadge } from "@/features/staff/member-status-badge";
 import { LANGUAGES } from "@/i18n/languages";
@@ -31,8 +32,8 @@ type Profile = Schema<"MemberProfileResponse">;
 type Renewal = Schema<"RenewalResponse">;
 
 /**
- * A member's page for the desk (checklist step 144): details now; loans, holds, fines and
- * history tabs fill in with the circulation phase. Renew, suspend and reactivate are here too.
+ * A member's page for the desk (checklist step 144): details, current loans (step 247); holds
+ * and fines fill in with their phases. Reading history is never shown to staff. Renew, suspend and reactivate are here too.
  */
 export function MemberProfile() {
   const t = useTranslations("StaffMembers.profile");
@@ -204,7 +205,18 @@ export function MemberProfile() {
           )}
         </TabsContent>
 
-        {(["loans", "holds", "fines", "history"] as const).map((tab) => (
+        <TabsContent value="loans" className="pt-2">
+          <MemberLoansTab memberId={member.id} />
+        </TabsContent>
+
+        <TabsContent value="history" className="pt-2">
+          {/* PRD §4.5: what a member has read is theirs alone */}
+          <p className="rounded-lg border p-6 text-center text-sm text-muted-foreground">
+            {t("historyPrivate")}
+          </p>
+        </TabsContent>
+
+        {(["holds", "fines"] as const).map((tab) => (
           <TabsContent key={tab} value={tab} className="pt-2">
             <p className="rounded-lg border p-6 text-center text-sm text-muted-foreground">
               {t("comingSoon")}

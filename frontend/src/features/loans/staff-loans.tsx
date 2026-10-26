@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,15 +18,12 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
-import { useSession } from "@/features/auth/use-session";
-import { OverrideDialog } from "@/features/desk/override-dialog";
-import { type RenewalCheck, refusedRenewal } from "@/features/loans/renewal-reasons";
+import { useStaffRenew } from "@/features/loans/use-staff-renew";
 import { Pager } from "@/features/staff/pager";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { api, type PageResponse, type Schema } from "@/lib/api";
 
 type OpenLoan = Schema<"OpenLoanSummary">;
-type Renewal = Schema<"LoanRenewalResponse">;
 
 const VIEWS = ["all", "dueSoon", "overdue"] as const;
 type View = (typeof VIEWS)[number];
@@ -47,14 +42,11 @@ export function StaffLoans() {
   const tCommon = useTranslations("Common");
   const format = useFormatter();
   const errorMessage = useAuthErrorMessage();
-  const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const view: View = VIEWS.find((v) => v === params.get("view")) ?? "all";
   const page = Math.max(0, Number(params.get("page")) || 0);
-  const isAdmin = useSession().hasRole("ADMIN");
-  const [override, setOverride] = useState<{ loan: OpenLoan; check: RenewalCheck } | null>(null);
 
   const go = (next: { view?: View; page?: number }) => {
     const v = next.view ?? view;
@@ -80,36 +72,7 @@ export function StaffLoans() {
     placeholderData: keepPreviousData,
   });
 
-  const renew = useMutation({
-    mutationFn: ({ loan, overrideReason }: { loan: OpenLoan; overrideReason?: string }) =>
-      api.post<Renewal>(`/staff/loans/${loan.loan.loanId}/renew`, { overrideReason }),
-    onSuccess: (renewal) => {
-      setOverride(null);
-      toast.success(
-        t("renewed", {
-          title: renewal.title,
-          date: format.dateTime(new Date(renewal.dueDate), { dateStyle: "medium" }),
-        }),
-      );
-      void queryClient.invalidateQueries({ queryKey: ["staff", "loans"] });
-    },
-    onError: (error, { loan, overrideReason }) => {
-      const refused = refusedRenewal(error);
-      if (refused) {
-        setOverride(null);
-        toast.error(t("renewRefused"), {
-          description: refused.problems.map((p) => t(`renewalProblems.${p.reason}`)).join(" "),
-          // Admins can bend these rules with a reason (not again if an override just failed)
-          action:
-            isAdmin && refused.canOverride && !overrideReason
-              ? { label: t("override"), onClick: () => setOverride({ loan, check: refused }) }
-              : undefined,
-        });
-      } else {
-        toast.error(errorMessage(error));
-      }
-    },
-  });
+  const renewer = useStaffRenew();
 
   const date = (iso: string) => format.dateTime(new Date(iso), { dateStyle: "medium" });
   const data = loans.data;
@@ -196,10 +159,10 @@ export function StaffLoans() {
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled={
-                        renew.isPending && renew.variables?.loan.loan.loanId === row.loan.loanId
+                      disabled={renewer.isRenewing(row.loan.loanId)}
+                      onClick={() =>
+                        renewer.renew({ loanId: row.loan.loanId, title: row.loan.title })
                       }
-                      onClick={() => renew.mutate({ loan: row })}
                     >
                       <RefreshCw aria-hidden />
                       {t("renew")}
@@ -214,17 +177,7 @@ export function StaffLoans() {
         </>
       )}
 
-      <OverrideDialog
-        open={override !== null}
-        onOpenChange={(open) => !open && setOverride(null)}
-        title={t("overrideTitle", { title: override?.loan.loan.title ?? "" })}
-        rules={(override?.check.problems ?? []).map((p) => t(`renewalProblems.${p.reason}`))}
-        confirmLabel={t("overrideConfirm")}
-        pending={renew.isPending}
-        onConfirm={(reason) =>
-          override && renew.mutate({ loan: override.loan, overrideReason: reason })
-        }
-      />
+      {renewer.dialog}
     </div>
   );
 }
