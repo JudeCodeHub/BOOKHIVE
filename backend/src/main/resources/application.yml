@@ -127,17 +127,6 @@ bookhive:
     # Map pin (Colombo by default)
     latitude: ${LIBRARY_LATITUDE:6.9147}
     longitude: ${LIBRARY_LONGITUDE:79.8612}
-  # Library-wide borrowing rules (PRD §4). Shown on the public rules page. Amounts in LKR.
-  rules:
-    fine-per-day: 5.00
-    fine-grace-days: 1
-    fine-max-per-item: 300.00
-    lost-default-price: 1500.00
-    lost-processing-fee: 200.00
-    block-borrowing-at: 500.00
-    hold-pickup-open-days: 3
-    membership-validity-years: 1
-    document-retention-days: 90
   # "I'm not a robot" check on public forms. Default: Cloudflare's test secret, which accepts
   # every token (dev). Prod: TURNSTILE_SECRET from the Cloudflare dashboard.
   turnstile:

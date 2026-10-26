@@ -9,11 +9,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import lk.bookhive.admin.config.LibraryProperties;
-import lk.bookhive.admin.config.RulesProperties;
 import lk.bookhive.admin.domain.Holiday;
 import lk.bookhive.admin.domain.OpeningHours;
 import lk.bookhive.admin.service.LibraryHoursService;
 import lk.bookhive.admin.service.LibraryHoursService.Status;
+import lk.bookhive.admin.settings.Settings.Fines;
+import lk.bookhive.admin.settings.Settings.Membership;
+import lk.bookhive.admin.settings.SettingsService;
 import lk.bookhive.common.domain.Language;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,20 +26,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/library")
 @Tag(name = "Library")
-@EnableConfigurationProperties({LibraryProperties.class, RulesProperties.class})
+@EnableConfigurationProperties(LibraryProperties.class)
 public class LibraryController {
 
   private static final int HOLIDAYS_AHEAD_DAYS = 60;
 
   private final LibraryHoursService hours;
   private final LibraryProperties library;
-  private final RulesProperties rules;
+  private final SettingsService settings;
 
   public LibraryController(
-      LibraryHoursService hours, LibraryProperties library, RulesProperties rules) {
+      LibraryHoursService hours, LibraryProperties library, SettingsService settings) {
     this.hours = hours;
     this.library = library;
-    this.rules = rules;
+    this.settings = settings;
   }
 
   /** The library-wide rules; per-type limits come from GET /memberships/types. Amounts in LKR. */
@@ -55,16 +57,19 @@ public class LibraryController {
   @GetMapping("/rules")
   @Operation(summary = "Borrowing rules: fines, lost items, holds, membership")
   public RulesResponse rules() {
+    // From the admin-editable settings, so the page says exactly what the system enforces
+    Fines fines = settings.fines();
+    Membership membership = settings.membership();
     return new RulesResponse(
-        rules.finePerDay(),
-        rules.fineGraceDays(),
-        rules.fineMaxPerItem(),
-        rules.lostDefaultPrice(),
-        rules.lostProcessingFee(),
-        rules.blockBorrowingAt(),
-        rules.holdPickupOpenDays(),
-        rules.membershipValidityYears(),
-        rules.documentRetentionDays());
+        fines.perDay(),
+        fines.graceDays(),
+        fines.maxPerItem(),
+        fines.lostDefaultPrice(),
+        fines.lostProcessingFee(),
+        fines.blockBorrowingAt(),
+        settings.holds().pickupOpenDays(),
+        membership.validityYears(),
+        membership.documentRetentionDays());
   }
 
   /** One weekday. Both times null = closed. */

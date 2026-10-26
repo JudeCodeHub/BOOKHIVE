@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lk.bookhive.admin.settings.SettingsService;
 import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.domain.Money;
 import lk.bookhive.common.exception.BusinessRuleException;
@@ -25,23 +26,23 @@ public class MembershipService {
 
   private static final Logger log = LoggerFactory.getLogger(MembershipService.class);
 
-  /** Renewing opens this many days before the expiry date. */
-  static final int RENEWAL_WINDOW_DAYS = 30;
-
   private final MemberRepository members;
   private final ApplicationEventPublisher events;
   private final AuditService audit;
   private final LibraryTime time;
+  private final SettingsService settings;
 
   public MembershipService(
       MemberRepository members,
       ApplicationEventPublisher events,
       AuditService audit,
-      LibraryTime time) {
+      LibraryTime time,
+      SettingsService settings) {
     this.members = members;
     this.events = events;
     this.audit = audit;
     this.time = time;
+    this.settings = settings;
   }
 
   /** The result of a renewal: the member and the fee now owed (zero for free types). */
@@ -72,6 +73,8 @@ public class MembershipService {
 
   private Renewal renew(Member member, UUID actorId) {
     LocalDate today = time.today();
+    // Renewing opens this many days before the expiry date (admin setting)
+    int window = settings.membership().renewalWindowDays();
     if (member.getStatus() == MemberStatus.SUSPENDED) {
       throw new BusinessRuleException(
           "MEMBERSHIP_SUSPENDED",
@@ -80,10 +83,10 @@ public class MembershipService {
     // Not too early: otherwise someone could stack up several years ahead
     if (member.getStatus() == MemberStatus.ACTIVE
         && !member.isExpiredOn(today)
-        && member.getExpiresAt().isAfter(today.plusDays(RENEWAL_WINDOW_DAYS))) {
+        && member.getExpiresAt().isAfter(today.plusDays(window))) {
       throw new BusinessRuleException(
           "RENEWAL_TOO_EARLY",
-          "You can renew from " + member.getExpiresAt().minusDays(RENEWAL_WINDOW_DAYS) + ".");
+          "You can renew from " + member.getExpiresAt().minusDays(window) + ".");
     }
 
     LocalDate newExpiry = member.renew(today);
