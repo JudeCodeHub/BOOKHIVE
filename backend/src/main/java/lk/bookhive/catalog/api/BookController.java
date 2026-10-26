@@ -20,8 +20,11 @@ import lk.bookhive.catalog.service.BookListService.BookListItem;
 import lk.bookhive.catalog.service.BookListService.BookSort;
 import lk.bookhive.catalog.service.BookListService.Filters;
 import lk.bookhive.catalog.service.BookService;
+import lk.bookhive.catalog.service.CatalogCacheKeys;
 import lk.bookhive.catalog.service.CoverService;
 import lk.bookhive.catalog.service.CoverService.CoverSize;
+import lk.bookhive.catalog.service.SearchService;
+import lk.bookhive.common.cache.PublicCache;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.web.PageResponse;
 import org.springframework.http.CacheControl;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tools.jackson.core.type.TypeReference;
 
 /** Public catalog: anyone can look at a book (PRD §10). */
 @RestController
@@ -43,16 +47,35 @@ public class BookController {
   private final BookListService bookList;
   private final CoverService covers;
   private final AvailabilityService availability;
+  private final SearchService search;
+  private final PublicCache cache;
 
   public BookController(
       BookService books,
       BookListService bookList,
       CoverService covers,
-      AvailabilityService availability) {
+      AvailabilityService availability,
+      SearchService search,
+      PublicCache cache) {
     this.books = books;
     this.bookList = bookList;
     this.covers = covers;
     this.availability = availability;
+    this.search = search;
+    this.cache = cache;
+  }
+
+  @GetMapping("/new-arrivals")
+  @Operation(summary = "Latest titles added to the catalog (home page)")
+  public List<BookSummary> newArrivals(
+      @RequestParam(defaultValue = "12") @Min(1) @Max(48) int limit) {
+    return search.newArrivals(limit).stream().map(BookSummary::from).toList();
+  }
+
+  @GetMapping("/popular")
+  @Operation(summary = "Most borrowed titles (home page); may be empty")
+  public List<BookSummary> popular(@RequestParam(defaultValue = "12") @Min(1) @Max(48) int limit) {
+    return search.popular(limit).stream().map(BookSummary::from).toList();
   }
 
   /** Counts per state; see {@link Availability} for what each number means. */
@@ -138,7 +161,12 @@ public class BookController {
   @GetMapping("/{id}")
   @Operation(summary = "One book with its authors, publisher and categories")
   public BookResponse get(@PathVariable UUID id) {
-    return BookResponse.from(books.get(id));
+    // Cached (evicted when staff edit the book or its cover); availability is a separate call
+    return cache.get(
+        CatalogCacheKeys.book(id),
+        CatalogCacheKeys.BOOK_TTL,
+        new TypeReference<>() {},
+        () -> BookResponse.from(books.get(id)));
   }
 
   /**

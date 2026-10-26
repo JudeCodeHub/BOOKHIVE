@@ -15,6 +15,7 @@ import lk.bookhive.catalog.repository.BookAuthorRepository;
 import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.catalog.repository.CopyRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -63,8 +64,9 @@ public class BookListService {
    */
   public record Filters(String text, String language, BookFormat format, UUID categoryId) {}
 
-  /** A book in a list, with its contributors' names in cover order. */
   /**
+   * A book in a list, with its contributors' names in cover order.
+   *
    * @param copies copies the library has (lost and withdrawn don't count)
    * @param availableToBorrow on the shelf and allowed to go home
    */
@@ -74,9 +76,20 @@ public class BookListService {
   @Transactional(readOnly = true)
   public Page<BookListItem> list(Filters filters, BookSort sort, int page, int size) {
     Page<Book> found = books.findAll(specification(filters), PageRequest.of(page, size, sort.sort));
+    List<BookListItem> items = summaries(found.getContent());
+    return new PageImpl<>(items, found.getPageable(), found.getTotalElements());
+  }
 
-    // Second query: all contributors of this page at once, grouped per book
-    List<UUID> ids = found.stream().map(Book::getId).toList();
+  /**
+   * Adds the authors and copy counts to a page of books, in the same order, with two queries for
+   * the whole page (never one per book). Also used by search and the home page lists.
+   */
+  @Transactional(readOnly = true)
+  public List<BookListItem> summaries(List<Book> page) {
+    List<UUID> ids = page.stream().map(Book::getId).toList();
+    if (ids.isEmpty()) {
+      return List.of();
+    }
     Map<UUID, List<String>> names =
         bookAuthors.findByBookIdInOrderByPosition(ids).stream()
             .collect(
@@ -85,21 +98,21 @@ public class BookListService {
                     Collectors.mapping(
                         (BookAuthor contributor) -> contributor.getAuthor().getName(),
                         Collectors.toList())));
-    // Third query: copy counts for the whole page, so each card can say "2 of 3 available"
+    // So each card can say "2 of 3 available"
     Map<UUID, CopyRepository.BookCounts> counts =
-        ids.isEmpty()
-            ? Map.of()
-            : copies.countsForBooks(ids).stream()
-                .collect(Collectors.toMap(CopyRepository.BookCounts::getBookId, c -> c));
-    return found.map(
-        book -> {
-          CopyRepository.BookCounts count = counts.get(book.getId());
-          return new BookListItem(
-              book,
-              names.getOrDefault(book.getId(), List.of()),
-              count == null ? 0 : count.getTotal(),
-              count == null ? 0 : count.getAvailableToBorrow());
-        });
+        copies.countsForBooks(ids).stream()
+            .collect(Collectors.toMap(CopyRepository.BookCounts::getBookId, c -> c));
+    return page.stream()
+        .map(
+            book -> {
+              CopyRepository.BookCounts count = counts.get(book.getId());
+              return new BookListItem(
+                  book,
+                  names.getOrDefault(book.getId(), List.of()),
+                  count == null ? 0 : count.getTotal(),
+                  count == null ? 0 : count.getAvailableToBorrow());
+            })
+        .toList();
   }
 
   /** Typed % and _ are searched for literally, not as wildcards. */

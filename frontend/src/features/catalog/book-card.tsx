@@ -13,14 +13,24 @@ type BookSummary = Schema<"BookSummary">;
  * borrowed now. Used by search results and book lists on the public site. Works in server and
  * client components (no state of its own).
  */
-export function BookCard({ book, className }: { book: BookSummary; className?: string }) {
+export function BookCard({
+  book,
+  layout = "grid",
+  className,
+}: {
+  book: BookSummary;
+  /** grid: cover on top on wider screens; list: always a row, cover on the left */
+  layout?: "grid" | "list";
+  className?: string;
+}) {
   const t = useTranslations("BookCard");
   const cover = coverUrl(book.id, book.coverVersion, "medium");
 
   return (
     <article
       className={cn(
-        "group relative flex gap-3 rounded-lg border bg-card p-3 transition-shadow hover:shadow-md sm:flex-col",
+        "group relative flex gap-3 rounded-lg border bg-card p-3 transition-shadow hover:shadow-md",
+        layout === "grid" && "sm:flex-col",
         className,
       )}
     >
@@ -31,13 +41,19 @@ export function BookCard({ book, className }: { book: BookSummary; className?: s
           src={cover}
           alt=""
           loading="lazy"
-          className="aspect-[2/3] w-20 shrink-0 rounded object-cover sm:w-full"
+          className={cn(
+            "aspect-[2/3] w-20 shrink-0 rounded object-cover",
+            layout === "grid" && "sm:w-full",
+          )}
         />
       ) : (
         <div
           role="img"
           aria-label={t("noCover")}
-          className="flex aspect-[2/3] w-20 shrink-0 items-center justify-center rounded bg-muted sm:w-full"
+          className={cn(
+            "flex aspect-[2/3] w-20 shrink-0 items-center justify-center rounded bg-muted",
+            layout === "grid" && "sm:w-full",
+          )}
         >
           <BookOpen aria-hidden className="size-8 text-muted-foreground" />
         </div>

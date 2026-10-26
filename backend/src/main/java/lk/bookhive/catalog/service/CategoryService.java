@@ -12,6 +12,7 @@ import lk.bookhive.catalog.domain.LibrarySection;
 import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.catalog.repository.CategoryRepository;
 import lk.bookhive.common.audit.AuditService;
+import lk.bookhive.common.cache.PublicCache;
 import lk.bookhive.common.domain.Language;
 import lk.bookhive.common.exception.ConflictException;
 import lk.bookhive.common.exception.FieldValidationException;
@@ -26,11 +27,14 @@ public class CategoryService {
   private final CategoryRepository categories;
   private final BookRepository books;
   private final AuditService audit;
+  private final PublicCache cache;
 
-  public CategoryService(CategoryRepository categories, BookRepository books, AuditService audit) {
+  public CategoryService(
+      CategoryRepository categories, BookRepository books, AuditService audit, PublicCache cache) {
     this.categories = categories;
     this.books = books;
     this.audit = audit;
+    this.cache = cache;
   }
 
   /** One category with its children, sorted by DDC number then English name. */
@@ -76,6 +80,7 @@ public class CategoryService {
                 form.nameTa(),
                 form.ddcCode(),
                 form.section()));
+    cache.evict(CatalogCacheKeys.CATEGORY_TREE);
     audit.record(
         "category.created", staffId, "category", category.getId(), Map.of("name", form.nameEn()));
     return category;
@@ -97,6 +102,7 @@ public class CategoryService {
     checkSiblingName(form.parentId(), form.nameEn(), id);
     category.moveTo(newParent);
     category.rename(form.nameEn(), form.nameSi(), form.nameTa(), form.ddcCode(), form.section());
+    cache.evict(CatalogCacheKeys.CATEGORY_TREE);
     audit.record("category.updated", staffId, "category", id, Map.of("name", form.nameEn()));
     return category;
   }
@@ -117,6 +123,7 @@ public class CategoryService {
           "CATEGORY_HAS_BOOKS", "Books are in this category, so it can't be deleted.");
     }
     categories.delete(category);
+    cache.evict(CatalogCacheKeys.CATEGORY_TREE);
     audit.record(
         "category.deleted", staffId, "category", id, Map.of("name", category.getName(Language.EN)));
   }
