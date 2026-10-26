@@ -1,10 +1,13 @@
 package lk.bookhive.catalog.service;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lk.bookhive.catalog.domain.Copy;
 import lk.bookhive.catalog.domain.CopyStatus;
@@ -55,6 +58,14 @@ public class LendingCatalogService {
   @Transactional(readOnly = true)
   public Optional<LendableCopy> byId(UUID copyId) {
     return copies.findById(copyId).map(LendingCatalogService::lendable);
+  }
+
+  /** Several copies at once (loan lists), by id. Unknown ids are left out. */
+  @Transactional(readOnly = true)
+  public Map<UUID, LendableCopy> byIds(Collection<UUID> copyIds) {
+    return copies.findAllById(copyIds).stream()
+        .map(LendingCatalogService::lendable)
+        .collect(Collectors.toMap(LendableCopy::copyId, Function.identity()));
   }
 
   /**

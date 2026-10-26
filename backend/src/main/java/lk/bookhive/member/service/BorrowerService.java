@@ -37,7 +37,8 @@ public class BorrowerService {
       int loanDays,
       int maxRenewals,
       int maxHolds,
-      List<String> allowedSections) {
+      List<String> allowedSections,
+      boolean readingHistoryEnabled) {
 
     public boolean mayBorrowFrom(String section) {
       return allowedSections == null || allowedSections.contains(section);
@@ -75,6 +76,7 @@ public class BorrowerService {
         type.getLoanDays(),
         type.getMaxRenewals(),
         type.getMaxHolds(),
-        type.getAllowedSections());
+        type.getAllowedSections(),
+        member.isReadingHistoryEnabled());
   }
 }

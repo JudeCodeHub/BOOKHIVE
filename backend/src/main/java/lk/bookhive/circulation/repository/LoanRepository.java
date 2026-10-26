@@ -28,8 +28,12 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
   /** For the loan limit: how many items the member has out now. */
   long countByMemberIdAndStatusIn(UUID memberId, Collection<LoanStatus> statuses);
 
-  /** Reading history: a member's loans, newest first. */
-  Page<Loan> findByMemberIdOrderByCheckedOutAtDesc(UUID memberId, Pageable pageable);
+  /** Statuses a member still has to deal with: out, or lost and charged. */
+  List<LoanStatus> CURRENT = List.of(LoanStatus.ACTIVE, LoanStatus.OVERDUE, LoanStatus.LOST);
+
+  /** Reading history: a member's loans in one status (RETURNED), newest first. */
+  Page<Loan> findByMemberIdAndStatusOrderByCheckedOutAtDesc(
+      UUID memberId, LoanStatus status, Pageable pageable);
 
   /** A copy's loans, newest first (staff). */
   Page<Loan> findByCopyIdOrderByCheckedOutAtDesc(UUID copyId, Pageable pageable);
