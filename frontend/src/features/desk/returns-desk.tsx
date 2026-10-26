@@ -7,6 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { ScanInput } from "@/features/desk/scan-input";
+import { playSound } from "@/features/desk/sounds";
 import { ApiError, api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -44,10 +45,13 @@ export function ReturnsDesk() {
     try {
       const result = await api.post<ReturnResponse>("/staff/returns", { barcode });
       update(id, { id, barcode, state: "done", result });
+      // The hold shelf gets its own, louder sound: that book must not go back on the shelf
+      playSound(result.destination === "HOLD_SHELF" ? "hold" : "success");
       // Loan lists elsewhere in the console are now out of date
       void queryClient.invalidateQueries({ queryKey: ["staff", "loans"] });
     } catch (error) {
       const code = error instanceof ApiError ? error.code : "";
+      playSound(code === "COPY_NOT_ON_LOAN" ? "warning" : "error");
       if (code === "COPY_NOT_ON_LOAN") {
         update(id, { id, barcode, state: "notOnLoan", message: t("notOnLoan") });
       } else {

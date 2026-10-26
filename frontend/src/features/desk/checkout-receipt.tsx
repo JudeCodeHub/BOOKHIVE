@@ -4,6 +4,7 @@ import { CircleCheck, Mail, Printer, UserRoundPlus } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { PrintArea } from "@/components/print/print-area";
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/features/desk/kbd";
 import type { Schema } from "@/lib/api";
 
 type CheckoutReceipt = Schema<"CheckoutReceiptResponse">;
@@ -68,11 +69,11 @@ export function CheckoutReceiptView({
       <div className="flex flex-wrap gap-2">
         <Button onClick={onNextMember} autoFocus>
           <UserRoundPlus aria-hidden />
-          {t("nextMember")}
+          {t("nextMember")} <Kbd>Esc</Kbd>
         </Button>
         <Button variant="outline" onClick={() => window.print()}>
           <Printer aria-hidden />
-          {t("printReceipt")}
+          {t("printReceipt")} <Kbd>F9</Kbd>
         </Button>
       </div>
 

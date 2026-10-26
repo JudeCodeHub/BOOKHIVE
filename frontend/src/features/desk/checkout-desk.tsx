@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -10,8 +10,11 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { CheckoutList } from "@/features/desk/checkout-list";
 import { CheckoutReceiptView } from "@/features/desk/checkout-receipt";
+import { Kbd } from "@/features/desk/kbd";
 import { MemberCard } from "@/features/desk/member-card";
 import { ScanInput } from "@/features/desk/scan-input";
+import { playSound, soundForProblems } from "@/features/desk/sounds";
+import { useShortcuts } from "@/features/desk/use-shortcuts";
 import { ApiError, api, type Schema } from "@/lib/api";
 
 type CheckoutPreview = Schema<"CheckoutPreviewResponse">;
@@ -28,6 +31,9 @@ const MAX_ITEMS = 20;
  * 237); a new card at any time switches to that member and starts a new list. Each book scanned
  * after that is checked by the server right away: due date, or what's wrong (step 238). Confirm
  * lends them all (or none) and shows the receipt (step 239).
+ *
+ * Every scan sounds its result (step 241). Shortcuts: F8 check out, F9 print the receipt, Esc next
+ * member.
  */
 export function CheckoutDesk() {
   const t = useTranslations("Desk");
@@ -37,10 +43,31 @@ export function CheckoutDesk() {
   const [notice, setNotice] = useState<string | null>(null);
   const [emailReceipt, setEmailReceipt] = useState(true);
   const [receipt, setReceipt] = useState<{ data: CheckoutReceipt; emailed: boolean } | null>(null);
+  // The code just scanned: the next check's result is sounded for it (not for removals)
+  const soundFor = useRef<string | null>(null);
 
   const preview = useQuery({
     queryKey: ["desk", "preview", memberNo, barcodes],
-    queryFn: () => api.post<CheckoutPreview>("/staff/checkouts/preview", { memberNo, barcodes }),
+    queryFn: async () => {
+      const code = soundFor.current;
+      soundFor.current = null;
+      try {
+        const data = await api.post<CheckoutPreview>("/staff/checkouts/preview", {
+          memberNo,
+          barcodes,
+        });
+        if (code && isMemberCard(code)) {
+          playSound(soundForProblems(data.member.problems));
+        } else if (code) {
+          const item = data.items.find((i) => i.barcode === code);
+          playSound(item?.copyId == null ? "error" : soundForProblems(item.problems));
+        }
+        return data;
+      } catch (error) {
+        if (code) playSound("error");
+        throw error;
+      }
+    },
     enabled: memberNo !== null,
     // Keep showing the list while a new scan is checked, but never another member's data
     placeholderData: (previous, previousQuery) =>
@@ -55,11 +82,13 @@ export function CheckoutDesk() {
     mutationFn: () =>
       api.post<CheckoutReceipt>("/staff/checkouts", { memberNo, barcodes, emailReceipt }),
     onSuccess: (data) => {
+      playSound("success");
       setReceipt({ data, emailed: emailReceipt });
       setBarcodes([]);
       setNotice(null);
     },
     onError: (error) => {
+      playSound("error");
       // Something changed since the last check (e.g. another desk lent a copy): show it
       setNotice(
         error instanceof ApiError && error.code === "CHECKOUT_REFUSED"
@@ -75,16 +104,21 @@ export function CheckoutDesk() {
     if (isMemberCard(code)) {
       setNotice(null);
       if (code !== memberNo) {
+        soundFor.current = code;
         setMemberNo(code);
         setBarcodes([]);
       }
     } else if (!memberNo || preview.isError) {
+      playSound("warning");
       setNotice(t("scanCardFirst"));
     } else if (barcodes.includes(code)) {
+      playSound("warning");
       setNotice(t("alreadyInList", { code }));
     } else if (barcodes.length >= MAX_ITEMS) {
+      playSound("warning");
       setNotice(t("tooManyItems", { max: MAX_ITEMS }));
     } else {
+      soundFor.current = code;
       setNotice(null);
       setBarcodes([...barcodes, code]);
     }
@@ -104,6 +138,21 @@ export function CheckoutDesk() {
   // Only a check of exactly this list counts, not the one shown while re-checking
   const canConfirm =
     preview.data?.canCheckOut === true && !preview.isPlaceholderData && !preview.isFetching;
+
+  useShortcuts({
+    F8: () => {
+      if (!canConfirm || checkout.isPending || receipt) return false;
+      checkout.mutate();
+    },
+    F9: () => {
+      if (!receipt) return false;
+      window.print();
+    },
+    Escape: () => {
+      if (!memberNo && !receipt) return false;
+      clear();
+    },
+  });
 
   return (
     <div className="grid gap-6">
@@ -174,6 +223,7 @@ export function CheckoutDesk() {
                   {checkout.isPending
                     ? t("checkingOut")
                     : t("confirmCheckout", { count: items.length })}
+                  <Kbd>F8</Kbd>
                 </Button>
               </div>
             )}
