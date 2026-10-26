@@ -1126,5 +1126,18 @@
     },
     "rulesSummary": "{items} books · {days} days · {renewals} renewals · {holds} holds",
     "plusGuardian": "+ guardian"
+  },
+  "Desk": {
+    "metaTitle": "Desk",
+    "title": "Desk",
+    "modes": "Desk mode",
+    "checkout": "Check out",
+    "returns": "Returns",
+    "scanMemberLabel": "Scan the member's library card",
+    "scanMemberHint": "Then scan each book they want to borrow.",
+    "scanReturnLabel": "Scan a returned book",
+    "scanReturnHint": "Scan books one after another; each one shows where it goes next.",
+    "placeholder": "Scan or type a code and press Enter",
+    "scanned": "Scanned {code}"
   }
 }
