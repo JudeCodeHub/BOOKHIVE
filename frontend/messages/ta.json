@@ -91,7 +91,7 @@
   },
   "BookPage": {
     "notFound": "நூல் கிடைக்கவில்லை",
-    "by": "{names}",
+    "by": "<names></names>",
     "roles": {
       "AUTHOR": "",
       "EDITOR": "பதிப்பாசிரியர்",
@@ -171,6 +171,29 @@
     "emptyNoQuery": "இந்த வடிகட்டிகளுக்குப் பொருந்தும் நூல்கள் இல்லை.",
     "suggestPurchase": "கிடைக்கவில்லையா? நூலகத்திற்குப் பரிந்துரைக்கவும்",
     "clearFilters": "வடிகட்டிகளை நீக்கு"
+  },
+  "CategoryPage": {
+    "notFound": "வகை கிடைக்கவில்லை",
+    "breadcrumb": "வகைகள்",
+    "subcategories": "துணை வகைகள்",
+    "books": "{name} இலுள்ள நூல்கள்",
+    "sections": {
+      "ADULT": "வயது வந்தோர் பிரிவு",
+      "CHILDREN": "சிறுவர் பிரிவு",
+      "YOUNG_ADULT": "இளையோர் பிரிவு",
+      "REFERENCE": "குறிப்பு அறை (நூலகத்தில் படிக்கவும்)"
+    },
+    "metaDescription": "நூலகத்திலுள்ள {name} நூல்கள், கிடைக்கும் நிலையுடன்."
+  },
+  "AuthorPage": {
+    "notFound": "ஆசிரியர் கிடைக்கவில்லை",
+    "books": "{count, plural, =0 {பட்டியலில் இன்னும் நூல்கள் இல்லை} one {பட்டியலில் # நூல்} other {பட்டியலில் # நூல்கள்}}",
+    "booksTitle": "நூல்கள்",
+    "metaDescription": "நூலகத்திலுள்ள {name} நூல்கள், கிடைக்கும் நிலையுடன்."
+  },
+  "BookResults": {
+    "count": "{count, plural, =0 {நூல்கள் இல்லை} one {# நூல்} other {# நூல்கள்}}",
+    "empty": "இங்கே இன்னும் நூல்கள் இல்லை."
   },
   "AccountMenu": {
     "account": "என் கணக்கு",

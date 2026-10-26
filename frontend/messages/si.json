@@ -91,7 +91,7 @@
   },
   "BookPage": {
     "notFound": "පොත හමු නොවීය",
-    "by": "{names}",
+    "by": "<names></names>",
     "roles": {
       "AUTHOR": "",
       "EDITOR": "සංස්කාරක",
@@ -171,6 +171,29 @@
     "emptyNoQuery": "මෙම පෙරහන්වලට ගැළපෙන පොත් නැත.",
     "suggestPurchase": "සොයාගත නොහැකිද? එය පුස්තකාලයට යෝජනා කරන්න",
     "clearFilters": "පෙරහන් ඉවත් කරන්න"
+  },
+  "CategoryPage": {
+    "notFound": "කාණ්ඩය හමු නොවීය",
+    "breadcrumb": "කාණ්ඩ",
+    "subcategories": "උප කාණ්ඩ",
+    "books": "{name} හි පොත්",
+    "sections": {
+      "ADULT": "වැඩිහිටි අංශය",
+      "CHILDREN": "ළමා අංශය",
+      "YOUNG_ADULT": "යෞවන අංශය",
+      "REFERENCE": "යොමු කාමරය (පුස්තකාලයේදී කියවන්න)"
+    },
+    "metaDescription": "පුස්තකාලයේ {name} පොත්, ලබාගත හැකි බව සමඟ."
+  },
+  "AuthorPage": {
+    "notFound": "කතුවරයා හමු නොවීය",
+    "books": "{count, plural, =0 {තවම නාමාවලියේ පොත් නැත} one {නාමාවලියේ පොත් #} other {නාමාවලියේ පොත් #}}",
+    "booksTitle": "පොත්",
+    "metaDescription": "පුස්තකාලයේ {name} ගේ පොත්, ලබාගත හැකි බව සමඟ."
+  },
+  "BookResults": {
+    "count": "{count, plural, =0 {පොත් නැත} one {පොත් #} other {පොත් #}}",
+    "empty": "තවම මෙහි පොත් නැත."
   },
   "AccountMenu": {
     "account": "මගේ ගිණුම",

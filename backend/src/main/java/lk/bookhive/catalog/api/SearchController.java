@@ -73,6 +73,7 @@ public class SearchController {
       @RequestParam(required = false) @Pattern(regexp = "^[a-z]{2,3}$") String language,
       @RequestParam(required = false) BookFormat format,
       @RequestParam(required = false) UUID category,
+      @RequestParam(required = false) UUID author,
       @RequestParam(defaultValue = "false") boolean available,
       @RequestParam(required = false) @Min(1000) @Max(2100) Integer yearFrom,
       @RequestParam(required = false) @Min(1000) @Max(2100) Integer yearTo,
@@ -82,7 +83,8 @@ public class SearchController {
     SearchResult result =
         search.search(
             new SearchQuery(
-                q, language, format, category, available, yearFrom, yearTo, sort, page, size));
+                q, language, format, category, author, available, yearFrom, yearTo, sort, page,
+                size));
     return new SearchResponse(
         PageResponse.from(result.books(), BookSummary::from),
         new FacetsResponse(

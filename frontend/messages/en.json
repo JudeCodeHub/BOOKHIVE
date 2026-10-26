@@ -91,7 +91,7 @@
   },
   "BookPage": {
     "notFound": "Book not found",
-    "by": "by {names}",
+    "by": "by <names></names>",
     "roles": {
       "AUTHOR": "",
       "EDITOR": "editor",
@@ -171,6 +171,29 @@
     "emptyNoQuery": "No books match these filters.",
     "suggestPurchase": "Can't find it? Suggest it for the library",
     "clearFilters": "Remove the filters"
+  },
+  "CategoryPage": {
+    "notFound": "Category not found",
+    "breadcrumb": "Categories",
+    "subcategories": "Subcategories",
+    "books": "Books in {name}",
+    "sections": {
+      "ADULT": "Adult section",
+      "CHILDREN": "Children's section",
+      "YOUNG_ADULT": "Young adult section",
+      "REFERENCE": "Reference room (read in the library)"
+    },
+    "metaDescription": "Books in {name} at the library, with live availability."
+  },
+  "AuthorPage": {
+    "notFound": "Author not found",
+    "books": "{count, plural, =0 {No books in the catalog yet} one {# book in the catalog} other {# books in the catalog}}",
+    "booksTitle": "Books",
+    "metaDescription": "Books by {name} at the library, with live availability."
+  },
+  "BookResults": {
+    "count": "{count, plural, =0 {No books} one {# book} other {# books}}",
+    "empty": "No books here yet."
   },
   "AccountMenu": {
     "account": "My account",
