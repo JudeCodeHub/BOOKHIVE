@@ -10,6 +10,7 @@ import lk.bookhive.catalog.domain.Copy;
 import lk.bookhive.catalog.domain.CopyStatus;
 import lk.bookhive.catalog.domain.LendingType;
 import lk.bookhive.catalog.repository.CopyRepository;
+import lk.bookhive.common.domain.Money;
 import lk.bookhive.common.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -40,7 +41,8 @@ public class LendingCatalogService {
       LendingType lendingType,
       Set<String> sections,
       String shelfLocation,
-      String callNumber) {}
+      String callNumber,
+      Money price) {}
 
   /** The desk scans the label: "C0000123". */
   @Transactional(readOnly = true)
@@ -94,6 +96,24 @@ public class LendingCatalogService {
         .checkIn(toHoldShelf, staffId, now);
   }
 
+  /** Lost by its borrower (step 229). Inside the caller's transaction. */
+  @Transactional(propagation = Propagation.MANDATORY)
+  public void markLost(UUID copyId, UUID staffId, Instant now) {
+    copies
+        .findById(copyId)
+        .orElseThrow(() -> new NotFoundException("COPY_NOT_FOUND", "Copy not found."))
+        .markLost(staffId, now);
+  }
+
+  /** Damaged on a loan (step 229): condition DAMAGED, off to repair if it's back. */
+  @Transactional(propagation = Propagation.MANDATORY)
+  public void markDamaged(UUID copyId, String note, UUID staffId, Instant now) {
+    copies
+        .findById(copyId)
+        .orElseThrow(() -> new NotFoundException("COPY_NOT_FOUND", "Copy not found."))
+        .markDamaged(note, staffId, now);
+  }
+
   private static LendableCopy lendable(Copy copy) {
     Set<String> sections =
         copy.getBook().getCategories().stream()
@@ -108,6 +128,7 @@ public class LendingCatalogService {
         copy.getLendingType(),
         sections.isEmpty() ? Set.of("ADULT") : Set.copyOf(sections),
         copy.getShelfLocation(),
-        copy.getBook().getCallNumber());
+        copy.getBook().getCallNumber(),
+        copy.getPrice());
   }
 }
