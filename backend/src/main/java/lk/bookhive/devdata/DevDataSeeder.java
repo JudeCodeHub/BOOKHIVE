@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
  * runs in test or prod. Each seed method must be safe to run on every restart (skip if the data is
  * already there).
  *
- * <p>Planned: staff/admin users (Phase 4), membership types and members (Phase 5), 200 books (step
- * 229), loan history (step 293).
+ * <p>Seeds now: 200 books with copies (DevCatalogSeeder). Planned: members, loan history.
  */
 @Component
 @Profile("dev")
@@ -21,8 +20,19 @@ public class DevDataSeeder implements ApplicationRunner {
 
   private static final Logger log = LoggerFactory.getLogger(DevDataSeeder.class);
 
+  private final DevCatalogSeeder catalog;
+
+  public DevDataSeeder(DevCatalogSeeder catalog) {
+    this.catalog = catalog;
+  }
+
   @Override
   public void run(ApplicationArguments args) {
-    log.info("Dev data seeder: nothing to seed yet");
+    try {
+      catalog.seed();
+    } catch (RuntimeException e) {
+      // Sample data is a convenience: never stop the app from starting because of it
+      log.warn("Dev data seeding failed: {}", e.getMessage(), e);
+    }
   }
 }

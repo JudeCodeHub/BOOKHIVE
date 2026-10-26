@@ -8,6 +8,7 @@ import {
   History,
   IdCard,
   LayoutDashboard,
+  Lightbulb,
   Settings,
   Wallet,
 } from "lucide-react";
@@ -31,6 +32,7 @@ export default function MemberLayout({ children }: LayoutProps<"/[locale]/accoun
     { href: "/account/history", label: t("history"), icon: <History /> },
     { href: "/account/card", label: t("card"), icon: <CreditCard /> },
     { href: "/account/wishlist", label: t("wishlist"), icon: <Heart /> },
+    { href: "/account/suggestions", label: t("suggestions"), icon: <Lightbulb /> },
     { href: "/account/events", label: t("events"), icon: <CalendarDays /> },
     { href: "/account/notifications", label: t("notifications"), icon: <Bell /> },
     { href: "/account/settings", label: t("settings"), icon: <Settings /> },

@@ -148,7 +148,8 @@
     "wishlist": "Wishlist",
     "events": "My events",
     "notifications": "Notifications",
-    "settings": "Settings"
+    "settings": "Settings",
+    "suggestions": "Suggest a book"
   },
   "StaffNav": {
     "badge": "Staff",
@@ -451,6 +452,37 @@
       "renewOpens": "You can renew from {date}.",
       "renewed": "Renewed until {date}.",
       "feeDue": "A membership fee of LKR {fee} has been added. You can pay it online or at the desk."
+    }
+  },
+  "MySuggestions": {
+    "metaTitle": "Suggest a book",
+    "title": "Suggest a book",
+    "intro": "Can't find a book in the catalog? Tell us and we'll consider buying it. You can have up to 5 open suggestions.",
+    "bookTitle": "Title",
+    "author": "Author (optional)",
+    "isbn": "ISBN (optional)",
+    "isbnHint": "Helps us order the right edition.",
+    "reason": "Why would you like it? (optional)",
+    "reasonHint": "For example: for my A/L studies, or our book club is reading it.",
+    "submit": "Send suggestion",
+    "submitting": "Sending…",
+    "sent": "Thank you! We'll let you know what we decide.",
+    "mine": "Your suggestions",
+    "none": "You haven't suggested any books yet.",
+    "statuses": {
+      "SUBMITTED": "Waiting",
+      "ORDERED": "Ordered",
+      "ACQUIRED": "In the library",
+      "DECLINED": "Not buying"
+    },
+    "note": "Library: {note}",
+    "openBook": "Open the book",
+    "suggestedOn": "Suggested {date}",
+    "errors": {
+      "SUGGESTION_LIMIT": "You have 5 open suggestions. Please wait until the library answers them.",
+      "BOOK_ALREADY_IN_CATALOG": "The library already has this book. You can borrow it.",
+      "SUGGESTION_EXISTS": "You have already suggested this book.",
+      "ISBN_INVALID": "This isn't a valid ISBN. Check the digits."
     }
   },
   "LibraryCard": {

@@ -75,7 +75,8 @@ public class CatalogImportService {
           "copies",
           "shelf_location",
           "price",
-          "acquisition_source");
+          "acquisition_source",
+          "lending_type");
 
   /** What happened to one row. {@code line} is the line in the file (the header is line 1). */
   public enum RowOutcome {
@@ -277,7 +278,7 @@ public class CatalogImportService {
       throw new IllegalArgumentException("price: not a number (" + price + ")");
     }
     return new Copy.Details(
-        LendingType.LENDABLE,
+        enumValue(record, "lending_type", LendingType.class, LendingType.LENDABLE),
         CopyCondition.NEW,
         value(record, "shelf_location"),
         null,
@@ -380,6 +381,6 @@ public class CatalogImportService {
     return String.join(",", COLUMNS)
         + "\n"
         + "9789552104540,Gamperaliya,,Martin Wickramasinghe,Sarasavi Publishers,1944,250,si,BOOK,"
-        + "891.483 WIC,891.48,2,\"Sinhala fiction, shelf 3\",950.00,PURCHASE\n";
+        + "891.483 WIC,891.48,2,\"Sinhala fiction, shelf 3\",950.00,PURCHASE,LENDABLE\n";
   }
 }
