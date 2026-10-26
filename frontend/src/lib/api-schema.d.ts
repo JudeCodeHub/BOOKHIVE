@@ -261,6 +261,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/holds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Place a hold for a member at the desk (same rules as online) */
+        post: operations["place"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/holds/{holdId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a member's hold, with a reason (audited) */
+        post: operations["cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/donations": {
         parameters: {
             query?: never;
@@ -549,6 +583,41 @@ export interface paths {
         put?: never;
         /** Renew my loan (422 RENEWAL_REFUSED lists every reason) */
         post: operations["renew_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/holds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My open holds: ready to pick up first, then my place in each queue */
+        get: operations["mine_1"];
+        put?: never;
+        /** Reserve a book (422 HOLD_REFUSED lists every reason) */
+        post: operations["place_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/holds/{holdId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel my hold (a copy set aside goes to the next in line) */
+        post: operations["cancel_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -847,6 +916,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/members/{memberId}/holds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A member's open holds (ready first, then queue positions) */
+        get: operations["memberHolds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/members/{id}": {
         parameters: {
             query?: never;
@@ -907,6 +993,23 @@ export interface paths {
         };
         /** Look up an ISBN (ours first, then Open Library; 503 if Open Library is down) */
         get: operations["lookup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/holds/shelf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The hold shelf: copies waiting for pickup, soonest deadline first */
+        get: operations["shelf"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1127,7 +1230,7 @@ export interface paths {
             cookie?: never;
         };
         /** My membership or application (204 if none) */
-        get: operations["mine_1"];
+        get: operations["mine_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1179,6 +1282,23 @@ export interface paths {
         };
         /** My reading history: returned loans, newest first */
         get: operations["readingHistory_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/holds/check/{bookId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Can I reserve this book now, and if not, why (with the queue length) */
+        get: operations["check_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1694,6 +1814,36 @@ export interface components {
             amount: number;
             note: string;
         };
+        StaffPlaceHoldRequest: {
+            memberNo: string;
+            /** Format: uuid */
+            bookId: string;
+        };
+        HoldSummary: {
+            /** Format: uuid */
+            holdId: string;
+            /** Format: uuid */
+            bookId: string;
+            title: string;
+            coverVersion: string;
+            /** @enum {string} */
+            status: "WAITING" | "READY" | "FULFILLED" | "CANCELLED" | "EXPIRED";
+            /** Format: date-time */
+            placedAt: string;
+            /** Format: int32 */
+            position: number;
+            /** Format: int64 */
+            queueLength: number;
+            /** Format: date-time */
+            readyAt: string;
+            /** Format: date */
+            expiresAt: string;
+            copyBarcode: string;
+            placedByStaff: boolean;
+        };
+        StaffCancelHoldRequest: {
+            reason: string;
+        };
         WithdrawRequest: {
             reason: string;
         };
@@ -1922,6 +2072,10 @@ export interface components {
             fullName: string;
             roles: ("MEMBER" | "LIBRARIAN" | "ADMIN")[];
             preferredLanguage: string;
+        };
+        PlaceHoldRequest: {
+            /** Format: uuid */
+            bookId: string;
         };
         ContactRequest: {
             name: string;
@@ -2165,6 +2319,36 @@ export interface components {
             pages: number;
             coverImageUrl: string;
         };
+        HoldShelfSummary: {
+            /** Format: uuid */
+            holdId: string;
+            /** Format: uuid */
+            bookId: string;
+            title: string;
+            copyBarcode: string;
+            callNumber: string;
+            /** Format: uuid */
+            memberId: string;
+            memberNo: string;
+            fullName: string;
+            phone: string;
+            /** Format: date-time */
+            readyAt: string;
+            /** Format: date */
+            expiresAt: string;
+            pastDeadline: boolean;
+        };
+        PageResponseHoldShelfSummary: {
+            content: components["schemas"]["HoldShelfSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
         PageResponseDonationResponse: {
             content: components["schemas"]["DonationResponse"][];
             /** Format: int32 */
@@ -2380,6 +2564,17 @@ export interface components {
             /** Format: int32 */
             anonymiseAfterDays: number;
             loans: components["schemas"]["PageResponseLoanSummary"];
+        };
+        HoldCheckResponse: {
+            canPlace: boolean;
+            /** Format: int64 */
+            queueLength: number;
+            problems: components["schemas"]["HoldProblemSummary"][];
+        };
+        HoldProblemSummary: {
+            /** @enum {string} */
+            reason: "MEMBER_NOT_ACTIVE" | "MEMBERSHIP_EXPIRED" | "FINES_BLOCK_BORROWING" | "NOT_LENDABLE" | "COPY_AVAILABLE" | "MAX_HOLDS_REACHED" | "ALREADY_BORROWED" | "ALREADY_HELD" | "SECTION_NOT_ALLOWED";
+            message: string;
         };
         CardResponse: {
             memberNo: string;
@@ -3015,6 +3210,54 @@ export interface operations {
             };
         };
     };
+    place: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffPlaceHoldRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HoldSummary"];
+                };
+            };
+        };
+    };
+    cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                holdId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffCancelHoldRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     list_1: {
         parameters: {
             query?: {
@@ -3547,6 +3790,70 @@ export interface operations {
             };
         };
     };
+    mine_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HoldSummary"][];
+                };
+            };
+        };
+    };
+    place_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlaceHoldRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HoldSummary"];
+                };
+            };
+        };
+    };
+    cancel_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                holdId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     send: {
         parameters: {
             query?: never;
@@ -4003,6 +4310,28 @@ export interface operations {
             };
         };
     };
+    memberHolds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HoldSummary"][];
+                };
+            };
+        };
+    };
     profile_1: {
         parameters: {
             query?: never;
@@ -4090,6 +4419,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["IsbnLookupResponse"];
+                };
+            };
+        };
+    };
+    shelf: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseHoldShelfSummary"];
                 };
             };
         };
@@ -4371,7 +4723,7 @@ export interface operations {
             };
         };
     };
-    mine_1: {
+    mine_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -4452,6 +4804,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ReadingHistoryResponse"];
+                };
+            };
+        };
+    };
+    check_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HoldCheckResponse"];
                 };
             };
         };

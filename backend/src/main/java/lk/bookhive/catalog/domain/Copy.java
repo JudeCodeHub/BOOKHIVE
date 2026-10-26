@@ -159,6 +159,17 @@ public class Copy extends BaseEntity {
         now);
   }
 
+  /**
+   * Off the hold shelf and back to the open shelf (step 255): the hold expired or was cancelled and
+   * nobody else is waiting for the title.
+   */
+  public void releaseFromHoldShelf(String reason, UUID actorId, Instant now) {
+    if (status != CopyStatus.ON_HOLD_SHELF) {
+      throw new ConflictException("COPY_NOT_ON_HOLD_SHELF", "This copy isn't on the hold shelf.");
+    }
+    moveTo(CopyStatus.AVAILABLE, reason, actorId, now);
+  }
+
   /** The borrower lost it (checklist step 229). It may still turn up: see {@link #checkIn}. */
   public void markLost(UUID staffId, Instant now) {
     if (status != CopyStatus.ON_LOAN) {
