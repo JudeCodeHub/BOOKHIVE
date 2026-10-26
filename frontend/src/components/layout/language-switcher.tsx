@@ -13,23 +13,34 @@ import { cn } from "@/lib/utils";
  */
 export function LanguageSwitcher() {
   return (
-    // Reading the query string makes this part dynamic; until it's known (pre-rendered HTML),
-    // the links keep the page but not the query, which still works without JavaScript.
-    <Suspense fallback={<LanguageLinks />}>
-      <LanguageLinksWithQuery />
+    // Three levels, from most to least known when the page HTML is pre-rendered:
+    // - no path yet (pages with an [id] in the URL): links go to the other language's home page
+    // - path known: links keep the page
+    // - query known too (browser only): links keep the page and its query (?q=...)
+    // Every level works without JavaScript.
+    <Suspense fallback={<LanguageLinks pathname="/" />}>
+      <LanguageLinksForPath />
     </Suspense>
   );
 }
 
-function LanguageLinksWithQuery() {
-  const searchParams = useSearchParams();
-  return <LanguageLinks query={Object.fromEntries(searchParams)} />;
+function LanguageLinksForPath() {
+  const pathname = usePathname();
+  return (
+    <Suspense fallback={<LanguageLinks pathname={pathname} />}>
+      <LanguageLinksWithQuery pathname={pathname} />
+    </Suspense>
+  );
 }
 
-function LanguageLinks({ query }: { query?: Record<string, string> }) {
+function LanguageLinksWithQuery({ pathname }: { pathname: string }) {
+  const searchParams = useSearchParams();
+  return <LanguageLinks pathname={pathname} query={Object.fromEntries(searchParams)} />;
+}
+
+function LanguageLinks({ pathname, query }: { pathname: string; query?: Record<string, string> }) {
   const t = useTranslations("Header");
   const current = useLocale();
-  const pathname = usePathname();
 
   return (
     <nav aria-label={t("language")}>

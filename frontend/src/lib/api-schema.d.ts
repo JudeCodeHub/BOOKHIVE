@@ -1686,6 +1686,10 @@ export interface components {
             format: "BOOK" | "MAGAZINE" | "NEWSPAPER" | "DVD" | "AUDIOBOOK";
             callNumber: string;
             coverVersion: string;
+            /** Format: int64 */
+            copies: number;
+            /** Format: int64 */
+            availableToBorrow: number;
         };
         PageResponseBookSummary: {
             content: components["schemas"]["BookSummary"][];

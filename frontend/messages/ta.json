@@ -76,6 +76,51 @@
     "language": "மொழி",
     "toggleTheme": "இருண்ட பயன்முறையை மாற்று"
   },
+  "BookCard": {
+    "availableCount": "{count, plural, one {# கிடைக்கும்} other {# கிடைக்கும்}}",
+    "allOnLoan": "அனைத்தும் இரவலில்",
+    "notInStock": "இன்னும் கையிருப்பில் இல்லை",
+    "by": "{names}",
+    "noCover": "அட்டைப்படம் இல்லை"
+  },
+  "BookPage": {
+    "notFound": "நூல் கிடைக்கவில்லை",
+    "by": "{names}",
+    "roles": {
+      "AUTHOR": "",
+      "EDITOR": "பதிப்பாசிரியர்",
+      "TRANSLATOR": "மொழிபெயர்ப்பாளர்",
+      "ILLUSTRATOR": "ஓவியர்"
+    },
+    "details": "விவரங்கள்",
+    "publisher": "பதிப்பகம்",
+    "year": "வெளியானது",
+    "pages": "பக்கங்கள்",
+    "language": "மொழி",
+    "isbn": "ISBN",
+    "edition": "பதிப்பு",
+    "callNumber": "அலமாரி எண்",
+    "format": "வடிவம்",
+    "categories": "வகைகள்",
+    "description": "இந்த நூலைப் பற்றி",
+    "availability": "கிடைக்கும் நிலை",
+    "loading": "அலமாரிகளைச் சரிபார்க்கிறது…",
+    "availableToBorrow": "{total} இல் {available} இரவல் பெறக் கிடைக்கும்",
+    "noneAvailable": "இப்போது அனைத்துப் பிரதிகளும் வெளியே உள்ளன",
+    "notInStock": "நூலகத்தில் இன்னும் பிரதி இல்லை",
+    "referenceOnly": "{count, plural, one {# குறிப்புப் பிரதி: நூலகத்தில் படிக்கவும்} other {# குறிப்புப் பிரதிகள்: நூலகத்தில் படிக்கவும்}}",
+    "onLoan": "{count} இரவலில்",
+    "onHoldShelf": "முன்பதிவு செய்த உறுப்பினர்களுக்காக {count} காத்திருக்கின்றன",
+    "holdsWaiting": "{count, plural, one {# நபர் காத்திருக்கிறார்} other {# நபர்கள் காத்திருக்கின்றனர்}}",
+    "shelves": "இங்கே காணலாம்: {shelves}",
+    "askAtDesk": "அலமாரிக்குக் கவுண்டரில் கேளுங்கள்.",
+    "unavailable": "இப்போது கிடைக்கும் நிலையைச் சரிபார்க்க முடியவில்லை.",
+    "languages": {
+      "si": "சிங்களம்",
+      "ta": "தமிழ்",
+      "en": "ஆங்கிலம்"
+    }
+  },
   "AccountMenu": {
     "account": "என் கணக்கு",
     "staff": "பணியாளர் பணியகம்",

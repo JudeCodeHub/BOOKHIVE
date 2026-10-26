@@ -99,7 +99,9 @@ public class BookController {
       String language,
       BookFormat format,
       String callNumber,
-      String coverVersion) {
+      String coverVersion,
+      long copies,
+      long availableToBorrow) {
 
     static BookSummary from(BookListItem item) {
       Book book = item.book();
@@ -112,7 +114,9 @@ public class BookController {
           book.getLanguage(),
           book.getFormat(),
           book.getCallNumber(),
-          CoverService.version(book));
+          CoverService.version(book),
+          item.copies(),
+          item.availableToBorrow());
     }
   }
 
