@@ -1,5 +1,6 @@
 package lk.bookhive.catalog.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,6 +59,29 @@ public interface CopyRepository extends JpaRepository<Copy, UUID> {
       ORDER BY c.shelfLocation
       """)
   List<String> shelvesWithAvailableCopies(@Param("bookId") UUID bookId);
+
+  /** For a page of books: how many copies each has (owned) and how many can be borrowed now. */
+  interface BookCounts {
+    UUID getBookId();
+
+    long getTotal();
+
+    long getAvailableToBorrow();
+  }
+
+  @Query(
+      """
+      SELECT c.book.id AS bookId,
+             sum(CASE WHEN c.status NOT IN (lk.bookhive.catalog.domain.CopyStatus.LOST,
+                                            lk.bookhive.catalog.domain.CopyStatus.WITHDRAWN)
+                      THEN 1 ELSE 0 END) AS total,
+             sum(CASE WHEN c.status = lk.bookhive.catalog.domain.CopyStatus.AVAILABLE
+                       AND c.lendingType = lk.bookhive.catalog.domain.LendingType.LENDABLE
+                      THEN 1 ELSE 0 END) AS availableToBorrow
+      FROM Copy c WHERE c.book.id IN :bookIds
+      GROUP BY c.book.id
+      """)
+  List<BookCounts> countsForBooks(@Param("bookIds") Collection<UUID> bookIds);
 
   /** Next value of the copy barcode sequence (V13). */
   @Query(value = "SELECT nextval('copy_barcode_seq')", nativeQuery = true)

@@ -39,7 +39,12 @@ export function generateStaticParams() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Metadata");
-  return { title: t("title"), description: t("description") };
+  return {
+    title: t("title"),
+    description: t("description"),
+    // Makes relative links in metadata (canonical, other languages, preview images) absolute
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  };
 }
 
 /** Root layout: everything under /en, /si, /ta. */

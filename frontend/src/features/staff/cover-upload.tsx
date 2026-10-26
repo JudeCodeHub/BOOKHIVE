@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuthErrorMessage } from "@/features/auth/errors";
-import { coverUrl } from "@/features/staff/catalog-list";
+import { coverUrl } from "@/features/catalog/cover";
 import { api, type Schema } from "@/lib/api";
 
 type Book = Schema<"BookResponse">;

@@ -13,6 +13,7 @@ import lk.bookhive.catalog.domain.Category;
 import lk.bookhive.catalog.domain.Isbn;
 import lk.bookhive.catalog.repository.BookAuthorRepository;
 import lk.bookhive.catalog.repository.BookRepository;
+import lk.bookhive.catalog.repository.CopyRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,10 +30,13 @@ public class BookListService {
 
   private final BookRepository books;
   private final BookAuthorRepository bookAuthors;
+  private final CopyRepository copies;
 
-  public BookListService(BookRepository books, BookAuthorRepository bookAuthors) {
+  public BookListService(
+      BookRepository books, BookAuthorRepository bookAuthors, CopyRepository copies) {
     this.books = books;
     this.bookAuthors = bookAuthors;
+    this.copies = copies;
   }
 
   /** How the list is ordered. */
@@ -60,7 +64,12 @@ public class BookListService {
   public record Filters(String text, String language, BookFormat format, UUID categoryId) {}
 
   /** A book in a list, with its contributors' names in cover order. */
-  public record BookListItem(Book book, List<String> contributorNames) {}
+  /**
+   * @param copies copies the library has (lost and withdrawn don't count)
+   * @param availableToBorrow on the shelf and allowed to go home
+   */
+  public record BookListItem(
+      Book book, List<String> contributorNames, long copies, long availableToBorrow) {}
 
   @Transactional(readOnly = true)
   public Page<BookListItem> list(Filters filters, BookSort sort, int page, int size) {
@@ -76,7 +85,21 @@ public class BookListService {
                     Collectors.mapping(
                         (BookAuthor contributor) -> contributor.getAuthor().getName(),
                         Collectors.toList())));
-    return found.map(book -> new BookListItem(book, names.getOrDefault(book.getId(), List.of())));
+    // Third query: copy counts for the whole page, so each card can say "2 of 3 available"
+    Map<UUID, CopyRepository.BookCounts> counts =
+        ids.isEmpty()
+            ? Map.of()
+            : copies.countsForBooks(ids).stream()
+                .collect(Collectors.toMap(CopyRepository.BookCounts::getBookId, c -> c));
+    return found.map(
+        book -> {
+          CopyRepository.BookCounts count = counts.get(book.getId());
+          return new BookListItem(
+              book,
+              names.getOrDefault(book.getId(), List.of()),
+              count == null ? 0 : count.getTotal(),
+              count == null ? 0 : count.getAvailableToBorrow());
+        });
   }
 
   /** Typed % and _ are searched for literally, not as wildcards. */

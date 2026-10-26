@@ -76,6 +76,51 @@
     "language": "Language",
     "toggleTheme": "Toggle dark mode"
   },
+  "BookCard": {
+    "availableCount": "{count, plural, one {# available} other {# available}}",
+    "allOnLoan": "All on loan",
+    "notInStock": "Not in stock yet",
+    "by": "by {names}",
+    "noCover": "No cover"
+  },
+  "BookPage": {
+    "notFound": "Book not found",
+    "by": "by {names}",
+    "roles": {
+      "AUTHOR": "",
+      "EDITOR": "editor",
+      "TRANSLATOR": "translator",
+      "ILLUSTRATOR": "illustrator"
+    },
+    "details": "Details",
+    "publisher": "Publisher",
+    "year": "Published",
+    "pages": "Pages",
+    "language": "Language",
+    "isbn": "ISBN",
+    "edition": "Edition",
+    "callNumber": "Shelf number",
+    "format": "Format",
+    "categories": "Categories",
+    "description": "About this book",
+    "availability": "Availability",
+    "loading": "Checking the shelves…",
+    "availableToBorrow": "{available} of {total} available to borrow",
+    "noneAvailable": "All copies are out right now",
+    "notInStock": "The library doesn't have a copy yet",
+    "referenceOnly": "{count, plural, one {# reference copy: read it in the library} other {# reference copies: read them in the library}}",
+    "onLoan": "{count} on loan",
+    "onHoldShelf": "{count} waiting for members who reserved it",
+    "holdsWaiting": "{count, plural, one {# person waiting} other {# people waiting}}",
+    "shelves": "Find it at: {shelves}",
+    "askAtDesk": "Ask at the desk for the shelf.",
+    "unavailable": "Availability can't be checked right now.",
+    "languages": {
+      "si": "Sinhala",
+      "ta": "Tamil",
+      "en": "English"
+    }
+  },
   "AccountMenu": {
     "account": "My account",
     "staff": "Staff console",

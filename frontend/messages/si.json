@@ -76,6 +76,51 @@
     "language": "භාෂාව",
     "toggleTheme": "අඳුරු ප්‍රකාරය මාරු කරන්න"
   },
+  "BookCard": {
+    "availableCount": "{count, plural, one {#ක් ලබාගත හැක} other {#ක් ලබාගත හැක}}",
+    "allOnLoan": "සියල්ල ණයට දී ඇත",
+    "notInStock": "තවම තොගයේ නැත",
+    "by": "{names}",
+    "noCover": "කවරයක් නැත"
+  },
+  "BookPage": {
+    "notFound": "පොත හමු නොවීය",
+    "by": "{names}",
+    "roles": {
+      "AUTHOR": "",
+      "EDITOR": "සංස්කාරක",
+      "TRANSLATOR": "පරිවර්තක",
+      "ILLUSTRATOR": "චිත්‍ර ශිල්පී"
+    },
+    "details": "විස්තර",
+    "publisher": "ප්‍රකාශක",
+    "year": "ප්‍රකාශිත",
+    "pages": "පිටු",
+    "language": "භාෂාව",
+    "isbn": "ISBN",
+    "edition": "මුද්‍රණය",
+    "callNumber": "රාක්ක අංකය",
+    "format": "ආකෘතිය",
+    "categories": "කාණ්ඩ",
+    "description": "මෙම පොත ගැන",
+    "availability": "ලබාගත හැකි බව",
+    "loading": "රාක්ක පරීක්ෂා කරමින්…",
+    "availableToBorrow": "{total} න් {available}ක් ණයට ගත හැක",
+    "noneAvailable": "දැනට සියලු පිටපත් පිටතය",
+    "notInStock": "පුස්තකාලයට තවම පිටපතක් නැත",
+    "referenceOnly": "{count, plural, one {යොමු පිටපත් #ක්: පුස්තකාලයේදී කියවන්න} other {යොමු පිටපත් #ක්: පුස්තකාලයේදී කියවන්න}}",
+    "onLoan": "{count}ක් ණයට දී ඇත",
+    "onHoldShelf": "{count}ක් වෙන් කළ සාමාජිකයින් සඳහා රැඳී ඇත",
+    "holdsWaiting": "{count, plural, one {# දෙනෙක් බලා සිටී} other {# දෙනෙක් බලා සිටී}}",
+    "shelves": "සොයාගත හැකි ස්ථානය: {shelves}",
+    "askAtDesk": "රාක්කය සඳහා කවුළුවෙන් විමසන්න.",
+    "unavailable": "දැනට ලබාගත හැකි බව පරීක්ෂා කළ නොහැක.",
+    "languages": {
+      "si": "සිංහල",
+      "ta": "දෙමළ",
+      "en": "ඉංග්‍රීසි"
+    }
+  },
   "AccountMenu": {
     "account": "මගේ ගිණුම",
     "staff": "කාර්ය මණ්ඩල කොන්සෝලය",

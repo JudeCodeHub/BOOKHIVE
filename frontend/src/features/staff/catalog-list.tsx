@@ -20,7 +20,8 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { Pager } from "@/features/staff/pager";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { API_BASE_URL, api, type PageResponse, type Schema } from "@/lib/api";
+import { coverUrl } from "@/features/catalog/cover";
+import { api, type PageResponse, type Schema } from "@/lib/api";
 
 type BookSummary = Schema<"BookSummary">;
 type CategoryNode = Schema<"CategoryTreeResponse">;
@@ -28,11 +29,6 @@ type CategoryNode = Schema<"CategoryTreeResponse">;
 const FORMATS = ["BOOK", "MAGAZINE", "NEWSPAPER", "DVD", "AUDIOBOOK"] as const;
 const SORTS = ["TITLE", "NEWEST", "YEAR"] as const;
 const LANGUAGES = ["si", "ta", "en"] as const;
-
-/** A small cover from the public cover URL; the ?v= changes when the cover does. */
-export function coverUrl(bookId: string, version: string | null | undefined, size = "small") {
-  return version ? `${API_BASE_URL}/books/${bookId}/cover/${size}?v=${version}` : null;
-}
 
 /** Categories as a flat list with depth, for an indented <select>. */
 function flatten(nodes: CategoryNode[], depth = 0): { node: CategoryNode; depth: number }[] {
