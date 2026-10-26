@@ -210,6 +210,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/loans/{loanId}/lost": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a loan lost: charges replacement cost + processing fee */
+        post: operations["lost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/loans/{loanId}/damage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Charge for damage on this loan (up to the replacement cost) */
+        post: operations["damaged"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/donations": {
         parameters: {
             query?: never;
@@ -1536,6 +1570,21 @@ export interface components {
             /** Format: int32 */
             renewCount: number;
         };
+        LoanChargeResponse: {
+            /** Format: uuid */
+            loanId: string;
+            barcode: string;
+            title: string;
+            /** @enum {string} */
+            loanStatus: "ACTIVE" | "OVERDUE" | "RETURNED" | "LOST";
+            amount: number;
+            processingFee: number;
+            total: number;
+        };
+        DamageRequest: {
+            amount: number;
+            note: string;
+        };
         WithdrawRequest: {
             reason: string;
         };
@@ -2690,6 +2739,54 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["LoanRenewalResponse"];
+                };
+            };
+        };
+    };
+    lost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loanId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoanChargeResponse"];
+                };
+            };
+        };
+    };
+    damaged: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loanId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DamageRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoanChargeResponse"];
                 };
             };
         };

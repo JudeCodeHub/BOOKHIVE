@@ -159,6 +159,25 @@ public class Copy extends BaseEntity {
         now);
   }
 
+  /** The borrower lost it (checklist step 229). It may still turn up: see {@link #checkIn}. */
+  public void markLost(UUID staffId, Instant now) {
+    if (status != CopyStatus.ON_LOAN) {
+      throw new ConflictException("COPY_NOT_ON_LOAN", "This copy isn't out on loan.");
+    }
+    moveTo(CopyStatus.LOST, "Declared lost by the borrower", staffId, now);
+  }
+
+  /**
+   * Damaged on a loan (checklist step 229). Its condition becomes DAMAGED; if it's back in the
+   * library and not set aside for a member, it goes for repair instead of onto the shelf.
+   */
+  public void markDamaged(String note, UUID staffId, Instant now) {
+    this.condition = CopyCondition.DAMAGED;
+    if (status == CopyStatus.AVAILABLE || status == CopyStatus.IN_TRANSIT) {
+      moveTo(CopyStatus.IN_REPAIR, "Damaged: " + note, staffId, now);
+    }
+  }
+
   /**
    * The one place where the status changes (CAT-9, checklist step 166): every change also adds a
    * line to the copy's history, so no code path can forget to record it. Loans and holds will
