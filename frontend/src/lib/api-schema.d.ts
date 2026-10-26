@@ -90,6 +90,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/membership/reading-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Keep my reading history, or stop keeping it (privacy) */
+        put: operations["readingHistory"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/membership-types/{id}": {
         parameters: {
             query?: never;
@@ -1161,7 +1178,7 @@ export interface paths {
             cookie?: never;
         };
         /** My reading history: returned loans, newest first */
-        get: operations["readingHistory"];
+        get: operations["readingHistory_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1545,6 +1562,12 @@ export interface components {
             id: string;
             name: string;
             bio: string;
+        };
+        ReadingHistoryRequest: {
+            enabled: boolean;
+        };
+        ReadingHistorySettingResponse: {
+            enabled: boolean;
         };
         MembershipTypeRequest: {
             code?: string;
@@ -2354,6 +2377,8 @@ export interface components {
         };
         ReadingHistoryResponse: {
             historyEnabled: boolean;
+            /** Format: int32 */
+            anonymiseAfterDays: number;
             loans: components["schemas"]["PageResponseLoanSummary"];
         };
         CardResponse: {
@@ -2717,6 +2742,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    readingHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadingHistoryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReadingHistorySettingResponse"];
+                };
             };
         };
     };
@@ -4384,7 +4433,7 @@ export interface operations {
             };
         };
     };
-    readingHistory: {
+    readingHistory_1: {
         parameters: {
             query?: {
                 page?: number;

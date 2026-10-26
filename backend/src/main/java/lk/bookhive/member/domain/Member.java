@@ -257,6 +257,14 @@ public class Member extends BaseEntity {
     return statusReason;
   }
 
+  /**
+   * The member keeps or stops keeping their reading history (PRD §4.5, step 245). When off,
+   * returned loans are anonymised after the days set by the library (step 399).
+   */
+  public void setReadingHistoryEnabled(boolean enabled) {
+    this.readingHistoryEnabled = enabled;
+  }
+
   public boolean isReadingHistoryEnabled() {
     return readingHistoryEnabled;
   }
