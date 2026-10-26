@@ -2051,6 +2051,7 @@ export interface components {
             bookId: string;
             barcode: string;
             title: string;
+            coverVersion: string;
             /** Format: date-time */
             checkedOutAt: string;
             /** Format: date */

@@ -45,7 +45,8 @@ public class LendingCatalogService {
       Set<String> sections,
       String shelfLocation,
       String callNumber,
-      Money price) {}
+      Money price,
+      String coverVersion) {}
 
   /** The desk scans the label: "C0000123". */
   @Transactional(readOnly = true)
@@ -140,6 +141,7 @@ public class LendingCatalogService {
         sections.isEmpty() ? Set.of("ADULT") : Set.copyOf(sections),
         copy.getShelfLocation(),
         copy.getBook().getCallNumber(),
-        copy.getPrice());
+        copy.getPrice(),
+        CoverService.version(copy.getBook()));
   }
 }

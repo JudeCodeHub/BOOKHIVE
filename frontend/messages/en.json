@@ -1242,5 +1242,30 @@
       "LOAN_OVERDUE": "It's overdue: it has to come back first.",
       "NOT_NEEDED_YET": "Renewing now wouldn't give a later due date."
     }
+  },
+  "MyLoans": {
+    "metaTitle": "My loans",
+    "title": "My loans",
+    "notMember": "You aren't a library member yet. <link>Apply for membership</link> to borrow books.",
+    "empty": "You have no books on loan. <link>Find something to read</link>.",
+    "summary": "{count, plural, one {You have # book.} other {You have # books.}}",
+    "summaryOverdue": "{count, plural, one {# is overdue.} other {# are overdue.}}",
+    "dueOn": "Due {date}",
+    "renewedTimes": "{count, plural, one {renewed once} other {renewed # times}}",
+    "dueIn": "{count, plural, =0 {Due today} one {Due tomorrow} other {Due in # days}}",
+    "overdueBy": "{count, plural, one {# day overdue} other {# days overdue}}",
+    "lost": "Reported lost",
+    "lostNote": "You reported this book lost. If you find it, bring it back to the desk and the charge is reversed.",
+    "renew": "Renew",
+    "renewing": "Renewing…",
+    "renewed": "Renewed “{title}”: now due {date}.",
+    "cantRenew": "This book can't be renewed:",
+    "problems": {
+      "MAX_RENEWALS_REACHED": "You've used all the renewals for this book.",
+      "RESERVED_BY_ANOTHER_MEMBER": "Someone else has reserved it, so it needs to come back.",
+      "MEMBER_BLOCKED": "Your account can't renew right now (check your membership and fines).",
+      "LOAN_OVERDUE": "It's overdue: please return it to the library.",
+      "NOT_NEEDED_YET": "Renewing today wouldn't give you a later due date. Try again closer to the due date."
+    }
   }
 }
