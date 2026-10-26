@@ -86,8 +86,7 @@
     "availableCount": "{count, plural, one {# available} other {# available}}",
     "allOnLoan": "All on loan",
     "notInStock": "Not in stock yet",
-    "by": "by {names}",
-    "noCover": "No cover"
+    "by": "by {names}"
   },
   "BookPage": {
     "notFound": "Book not found",
@@ -290,6 +289,10 @@
       "q3": "I lost my library card. What now?",
       "a3": "Your digital card is always in My account. You can download and print it again."
     }
+  },
+  "Legal": {
+    "lastUpdated": "Last updated {date}",
+    "questions": "Questions about this? <visit>Contact us</visit>."
   },
   "MemberNav": {
     "label": "My account",
