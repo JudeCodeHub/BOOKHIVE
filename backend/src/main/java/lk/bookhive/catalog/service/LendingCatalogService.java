@@ -38,7 +38,9 @@ public class LendingCatalogService {
       String title,
       CopyStatus status,
       LendingType lendingType,
-      Set<String> sections) {}
+      Set<String> sections,
+      String shelfLocation,
+      String callNumber) {}
 
   /** The desk scans the label: "C0000123". */
   @Transactional(readOnly = true)
@@ -83,6 +85,15 @@ public class LendingCatalogService {
         .lend(staffId, now);
   }
 
+  /** Back from a loan: to the shelf or the hold shelf. Inside the return transaction. */
+  @Transactional(propagation = Propagation.MANDATORY)
+  public void checkIn(UUID copyId, boolean toHoldShelf, UUID staffId, Instant now) {
+    copies
+        .findById(copyId)
+        .orElseThrow(() -> new NotFoundException("COPY_NOT_FOUND", "Copy not found."))
+        .checkIn(toHoldShelf, staffId, now);
+  }
+
   private static LendableCopy lendable(Copy copy) {
     Set<String> sections =
         copy.getBook().getCategories().stream()
@@ -95,6 +106,8 @@ public class LendingCatalogService {
         copy.getBook().getTitle(),
         copy.getStatus(),
         copy.getLendingType(),
-        sections.isEmpty() ? Set.of("ADULT") : Set.copyOf(sections));
+        sections.isEmpty() ? Set.of("ADULT") : Set.copyOf(sections),
+        copy.getShelfLocation(),
+        copy.getBook().getCallNumber());
   }
 }
