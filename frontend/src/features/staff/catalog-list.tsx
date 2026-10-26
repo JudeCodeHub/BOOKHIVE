@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { BookOpen, FileUp, Plus, Search } from "lucide-react";
+import { FileUp, Plus, Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
@@ -20,7 +20,7 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { Pager } from "@/features/staff/pager";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { coverUrl } from "@/features/catalog/cover";
+import { BookCover } from "@/features/catalog/book-cover";
 import { api, type PageResponse, type Schema } from "@/lib/api";
 
 type BookSummary = Schema<"BookSummary">;
@@ -226,28 +226,16 @@ export function CatalogList() {
               </TableHeader>
               <TableBody>
                 {books.data.content.map((book) => {
-                  const cover = coverUrl(book.id, book.coverVersion);
                   return (
                     <TableRow key={book.id}>
                       <TableCell>
-                        {cover ? (
-                          // A small public cover served by our API; next/image would need the
-                          // API host whitelisted for no real gain at this size
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={cover}
-                            alt=""
-                            loading="lazy"
-                            className="h-14 w-10 rounded object-cover"
-                          />
-                        ) : (
-                          <span className="flex h-14 w-10 items-center justify-center rounded bg-muted">
-                            <BookOpen
-                              aria-label={t("noCover")}
-                              className="size-4 text-muted-foreground"
-                            />
-                          </span>
-                        )}
+                        <BookCover
+                          bookId={book.id}
+                          version={book.coverVersion}
+                          alt=""
+                          sizes="40px"
+                          className="w-10"
+                        />
                       </TableCell>
                       <TableCell>
                         <Link

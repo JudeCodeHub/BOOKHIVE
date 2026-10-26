@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { BookOpen } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { BookAvailability } from "@/features/catalog/book-availability";
+import { BookCover } from "@/features/catalog/book-cover";
 import { coverUrl } from "@/features/catalog/cover";
 import { getPublicBook, type Book } from "@/features/catalog/data";
 import { Link } from "@/i18n/navigation";
@@ -64,7 +64,6 @@ async function BookDetails({ params }: PageProps<"/[locale]/books/[id]">) {
 
   const t = await getTranslations("BookPage");
   const tFormats = await getTranslations("StaffCatalog.formats");
-  const cover = coverUrl(book.id, book.coverVersion, "medium");
   const authors = book.contributors.filter((c) => c.role === "AUTHOR");
   const others = book.contributors.filter((c) => c.role !== "AUTHOR");
   const categoryName = (c: Book["categories"][number]) =>
@@ -82,18 +81,14 @@ async function BookDetails({ params }: PageProps<"/[locale]/books/[id]">) {
       />
 
       <div className="grid content-start gap-4">
-        {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={cover}
-            alt={book.title}
-            className="aspect-[2/3] w-48 rounded-md border object-cover shadow-md md:w-full"
-          />
-        ) : (
-          <div className="flex aspect-[2/3] w-48 items-center justify-center rounded-md border bg-muted md:w-full">
-            <BookOpen aria-hidden className="size-12 text-muted-foreground" />
-          </div>
-        )}
+        <BookCover
+          bookId={book.id}
+          version={book.coverVersion}
+          alt={book.title}
+          sizes="(min-width: 768px) 256px, 192px"
+          priority
+          className="w-48 border shadow-md md:w-full"
+        />
         <section aria-labelledby="availability" className="rounded-lg border p-4">
           <h2 id="availability" className="mb-2 text-sm font-semibold">
             {t("availability")}

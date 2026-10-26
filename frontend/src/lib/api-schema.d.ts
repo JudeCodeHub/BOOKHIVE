@@ -830,6 +830,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sitemap/books": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Book ids and last change, for sitemap.xml */
+        get: operations["books"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sitemap/authors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Author ids and last change, for sitemap.xml */
+        get: operations["authors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/search": {
         parameters: {
             query?: never;
@@ -1781,6 +1815,12 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
+        };
+        SitemapEntrySummary: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
         BookSummary: {
             /** Format: uuid */
@@ -3450,6 +3490,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApplicationDetailResponse"];
+                };
+            };
+        };
+    };
+    books: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SitemapEntrySummary"][];
+                };
+            };
+        };
+    };
+    authors: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SitemapEntrySummary"][];
                 };
             };
         };

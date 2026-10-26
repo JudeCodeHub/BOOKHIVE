@@ -44,6 +44,14 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t("description"),
     // Makes relative links in metadata (canonical, other languages, preview images) absolute
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    // Link previews when pages are shared (the image is opengraph-image.tsx, or a book's cover)
+    openGraph: {
+      type: "website",
+      siteName: "BookHive",
+      title: t("title"),
+      description: t("description"),
+    },
+    twitter: { card: "summary_large_image" },
   };
 }
 
