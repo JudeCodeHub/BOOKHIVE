@@ -1198,6 +1198,17 @@
     "lateInGrace": "{count, plural, one {# day} other {# days}} late, within the grace period: no fine.",
     "soundOn": "Sound on",
     "soundOff": "Sound off",
-    "shortcutsHint": "Shortcuts: <kbd>F2</kbd> check out · <kbd>F3</kbd> returns · <kbd>F8</kbd> confirm checkout · <kbd>F9</kbd> print receipt · <kbd>Esc</kbd> next member · <kbd>F7</kbd> sound on/off"
+    "shortcutsHint": "Shortcuts: <kbd>F2</kbd> check out · <kbd>F3</kbd> returns · <kbd>F8</kbd> confirm checkout · <kbd>F9</kbd> print receipt · <kbd>Esc</kbd> next member · <kbd>F7</kbd> sound on/off",
+    "camera": "Camera",
+    "cameraOpen": "Scan with the camera",
+    "cameraTitle": "Scan with the camera",
+    "cameraHint": "Hold the barcode or QR code inside the frame. Scan as many as you like, then close.",
+    "cameraWaiting": "Looking for a barcode…",
+    "cameraRead": "Read {code}",
+    "cameraErrors": {
+      "denied": "Camera access was blocked. Allow the camera for this site in the browser settings, then try again.",
+      "noCamera": "No camera was found on this device.",
+      "other": "The camera couldn't be started. Close other apps using it and try again."
+    }
   }
 }
