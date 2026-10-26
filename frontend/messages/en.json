@@ -519,6 +519,49 @@
       "working": "Saving…"
     }
   },
+  "StaffCatalog": {
+    "metaTitle": "Catalog",
+    "title": "Catalog",
+    "addBook": "Add book",
+    "import": "Import CSV",
+    "searchLabel": "Find a book",
+    "searchPlaceholder": "Title or ISBN",
+    "search": "Search",
+    "language": "Language",
+    "anyLanguage": "Any language",
+    "format": "Format",
+    "anyFormat": "Any format",
+    "category": "Category",
+    "anyCategory": "Any category",
+    "sort": "Sort",
+    "sorts": {
+      "TITLE": "Title A–Z",
+      "NEWEST": "Newest added",
+      "YEAR": "Newest published"
+    },
+    "formats": {
+      "BOOK": "Book",
+      "MAGAZINE": "Magazine",
+      "NEWSPAPER": "Newspaper",
+      "DVD": "DVD",
+      "AUDIOBOOK": "Audiobook"
+    },
+    "languages": {
+      "si": "Sinhala",
+      "ta": "Tamil",
+      "en": "English"
+    },
+    "clear": "Clear filters",
+    "results": "{count, plural, =0 {No books} one {# book} other {# books}}",
+    "empty": "No books match. Try other filters, or add the book.",
+    "cover": "Cover",
+    "book": "Book",
+    "authors": "Authors",
+    "year": "Year",
+    "callNumber": "Call number",
+    "edit": "Edit",
+    "noCover": "No cover"
+  },
   "MemberStatusLabel": {
     "PENDING": "Pending",
     "ACTIVE": "Active",

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
@@ -116,8 +117,9 @@ public class BookController {
   }
 
   @GetMapping
-  @Operation(summary = "Browse books page by page, with filters and sorting")
+  @Operation(summary = "Browse books page by page; q = ISBN or part of the title")
   public PageResponse<BookSummary> list(
+      @RequestParam(required = false) @Size(max = 200) String q,
       @RequestParam(required = false) @Pattern(regexp = "^[a-z]{2,3}$") String language,
       @RequestParam(required = false) BookFormat format,
       @RequestParam(required = false) UUID category,
@@ -125,7 +127,7 @@ public class BookController {
       @RequestParam(defaultValue = "0") @Min(0) int page,
       @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
     return PageResponse.from(
-        bookList.list(new Filters(language, format, category), sort, page, size),
+        bookList.list(new Filters(q, language, format, category), sort, page, size),
         BookSummary::from);
   }
 
