@@ -1,10 +1,15 @@
 "use client";
 
+import { Volume2, VolumeX } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckoutDesk } from "@/features/desk/checkout-desk";
+import { Kbd } from "@/features/desk/kbd";
 import { ReturnsDesk } from "@/features/desk/returns-desk";
+import { setMuted, useMuted } from "@/features/desk/sounds";
+import { useShortcuts } from "@/features/desk/use-shortcuts";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 type Mode = "checkout" | "returns";
@@ -16,12 +21,23 @@ const focusScanBox = () => document.getElementById("desk-scan")?.focus();
  * Desk mode (checklist step 236): one big scan box, always ready. Checkout: scan the member's
  * card, then their books. Returns: scan books one after another. The mode is in the URL
  * (?mode=returns) so each desk computer can bookmark the one it uses.
+ *
+ * Shortcuts (step 241): F2 check out, F3 returns, F7 sound on/off; the checkout desk adds its own.
  */
 export function DeskMode() {
   const t = useTranslations("Desk");
   const router = useRouter();
   const pathname = usePathname();
   const mode: Mode = useSearchParams().get("mode") === "returns" ? "returns" : "checkout";
+  const muted = useMuted();
+  const switchTo = (next: Mode) =>
+    router.replace(next === "returns" ? `${pathname}?mode=returns` : pathname);
+
+  useShortcuts({
+    F2: () => switchTo("checkout"),
+    F3: () => switchTo("returns"),
+    F7: () => setMuted(!muted),
+  });
 
   return (
     <div
@@ -35,20 +51,29 @@ export function DeskMode() {
         }
       }}
     >
-      <Tabs
-        value={mode}
-        onValueChange={(next) => {
-          router.replace(next === "returns" ? `${pathname}?mode=returns` : pathname);
-        }}
-      >
-        <TabsList aria-label={t("modes")}>
-          <TabsTrigger value="checkout">{t("checkout")}</TabsTrigger>
-          <TabsTrigger value="returns">{t("returns")}</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Tabs value={mode} onValueChange={(next) => switchTo(next as Mode)}>
+          <TabsList aria-label={t("modes")}>
+            <TabsTrigger value="checkout">
+              {t("checkout")} <Kbd>F2</Kbd>
+            </TabsTrigger>
+            <TabsTrigger value="returns">
+              {t("returns")} <Kbd>F3</Kbd>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Button variant="ghost" size="sm" aria-pressed={!muted} onClick={() => setMuted(!muted)}>
+          {muted ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}
+          {muted ? t("soundOff") : t("soundOn")} <Kbd>F7</Kbd>
+        </Button>
+      </div>
 
       {/* A fresh desk per mode: switching starts clean, with the scan box focused */}
       {mode === "checkout" ? <CheckoutDesk key="checkout" /> : <ReturnsDesk key="returns" />}
+
+      <p className="text-xs text-muted-foreground">
+        {t.rich("shortcutsHint", { kbd: (chunks) => <Kbd>{chunks}</Kbd> })}
+      </p>
     </div>
   );
 }
