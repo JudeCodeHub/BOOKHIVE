@@ -813,6 +813,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/members/{memberId}/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A member's current loans (out or lost), soonest due first */
+        get: operations["memberLoans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/members/{id}": {
         parameters: {
             query?: never;
@@ -873,6 +890,23 @@ export interface paths {
         };
         /** Every status change of a copy, newest first */
         get: operations["history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/copies/{copyId}/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A copy's loans, newest first (borrower shown only while it's out) */
+        get: operations["copyLoans"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1068,6 +1102,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My current loans (out or lost), soonest due first */
+        get: operations["current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/loans/{loanId}/renewal": {
         parameters: {
             query?: never;
@@ -1077,6 +1128,23 @@ export interface paths {
         };
         /** Can I renew this loan now, and if not, why */
         get: operations["check_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/loans/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My reading history: returned loans, newest first */
+        get: operations["readingHistory"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1952,6 +2020,27 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        LoanSummary: {
+            /** Format: uuid */
+            loanId: string;
+            /** Format: uuid */
+            copyId: string;
+            /** Format: uuid */
+            bookId: string;
+            barcode: string;
+            title: string;
+            /** Format: date-time */
+            checkedOutAt: string;
+            /** Format: date */
+            dueDate: string;
+            /** Format: int32 */
+            renewCount: number;
+            /** @enum {string} */
+            status: "ACTIVE" | "OVERDUE" | "RETURNED" | "LOST";
+            overdue: boolean;
+            /** Format: date-time */
+            returnedAt: string;
+        };
         MemberProfileResponse: {
             /** Format: uuid */
             id: string;
@@ -2045,6 +2134,32 @@ export interface components {
             changedByName: string;
             /** Format: date-time */
             changedAt: string;
+        };
+        CopyLoanSummary: {
+            /** Format: uuid */
+            loanId: string;
+            /** Format: date-time */
+            checkedOutAt: string;
+            /** Format: date */
+            dueDate: string;
+            /** Format: int32 */
+            renewCount: number;
+            /** @enum {string} */
+            status: "ACTIVE" | "OVERDUE" | "RETURNED" | "LOST";
+            /** Format: date-time */
+            returnedAt: string;
+            memberNo: string;
+        };
+        PageResponseCopyLoanSummary: {
+            content: components["schemas"]["CopyLoanSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
         };
         PageResponseAuthorResponse: {
             content: components["schemas"]["AuthorResponse"][];
@@ -2181,6 +2296,21 @@ export interface components {
             /** Format: date */
             expiresAt: string;
             statusReason: string;
+        };
+        PageResponseLoanSummary: {
+            content: components["schemas"]["LoanSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        ReadingHistoryResponse: {
+            historyEnabled: boolean;
+            loans: components["schemas"]["PageResponseLoanSummary"];
         };
         CardResponse: {
             memberNo: string;
@@ -3758,6 +3888,28 @@ export interface operations {
             };
         };
     };
+    memberLoans: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoanSummary"][];
+                };
+            };
+        };
+    };
     profile_1: {
         parameters: {
             query?: never;
@@ -3842,6 +3994,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CopyHistoryResponse"][];
+                };
+            };
+        };
+    };
+    copyLoans: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                copyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseCopyLoanSummary"];
                 };
             };
         };
@@ -4096,6 +4273,26 @@ export interface operations {
             };
         };
     };
+    current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoanSummary"][];
+                };
+            };
+        };
+    };
     check_1: {
         parameters: {
             query?: never;
@@ -4114,6 +4311,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RenewalCheckResponse"];
+                };
+            };
+        };
+    };
+    readingHistory: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReadingHistoryResponse"];
                 };
             };
         };
