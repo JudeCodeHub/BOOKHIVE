@@ -69,7 +69,9 @@ public class StaffCopyController {
       @PastOrPresent LocalDate acquiredAt,
       @NotNull AcquisitionSource acquisitionSource,
       @DecimalMin("0.00") @DecimalMax("10000000.00") BigDecimal price,
-      @Size(max = 500) String notes) {
+      @Size(max = 500) String notes,
+      // The donation it came with (from /staff/donations); sets the source to DONATION
+      UUID donationId) {
 
     Copy.Details details() {
       return new Copy.Details(
@@ -106,7 +108,8 @@ public class StaffCopyController {
       LocalDate acquiredAt,
       AcquisitionSource acquisitionSource,
       BigDecimal price,
-      String notes) {
+      String notes,
+      UUID donationId) {
 
     static CopyResponse from(Copy copy) {
       return new CopyResponse(
@@ -120,7 +123,8 @@ public class StaffCopyController {
           copy.getAcquiredAt(),
           copy.getAcquisitionSource(),
           copy.getPrice() == null ? null : copy.getPrice().amount(),
-          copy.getNotes());
+          copy.getNotes(),
+          copy.getDonation() == null ? null : copy.getDonation().getId());
     }
   }
 
@@ -138,7 +142,13 @@ public class StaffCopyController {
       @PathVariable UUID bookId,
       @Valid @RequestBody AddCopiesRequest request) {
     return copies
-        .add(bookId, request.details().details(), request.barcode(), request.count(), staffId(jwt))
+        .add(
+            bookId,
+            request.details().details(),
+            request.barcode(),
+            request.count(),
+            request.details().donationId(),
+            staffId(jwt))
         .stream()
         .map(CopyResponse::from)
         .toList();
@@ -150,7 +160,8 @@ public class StaffCopyController {
       @AuthenticationPrincipal Jwt jwt,
       @PathVariable UUID id,
       @Valid @RequestBody CopyDetailsRequest request) {
-    return CopyResponse.from(copies.update(id, request.details(), staffId(jwt)));
+    return CopyResponse.from(
+        copies.update(id, request.details(), request.donationId(), staffId(jwt)));
   }
 
   @PostMapping("/copies/{id}/withdraw")

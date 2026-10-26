@@ -1,6 +1,7 @@
 package lk.bookhive.catalog.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lk.bookhive.catalog.domain.Author;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface AuthorRepository extends JpaRepository<Author, UUID> {
+
+  /** Import: reuse an author with exactly this name (any letter case) instead of a duplicate. */
+  Optional<Author> findFirstByNameIgnoreCase(String name);
 
   /** Staff author list: part of the name, A–Z (paging and sorting come from the Pageable). */
   Page<Author> findByNameContainingIgnoreCase(String namePart, Pageable pageable);

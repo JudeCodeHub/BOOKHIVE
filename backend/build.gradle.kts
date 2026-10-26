@@ -27,6 +27,7 @@ val awsSdkVersion = "2.46.7"
 val zxingVersion = "3.5.4"
 val openpdfVersion = "3.0.5"
 val thumbnailatorVersion = "0.4.21"
+val commonsCsvVersion = "1.14.1"
 // 1.37.0 is not yet compatible with Spotless 8.10.4
 val googleJavaFormatVersion = "1.36.1"
 
@@ -65,6 +66,8 @@ dependencies {
     implementation("com.github.librepdf:openpdf:$openpdfVersion")
     // Book covers: resized into small/medium/large thumbnails on upload
     implementation("net.coobird:thumbnailator:$thumbnailatorVersion")
+    // Bulk catalog import from spreadsheets saved as CSV
+    implementation("org.apache.commons:commons-csv:$commonsCsvVersion")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
