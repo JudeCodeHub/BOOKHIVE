@@ -1,5 +1,6 @@
 package lk.bookhive.catalog.repository;
 
+import jakarta.persistence.LockModeType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import lk.bookhive.catalog.domain.CopyStatus;
 import lk.bookhive.catalog.domain.LendingType;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,6 +21,18 @@ public interface CopyRepository extends JpaRepository<Copy, UUID> {
   Optional<Copy> findByBarcode(String barcode);
 
   boolean existsByBarcode(String barcode);
+
+  /** Just the id: doesn't load the copy, so a later locked read gets fresh data. */
+  @Query("SELECT c.id FROM Copy c WHERE c.barcode = :barcode")
+  Optional<UUID> findIdByBarcode(@Param("barcode") String barcode);
+
+  /**
+   * The copy, locked for the rest of the transaction (SELECT ... FOR UPDATE): another desk trying
+   * to lend the same copy waits until this checkout has finished, then sees its new status.
+   */
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT c FROM Copy c JOIN FETCH c.book WHERE c.id = :id")
+  Optional<Copy> findByIdForUpdate(@Param("id") UUID id);
 
   List<Copy> findByBookIdOrderByBarcode(UUID bookId);
 
