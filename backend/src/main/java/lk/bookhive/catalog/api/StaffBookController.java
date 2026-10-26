@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -20,13 +21,19 @@ import lk.bookhive.catalog.domain.BookFormat;
 import lk.bookhive.catalog.service.BookService;
 import lk.bookhive.catalog.service.BookService.BookForm;
 import lk.bookhive.catalog.service.BookService.ContributorForm;
+import lk.bookhive.catalog.service.CatalogImportService;
+import lk.bookhive.catalog.service.CatalogImportService.ImportReport;
 import lk.bookhive.catalog.service.CoverService;
 import lk.bookhive.common.config.OpenApiConfig;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -46,10 +53,13 @@ public class StaffBookController {
 
   private final BookService books;
   private final CoverService covers;
+  private final CatalogImportService importer;
 
-  public StaffBookController(BookService books, CoverService covers) {
+  public StaffBookController(
+      BookService books, CoverService covers, CatalogImportService importer) {
     this.books = books;
     this.covers = covers;
+    this.importer = importer;
   }
 
   public record ContributorRequest(@NotNull UUID authorId, AuthorRole role) {}
@@ -112,6 +122,28 @@ public class StaffBookController {
       @PathVariable UUID id,
       @Valid @RequestBody BookRequest request) {
     return BookResponse.from(books.update(id, request.form(), staffId(jwt)));
+  }
+
+  @PostMapping(path = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Operation(summary = "Import books and copies from CSV; returns what happened to every row")
+  public ImportReport importCsv(
+      @AuthenticationPrincipal Jwt jwt, @RequestPart("file") MultipartFile file)
+      throws IOException {
+    return importer.importCsv(file.getInputStream(), staffId(jwt));
+  }
+
+  @GetMapping(path = "/import/template.csv", produces = "text/csv")
+  @Operation(summary = "The CSV template: column names and one example row")
+  public ResponseEntity<String> importTemplate() {
+    return ResponseEntity.ok()
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.attachment()
+                .filename("bookhive-import-template.csv")
+                .build()
+                .toString())
+        .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+        .body(CatalogImportService.template());
   }
 
   @PostMapping(path = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -63,6 +63,10 @@ public class Copy extends BaseEntity {
   @Column(length = 500)
   private String notes;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "donation_id")
+  private Donation donation;
+
   // Written through moveTo() only; saved together with the copy. Never read through here
   // (CopyStatusChangeRepository lists it), so it stays unloaded.
   @OneToMany(mappedBy = "copy", cascade = CascadeType.PERSIST)
@@ -98,6 +102,17 @@ public class Copy extends BaseEntity {
     this.acquisitionSource = details.acquisitionSource();
     this.price = details.price() == null ? null : details.price().amount();
     this.notes = blankToNull(details.notes());
+  }
+
+  /**
+   * Marks the copy as part of a donation (or unlinks it with null). A donated copy's source is
+   * DONATION.
+   */
+  public void linkDonation(Donation donation) {
+    this.donation = donation;
+    if (donation != null) {
+      this.acquisitionSource = AcquisitionSource.DONATION;
+    }
   }
 
   /**
@@ -173,5 +188,9 @@ public class Copy extends BaseEntity {
 
   public String getNotes() {
     return notes;
+  }
+
+  public Donation getDonation() {
+    return donation;
   }
 }

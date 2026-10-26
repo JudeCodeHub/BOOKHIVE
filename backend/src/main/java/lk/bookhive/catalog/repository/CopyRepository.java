@@ -21,6 +21,12 @@ public interface CopyRepository extends JpaRepository<Copy, UUID> {
 
   List<Copy> findByBookIdOrderByBarcode(UUID bookId);
 
+  /** The copies that came with a donation, with their books (donation page). */
+  @EntityGraph(attributePaths = "book")
+  List<Copy> findByDonationIdOrderByBarcode(UUID donationId);
+
+  long countByDonationId(UUID donationId);
+
   /** For label sheets: the copies with their books, in barcode order. */
   @EntityGraph(attributePaths = "book")
   List<Copy> findByIdInOrderByBarcode(List<UUID> ids);

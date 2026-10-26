@@ -9,6 +9,7 @@ import java.util.UUID;
 import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.domain.Copy;
 import lk.bookhive.catalog.domain.CopyStatusChange;
+import lk.bookhive.catalog.domain.Donation;
 import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.catalog.repository.CopyRepository;
 import lk.bookhive.catalog.repository.CopyStatusChangeRepository;
@@ -29,6 +30,7 @@ public class CopyService {
   private final CopyRepository copies;
   private final BookRepository books;
   private final CopyStatusChangeRepository history;
+  private final DonationService donations;
   private final AuditService audit;
   private final LibraryTime time;
 
@@ -36,11 +38,13 @@ public class CopyService {
       CopyRepository copies,
       BookRepository books,
       CopyStatusChangeRepository history,
+      DonationService donations,
       AuditService audit,
       LibraryTime time) {
     this.copies = copies;
     this.books = books;
     this.history = history;
+    this.donations = donations;
     this.audit = audit;
     this.time = time;
   }
@@ -64,8 +68,9 @@ public class CopyService {
    */
   @Transactional
   public List<Copy> add(
-      UUID bookId, Copy.Details details, String barcode, int count, UUID staffId) {
+      UUID bookId, Copy.Details details, String barcode, int count, UUID donationId, UUID staffId) {
     Book book = requireBook(bookId);
+    Donation donation = donationId == null ? null : donations.require(donationId);
     List<Copy> added = new ArrayList<>();
     if (barcode != null && !barcode.isBlank()) {
       String normalised = barcode.strip().toUpperCase(Locale.ROOT);
@@ -77,10 +82,10 @@ public class CopyService {
         throw new FieldValidationException(
             "barcode", "BARCODE_EXISTS", "Another copy already has this barcode.");
       }
-      added.add(copies.save(new Copy(book, normalised, details, staffId, time.now())));
+      added.add(save(new Copy(book, normalised, details, staffId, time.now()), donation));
     } else {
       for (int i = 0; i < count; i++) {
-        added.add(copies.save(new Copy(book, nextBarcode(), details, staffId, time.now())));
+        added.add(save(new Copy(book, nextBarcode(), details, staffId, time.now()), donation));
       }
     }
     Map<String, Object> audited = new HashMap<>();
@@ -90,10 +95,14 @@ public class CopyService {
     return added;
   }
 
+  /**
+   * @param donationId the donation it came with; null = not donated (unlinks)
+   */
   @Transactional
-  public Copy update(UUID copyId, Copy.Details details, UUID staffId) {
+  public Copy update(UUID copyId, Copy.Details details, UUID donationId, UUID staffId) {
     Copy copy = require(copyId);
     copy.update(details);
+    copy.linkDonation(donationId == null ? null : donations.require(donationId));
     audit.record("copy.updated", staffId, "copy", copyId, Map.of("barcode", copy.getBarcode()));
     return copy;
   }
@@ -110,6 +119,11 @@ public class CopyService {
         copyId,
         Map.of("barcode", copy.getBarcode(), "reason", reason.strip()));
     return copy;
+  }
+
+  private Copy save(Copy copy, Donation donation) {
+    copy.linkDonation(donation);
+    return copies.save(copy);
   }
 
   /** C0000001 ... C9999999, then it grows a digit. */
