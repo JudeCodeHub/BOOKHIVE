@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckoutDesk } from "@/features/desk/checkout-desk";
-import { ScanInput } from "@/features/desk/scan-input";
+import { ReturnsDesk } from "@/features/desk/returns-desk";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 type Mode = "checkout" | "returns";
@@ -50,27 +49,6 @@ export function DeskMode() {
 
       {/* A fresh desk per mode: switching starts clean, with the scan box focused */}
       {mode === "checkout" ? <CheckoutDesk key="checkout" /> : <ReturnsDesk key="returns" />}
-    </div>
-  );
-}
-
-/** Returns mode; the return itself and its routing message arrive in step 240. */
-function ReturnsDesk() {
-  const t = useTranslations("Desk");
-  const [lastScan, setLastScan] = useState<string | null>(null);
-  return (
-    <div className="grid gap-6">
-      <ScanInput
-        id="desk-scan"
-        label={t("scanReturnLabel")}
-        hint={t("scanReturnHint")}
-        placeholder={t("placeholder")}
-        onScan={setLastScan}
-        className="max-w-2xl"
-      />
-      <p role="status" aria-live="polite" className="min-h-5 text-sm text-muted-foreground">
-        {lastScan && t("scanned", { code: lastScan })}
-      </p>
     </div>
   );
 }

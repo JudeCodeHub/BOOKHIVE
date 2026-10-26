@@ -1138,7 +1138,6 @@
     "scanReturnLabel": "Scan a returned book",
     "scanReturnHint": "Scan books one after another; each one shows where it goes next.",
     "placeholder": "Scan or type a code and press Enter",
-    "scanned": "Scanned {code}",
     "scanItemLabel": "Scan a book to lend",
     "scanItemHint": "Or scan another library card to switch member.",
     "scanCardFirst": "Scan the member's library card first.",
@@ -1186,6 +1185,16 @@
     "printReceipt": "Print receipt",
     "slipHeading": "Loan receipt",
     "slipCount": "{count, plural, one {# book} other {# books}} borrowed",
-    "slipFooter": "Please return or renew by the due date. Renew online in My loans."
+    "slipFooter": "Please return or renew by the due date. Renew online in My loans.",
+    "returnsEmpty": "No returns yet: scan the first book.",
+    "returnedThisSession": "{count, plural, one {# book} other {# books}} returned at this desk",
+    "returning": "Returning",
+    "notOnLoan": "This book isn't on loan: it can go back on the shelf.",
+    "toHoldShelf": "Hold shelf: set aside for {memberNo}",
+    "toShelfAt": "Back to the shelf: {shelf}",
+    "toShelf": "Back to the shelf",
+    "foundLost": "Found! It was marked lost: the lost charges are cancelled or refunded.",
+    "lateWithFine": "{count, plural, one {# day} other {# days}} late: fine {fine} added to {memberNo}'s account.",
+    "lateInGrace": "{count, plural, one {# day} other {# days}} late, within the grace period: no fine."
   }
 }
