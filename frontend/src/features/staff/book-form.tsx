@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, Plus, ScanBarcode, Trash2 } from "lucide-react";
@@ -279,9 +280,16 @@ export function BookForm({
         )}
         {lookup?.found && lookup.coverImageUrl && (
           <figure className="flex items-center gap-3 text-xs text-muted-foreground">
-            {/* An outside preview only; our own cover is uploaded on the book's page */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={lookup.coverImageUrl} alt="" className="h-24 rounded border object-cover" />
+            {/* An outside preview, shown once: not worth resizing (our own cover is uploaded on
+                the book's page) */}
+            <Image
+              src={lookup.coverImageUrl}
+              alt=""
+              width={64}
+              height={96}
+              unoptimized
+              className="h-24 w-auto rounded border object-cover"
+            />
             <figcaption>{t("openLibraryCover")}</figcaption>
           </figure>
         )}

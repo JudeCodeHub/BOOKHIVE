@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuthErrorMessage } from "@/features/auth/errors";
+import { BookCover } from "@/features/catalog/book-cover";
 import { coverUrl } from "@/features/catalog/cover";
 import { api, type Schema } from "@/lib/api";
 
@@ -103,12 +104,12 @@ export function CoverUpload({ book, onChange }: { book: Book; onChange: (book: B
   return (
     <div className="grid justify-items-start gap-3">
       {current ? (
-        // Public cover served by our API (cached by the ?v= version)
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={current}
+        <BookCover
+          bookId={book.id}
+          version={book.coverVersion}
           alt={t("current")}
-          className="h-60 rounded-md border object-cover shadow-sm"
+          sizes="160px"
+          className="w-40 border shadow-sm"
         />
       ) : (
         <div className="flex h-60 w-40 flex-col items-center justify-center gap-2 rounded-md border border-dashed text-sm text-muted-foreground">

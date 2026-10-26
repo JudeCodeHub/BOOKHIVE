@@ -81,7 +81,9 @@ public class SecurityConfig {
                       API + "/news/**",
                       API + "/library/**",
                       // Membership types and their rules, shown before applying
-                      API + "/memberships/types")
+                      API + "/memberships/types",
+                      // Book and author ids for the website's sitemap.xml
+                      API + "/sitemap/**")
                   .permitAll();
               auth.requestMatchers(POST, API + "/contact").permitAll();
               // PayHere calls this server-to-server; its signature is checked in code (PAY-2)

@@ -1,7 +1,6 @@
-import { BookOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
-import { coverUrl } from "@/features/catalog/cover";
+import { BookCover } from "@/features/catalog/book-cover";
 import { Link } from "@/i18n/navigation";
 import type { Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -24,7 +23,6 @@ export function BookCard({
   className?: string;
 }) {
   const t = useTranslations("BookCard");
-  const cover = coverUrl(book.id, book.coverVersion, "medium");
 
   return (
     <article
@@ -34,30 +32,13 @@ export function BookCard({
         className,
       )}
     >
-      {cover ? (
-        // Public cover from our API (cached a year by its ?v= URL)
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={cover}
-          alt=""
-          loading="lazy"
-          className={cn(
-            "aspect-[2/3] w-20 shrink-0 rounded object-cover",
-            layout === "grid" && "sm:w-full",
-          )}
-        />
-      ) : (
-        <div
-          role="img"
-          aria-label={t("noCover")}
-          className={cn(
-            "flex aspect-[2/3] w-20 shrink-0 items-center justify-center rounded bg-muted",
-            layout === "grid" && "sm:w-full",
-          )}
-        >
-          <BookOpen aria-hidden className="size-8 text-muted-foreground" />
-        </div>
-      )}
+      <BookCover
+        bookId={book.id}
+        version={book.coverVersion}
+        alt=""
+        sizes={layout === "grid" ? "(min-width: 640px) 220px, 80px" : "80px"}
+        className={cn("w-20 shrink-0", layout === "grid" && "sm:w-full")}
+      />
       <div className="grid min-w-0 content-start gap-1">
         <h3 className="line-clamp-2 font-heading font-semibold">
           {/* The link covers the whole card (::after), so the card is one big click target */}
