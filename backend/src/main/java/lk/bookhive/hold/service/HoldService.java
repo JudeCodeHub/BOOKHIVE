@@ -16,6 +16,7 @@ import lk.bookhive.common.exception.ConflictException;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.hold.domain.Hold;
+import lk.bookhive.hold.domain.HoldStatus;
 import lk.bookhive.hold.repository.HoldRepository;
 import lk.bookhive.member.service.BorrowerService;
 import lk.bookhive.member.service.BorrowerService.Borrower;
@@ -60,6 +61,7 @@ public class HoldService {
   private final LendingCatalogService catalog;
   private final LoanLookupService loans;
   private final EligibilityChecker eligibility;
+  private final HoldAssignmentService assignment;
   private final AuditService audit;
   private final LibraryTime time;
 
@@ -69,6 +71,7 @@ public class HoldService {
       LendingCatalogService catalog,
       LoanLookupService loans,
       EligibilityChecker eligibility,
+      HoldAssignmentService assignment,
       AuditService audit,
       LibraryTime time) {
     this.holds = holds;
@@ -76,6 +79,7 @@ public class HoldService {
     this.catalog = catalog;
     this.loans = loans;
     this.eligibility = eligibility;
+    this.assignment = assignment;
     this.audit = audit;
     this.time = time;
   }
@@ -99,7 +103,8 @@ public class HoldService {
     HoldableTitle title = requireTitle(bookId);
     List<HoldProblem> problems = problems(borrower, title, time.today());
     if (!problems.isEmpty()) {
-      throw new HoldRefusedException(problems);
+      throw new HoldRefusedException(
+          problems, holds.countByBookIdAndStatus(bookId, HoldStatus.WAITING));
     }
     Instant now = time.now();
     Hold hold;
@@ -116,6 +121,43 @@ public class HoldService {
         hold.getId(),
         Map.of("bookId", bookId.toString(), "memberNo", borrower.memberNo()));
     return hold;
+  }
+
+  /**
+   * Cancels a hold (HOLD-5, step 256). If a copy was waiting on the hold shelf for it, the next
+   * member in line gets it (or it goes back to the shelf).
+   *
+   * @param asMemberId when a member cancels their own hold: refused if it isn't theirs
+   * @param reason why (staff); null when the member cancels
+   */
+  @Transactional
+  public void cancel(UUID holdId, UUID actorId, UUID asMemberId, String reason) {
+    Hold hold =
+        holds
+            .findById(holdId)
+            .filter(h -> asMemberId == null || h.getMemberId().equals(asMemberId))
+            // Someone else's hold: don't confirm it exists
+            .orElseThrow(() -> new NotFoundException("HOLD_NOT_FOUND", "Hold not found."));
+    if (hold.getAssignedCopyId() != null && hold.getStatus().isOpen()) {
+      // Same lock as the desk: nobody lends the set-aside copy while it changes hands
+      catalog.lockForLending(hold.getAssignedCopyId());
+    }
+    Instant now = time.now();
+    UUID released =
+        hold.cancel(
+            actorId,
+            reason == null ? (asMemberId != null ? "Cancelled by the member" : null) : reason,
+            now);
+    holds.flush();
+    if (released != null) {
+      assignment.passOn(released, hold.getBookId(), "Hold cancelled", actorId, now);
+    }
+    audit.record(
+        "hold.cancelled",
+        actorId,
+        "hold",
+        hold.getId(),
+        reason == null ? Map.of("byMember", asMemberId != null) : Map.of("reason", reason));
   }
 
   private List<HoldProblem> problems(Borrower borrower, HoldableTitle title, LocalDate today) {
@@ -183,14 +225,21 @@ public class HoldService {
   public static class HoldRefusedException extends BusinessRuleException {
 
     private final transient List<HoldProblem> problems;
+    private final long queueLength;
 
-    HoldRefusedException(List<HoldProblem> problems) {
+    HoldRefusedException(List<HoldProblem> problems, long queueLength) {
       super("HOLD_REFUSED", problems.getFirst().message());
       this.problems = List.copyOf(problems);
+      this.queueLength = queueLength;
     }
 
     public List<HoldProblem> getProblems() {
       return problems;
+    }
+
+    /** Members already waiting for the title. */
+    public long getQueueLength() {
+      return queueLength;
     }
   }
 }

@@ -79,6 +79,8 @@ bookhive:
   jobs:
     # Mark loans overdue just after midnight
     overdue-cron: "0 5 0 * * *"
+    # Expire holds not picked up, pass their copies on, send pickup reminders
+    hold-expiry-cron: "0 15 0 * * *"
   auth:
     email-verification-ttl: 24h
     password-reset-ttl: 1h

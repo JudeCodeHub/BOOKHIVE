@@ -47,7 +47,8 @@ public class LendingCatalogService {
       String title,
       Set<String> sections,
       long lendableCopies,
-      long availableToBorrow) {}
+      long availableToBorrow,
+      String coverVersion) {}
 
   @Transactional(readOnly = true)
   public Optional<HoldableTitle> holdableTitle(UUID bookId) {
@@ -69,7 +70,12 @@ public class LendingCatalogService {
                 }
               }
               return new HoldableTitle(
-                  book.getId(), book.getTitle(), sections(book), lendable, available);
+                  book.getId(),
+                  book.getTitle(),
+                  sections(book),
+                  lendable,
+                  available,
+                  CoverService.version(book));
             });
   }
 
@@ -150,6 +156,15 @@ public class LendingCatalogService {
         .findById(copyId)
         .orElseThrow(() -> new NotFoundException("COPY_NOT_FOUND", "Copy not found."))
         .checkIn(toHoldShelf, staffId, now);
+  }
+
+  /** Back from the hold shelf to the open shelf (step 255). Inside the caller's transaction. */
+  @Transactional(propagation = Propagation.MANDATORY)
+  public void releaseFromHoldShelf(UUID copyId, String reason, UUID actorId, Instant now) {
+    copies
+        .findById(copyId)
+        .orElseThrow(() -> new NotFoundException("COPY_NOT_FOUND", "Copy not found."))
+        .releaseFromHoldShelf(reason, actorId, now);
   }
 
   /** Lost by its borrower (step 229). Inside the caller's transaction. */
