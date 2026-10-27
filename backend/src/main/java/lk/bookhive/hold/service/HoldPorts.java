@@ -2,6 +2,7 @@ package lk.bookhive.hold.service;
 
 import java.util.Optional;
 import java.util.UUID;
+import lk.bookhive.catalog.service.AvailabilityService.HoldsWaiting;
 import lk.bookhive.circulation.service.BorrowingPorts.HoldDemand;
 import lk.bookhive.circulation.service.BorrowingPorts.HoldQueue;
 import lk.bookhive.circulation.service.BorrowingPorts.HoldShelf;
@@ -24,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
  * </ul>
  */
 @Component
-public class HoldPorts implements HoldQueue, HoldShelf, HoldDemand {
+public class HoldPorts implements HoldQueue, HoldShelf, HoldDemand, HoldsWaiting {
 
   private final HoldAssignmentService assignment;
   private final HoldRepository holds;
@@ -48,6 +49,13 @@ public class HoldPorts implements HoldQueue, HoldShelf, HoldDemand {
     return holds
         .findFirstByAssignedCopyIdAndStatus(copyId, HoldStatus.READY)
         .map(Hold::getMemberId);
+  }
+
+  /** The queue length on the public book page ("2 people waiting", step 261). */
+  @Override
+  @Transactional(readOnly = true)
+  public long forBook(UUID bookId) {
+    return holds.countByBookIdAndStatus(bookId, HoldStatus.WAITING);
   }
 
   @Override

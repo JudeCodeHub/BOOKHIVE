@@ -8,6 +8,7 @@ import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.catalog.repository.CopyRepository;
 import lk.bookhive.catalog.repository.CopyRepository.StatusCount;
 import lk.bookhive.common.exception.NotFoundException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +19,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AvailabilityService {
 
+  /**
+   * How many members are queueing for a title. The hold module answers (step 261); the catalog
+   * doesn't depend on it, so without it the answer is 0.
+   */
+  public interface HoldsWaiting {
+    long forBook(UUID bookId);
+  }
+
   private final BookRepository books;
   private final CopyRepository copies;
+  private final HoldsWaiting holdsWaiting;
 
-  public AvailabilityService(BookRepository books, CopyRepository copies) {
+  public AvailabilityService(
+      BookRepository books, CopyRepository copies, ObjectProvider<HoldsWaiting> holdsWaiting) {
     this.books = books;
     this.copies = copies;
+    this.holdsWaiting = holdsWaiting.getIfAvailable(() -> bookId -> 0);
   }
 
   /**
@@ -31,7 +43,7 @@ public class AvailabilityService {
    * @param available on the shelf now, including reference-only ones
    * @param availableToBorrow on the shelf and allowed to go home (members care about this one)
    * @param referenceOnly reference-only copies on the shelf: read them in the library
-   * @param holdsWaiting members queued for this title (holds arrive with circulation; 0 until then)
+   * @param holdsWaiting members queued for this title
    * @param shelves where the available copies are
    */
   public record Availability(
@@ -61,7 +73,7 @@ public class AvailabilityService {
         sum(counts, CopyStatus.ON_HOLD_SHELF, null, false),
         sum(counts, CopyStatus.IN_TRANSIT, null, false),
         sum(counts, CopyStatus.IN_REPAIR, null, false),
-        0,
+        holdsWaiting.forBook(bookId),
         copies.shelvesWithAvailableCopies(bookId));
   }
 
