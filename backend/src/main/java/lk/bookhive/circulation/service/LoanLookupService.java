@@ -1,5 +1,7 @@
 package lk.bookhive.circulation.service;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import lk.bookhive.circulation.repository.LoanRepository;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,17 @@ public class LoanLookupService {
 
   public LoanLookupService(LoanRepository loans) {
     this.loans = loans;
+  }
+
+  /** An open loan past its due date, for the fine module's daily accrual (step 271). */
+  public record OverdueLoan(UUID loanId, UUID memberId, UUID copyId, LocalDate dueDate) {}
+
+  /** Every open loan whose due date is before {@code today} (whatever the nightly status). */
+  @Transactional(readOnly = true)
+  public List<OverdueLoan> overdueOn(LocalDate today) {
+    return loans.findByStatusInAndDueDateBefore(LoanRepository.OPEN, today).stream()
+        .map(l -> new OverdueLoan(l.getId(), l.getMemberId(), l.getCopyId(), l.getDueDate()))
+        .toList();
   }
 
   /** Has the member got a copy of this title out now (on time or overdue)? */

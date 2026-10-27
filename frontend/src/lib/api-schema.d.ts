@@ -933,6 +933,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/members/{memberId}/fines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A member's balance and fines with their ledgers (open first) */
+        get: operations["memberFines"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/members/{id}": {
         parameters: {
             query?: never;
@@ -1299,6 +1316,23 @@ export interface paths {
         };
         /** Can I reserve this book now, and if not, why (with the queue length) */
         get: operations["check_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/fines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My balance and fines (open first); history=true adds settled ones */
+        get: operations["mine_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2241,6 +2275,42 @@ export interface components {
             overdue: boolean;
             /** Format: date-time */
             returnedAt: string;
+        };
+        FineLineSummary: {
+            /** @enum {string} */
+            kind: "CHARGE" | "PAYMENT" | "WAIVER" | "CANCELLATION" | "REFUND";
+            amount: number;
+            /** @enum {string} */
+            method: "CASH" | "ONLINE";
+            reference: string;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        FineSummary: {
+            /** Format: uuid */
+            fineId: string;
+            /** Format: uuid */
+            loanId: string;
+            /** @enum {string} */
+            type: "OVERDUE" | "LOST" | "DAMAGE" | "MEMBERSHIP_FEE";
+            description: string;
+            /** @enum {string} */
+            status: "OPEN" | "SETTLED" | "CANCELLED";
+            accruing: boolean;
+            charged: number;
+            balance: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            settledAt: string;
+            lines: components["schemas"]["FineLineSummary"][];
+        };
+        MemberFinesResponse: {
+            balance: number;
+            blockAt: number;
+            blocked: boolean;
+            fines: components["schemas"]["FineSummary"][];
         };
         MemberProfileResponse: {
             /** Format: uuid */
@@ -4333,6 +4403,30 @@ export interface operations {
             };
         };
     };
+    memberFines: {
+        parameters: {
+            query?: {
+                history?: boolean;
+            };
+            header?: never;
+            path: {
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MemberFinesResponse"];
+                };
+            };
+        };
+    };
     profile_1: {
         parameters: {
             query?: never;
@@ -4827,6 +4921,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["HoldCheckResponse"];
+                };
+            };
+        };
+    };
+    mine_3: {
+        parameters: {
+            query?: {
+                history?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MemberFinesResponse"];
                 };
             };
         };

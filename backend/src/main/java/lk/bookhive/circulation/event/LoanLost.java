@@ -1,6 +1,7 @@
 package lk.bookhive.circulation.event;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import lk.bookhive.common.domain.Money;
 
@@ -14,6 +15,7 @@ public record LoanLost(
     UUID copyId,
     UUID bookId,
     String title,
+    LocalDate dueDate,
     Money replacementCost,
     Money processingFee,
     Instant declaredAt,

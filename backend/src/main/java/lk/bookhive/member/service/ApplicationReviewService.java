@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.common.audit.AuditService;
+import lk.bookhive.common.domain.Money;
 import lk.bookhive.common.exception.ConflictException;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.storage.FileStorage;
@@ -18,6 +19,7 @@ import lk.bookhive.member.domain.Member;
 import lk.bookhive.member.domain.MemberDocument;
 import lk.bookhive.member.domain.MemberStatus;
 import lk.bookhive.member.event.MembershipApproved;
+import lk.bookhive.member.event.MembershipFeeCharged;
 import lk.bookhive.member.event.MembershipRejected;
 import lk.bookhive.member.repository.MemberDocumentRepository;
 import lk.bookhive.member.repository.MemberRepository;
@@ -118,6 +120,17 @@ public class ApplicationReviewService {
             member.getMemberNo(),
             member.getMembershipType().getName(user.getPreferredLanguage()),
             member.getExpiresAt()));
+    // A paid type: the first year's fee is owed from today (FIN-2), like on every renewal
+    Money fee = member.getMembershipType().getAnnualFee();
+    if (!fee.isZero()) {
+      events.publishEvent(
+          new MembershipFeeCharged(
+              member.getId(),
+              member.getUserId(),
+              member.getMemberNo(),
+              fee,
+              member.getExpiresAt()));
+    }
     audit.record(
         "member.approved",
         staffId,

@@ -91,6 +91,7 @@ public class LossService {
             copy.copyId(),
             copy.bookId(),
             copy.title(),
+            loan.getDueDate(),
             cost,
             fee,
             now,
