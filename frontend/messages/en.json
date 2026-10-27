@@ -1315,5 +1315,48 @@
     "lostConfirm": "Mark lost and charge",
     "cancel": "Cancel",
     "markedLost": "“{title}” marked lost: {total} charged."
+  },
+  "Reserve": {
+    "intro": "All copies are out. {count, plural, =0 {Reserve it and you're first in line.} one {# person is waiting.} other {# people are waiting.}}",
+    "reserve": "Reserve",
+    "reserving": "Reserving…",
+    "reserved": "Reserved! You're number {position} in line.",
+    "seeHolds": "My holds",
+    "logInToReserve": "Log in to reserve",
+    "notMember": "<link>Become a member</link> to reserve books.",
+    "alreadyHeld": "You've reserved this book. <link>See your place in line</link>.",
+    "cantReserve": "Why you can't reserve it",
+    "problems": {
+      "MEMBER_NOT_ACTIVE": "Your membership isn't active.",
+      "MEMBERSHIP_EXPIRED": "Your membership has expired: renew it to reserve books.",
+      "FINES_BLOCK_BORROWING": "Unpaid fines block reserving: please pay them first.",
+      "NOT_LENDABLE": "This book can only be read in the library.",
+      "COPY_AVAILABLE": "A copy is on the shelf now: come and borrow it.",
+      "MAX_HOLDS_REACHED": "You've reached your limit of holds. Cancel one or wait until one is collected.",
+      "ALREADY_BORROWED": "You have this book out already.",
+      "ALREADY_HELD": "You've already reserved this book.",
+      "SECTION_NOT_ALLOWED": "Your membership can't borrow from this section."
+    }
+  },
+  "MyHolds": {
+    "metaTitle": "My holds",
+    "title": "My holds",
+    "notMember": "You aren't a library member yet. <link>Apply for membership</link> to reserve books.",
+    "empty": "You have no holds. When every copy of a book is out, you can reserve it from its page. <link>Find a book</link>.",
+    "readyNow": "Ready to pick up!",
+    "pickUpBy": "Collect it by {date}.",
+    "askFor": "At the desk, ask for copy",
+    "position": "Number {position} in line",
+    "queue": "{count, plural, one {# person waiting} other {# people waiting}}",
+    "placedOn": "Reserved on {date}",
+    "placedAtDesk": "placed at the desk",
+    "cancel": "Cancel",
+    "howItWorks": "When a copy comes back, the first person in line gets it. We let you know, and it waits for you at the desk until the date shown.",
+    "cancelTitle": "Cancel your hold on “{title}”?",
+    "cancelReadyText": "The copy waiting for you goes to the next person in line.",
+    "cancelWaitingText": "You'll lose your place in the queue.",
+    "keep": "Keep it",
+    "cancelConfirm": "Cancel hold",
+    "cancelled": "Hold on “{title}” cancelled."
   }
 }

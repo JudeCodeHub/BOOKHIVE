@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { BookAvailability } from "@/features/catalog/book-availability";
+import { ReserveButton } from "@/features/holds/reserve-button";
 import { BookCover } from "@/features/catalog/book-cover";
 import { coverUrl } from "@/features/catalog/cover";
 import { getPublicBook, type Book } from "@/features/catalog/data";
@@ -94,6 +95,7 @@ async function BookDetails({ params }: PageProps<"/[locale]/books/[id]">) {
             {t("availability")}
           </h2>
           <BookAvailability bookId={book.id} callNumber={book.callNumber ?? undefined} />
+          <ReserveButton bookId={book.id} />
         </section>
       </div>
 
