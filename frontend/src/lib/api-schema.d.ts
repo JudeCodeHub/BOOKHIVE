@@ -159,6 +159,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/members/{memberId}/fines/{fineId}/waive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Waive (part of) a fine with a reason; librarians up to the limit in settings, admins any amount (422 WAIVER_OVER_LIMIT) */
+        post: operations["waive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/members/{memberId}/fines/cash": {
         parameters: {
             query?: never;
@@ -1814,6 +1831,40 @@ export interface components {
             heldForName: string;
             wasLost: boolean;
         };
+        WaiveRequest: {
+            amount?: number;
+            reason: string;
+        };
+        FineLineSummary: {
+            /** @enum {string} */
+            kind: "CHARGE" | "PAYMENT" | "WAIVER" | "CANCELLATION" | "REFUND";
+            amount: number;
+            /** @enum {string} */
+            method: "CASH" | "ONLINE";
+            reference: string;
+            reason: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        FineSummary: {
+            /** Format: uuid */
+            fineId: string;
+            /** Format: uuid */
+            loanId: string;
+            /** @enum {string} */
+            type: "OVERDUE" | "LOST" | "DAMAGE" | "MEMBERSHIP_FEE";
+            description: string;
+            /** @enum {string} */
+            status: "OPEN" | "SETTLED" | "CANCELLED";
+            accruing: boolean;
+            charged: number;
+            balance: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            settledAt: string;
+            lines: components["schemas"]["FineLineSummary"][];
+        };
         CashPaymentRequest: {
             amount: number;
             receiptNo: string;
@@ -2309,36 +2360,6 @@ export interface components {
             overdue: boolean;
             /** Format: date-time */
             returnedAt: string;
-        };
-        FineLineSummary: {
-            /** @enum {string} */
-            kind: "CHARGE" | "PAYMENT" | "WAIVER" | "CANCELLATION" | "REFUND";
-            amount: number;
-            /** @enum {string} */
-            method: "CASH" | "ONLINE";
-            reference: string;
-            reason: string;
-            /** Format: date-time */
-            createdAt: string;
-        };
-        FineSummary: {
-            /** Format: uuid */
-            fineId: string;
-            /** Format: uuid */
-            loanId: string;
-            /** @enum {string} */
-            type: "OVERDUE" | "LOST" | "DAMAGE" | "MEMBERSHIP_FEE";
-            description: string;
-            /** @enum {string} */
-            status: "OPEN" | "SETTLED" | "CANCELLED";
-            accruing: boolean;
-            charged: number;
-            balance: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            settledAt: string;
-            lines: components["schemas"]["FineLineSummary"][];
         };
         MemberFinesResponse: {
             balance: number;
@@ -3163,6 +3184,33 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PublisherResponse"];
+                };
+            };
+        };
+    };
+    waive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                memberId: string;
+                fineId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WaiveRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FineSummary"];
                 };
             };
         };
