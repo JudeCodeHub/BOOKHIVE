@@ -41,6 +41,7 @@ public class StaffReturnController {
    *     fine module
    * @param shelfLocation where to put it back (SHELF)
    * @param heldForMemberNo whose hold it's set aside for (HOLD_SHELF)
+   * @param heldForName their name, to write on the hold slip (HOLD_SHELF)
    * @param wasLost the copy had been marked lost: its lost charges are cancelled or refunded
    */
   public record ReturnResponse(
@@ -56,6 +57,7 @@ public class StaffReturnController {
       String shelfLocation,
       String callNumber,
       String heldForMemberNo,
+      String heldForName,
       boolean wasLost) {
 
     static ReturnResponse from(ReturnResult r) {
@@ -72,6 +74,7 @@ public class StaffReturnController {
           r.routing().shelfLocation(),
           r.copy().callNumber(),
           r.routing().heldFor() == null ? null : r.routing().heldFor().memberNo(),
+          r.routing().heldForName(),
           r.wasLost());
     }
   }

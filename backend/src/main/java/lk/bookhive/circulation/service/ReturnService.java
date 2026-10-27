@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lk.bookhive.admin.settings.SettingsService;
+import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.domain.CopyStatus;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
@@ -45,6 +46,7 @@ public class ReturnService {
   private final BorrowerService borrowers;
   private final SettingsService settings;
   private final HoldQueue holdQueue;
+  private final AuthService authService;
   private final AuditService audit;
   private final ApplicationEventPublisher events;
   private final LibraryTime time;
@@ -55,6 +57,7 @@ public class ReturnService {
       BorrowerService borrowers,
       SettingsService settings,
       ObjectProvider<HoldQueue> holdQueue,
+      AuthService authService,
       AuditService audit,
       ApplicationEventPublisher events,
       LibraryTime time) {
@@ -64,6 +67,7 @@ public class ReturnService {
     this.settings = settings;
     // Until the hold module exists, nobody is waiting: every book goes back to its shelf
     this.holdQueue = holdQueue.getIfAvailable(() -> (bookId, copyId) -> Optional.empty());
+    this.authService = authService;
     this.audit = audit;
     this.events = events;
     this.time = time;
@@ -77,8 +81,10 @@ public class ReturnService {
 
   /**
    * @param heldFor the member it's set aside for (HOLD_SHELF only)
+   * @param heldForName their name, for the desk's message and the slip on the book (step 266)
    */
-  public record Routing(Destination destination, String shelfLocation, Borrower heldFor) {}
+  public record Routing(
+      Destination destination, String shelfLocation, Borrower heldFor, String heldForName) {}
 
   /**
    * @param borrower who had it (null if the loan was already anonymised, which can't happen while
@@ -126,11 +132,13 @@ public class ReturnService {
 
     Optional<UUID> nextMember = holdQueue.nextMemberFor(copy.bookId(), copyId);
     catalog.checkIn(copyId, nextMember.isPresent(), staffId, now);
+    Borrower heldFor = nextMember.flatMap(borrowers::byId).orElse(null);
     Routing routing =
         new Routing(
-            nextMember.isPresent() ? Destination.HOLD_SHELF : Destination.SHELF,
+            heldFor != null ? Destination.HOLD_SHELF : Destination.SHELF,
             copy.shelfLocation(),
-            nextMember.flatMap(borrowers::byId).orElse(null));
+            heldFor,
+            heldFor == null ? null : authService.getProfile(heldFor.userId()).getFullName());
 
     events.publishEvent(
         new LoanReturned(

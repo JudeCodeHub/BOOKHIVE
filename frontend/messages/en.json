@@ -1192,7 +1192,7 @@
     "returnedThisSession": "{count, plural, one {# book} other {# books}} returned at this desk",
     "returning": "Returning",
     "notOnLoan": "This book isn't on loan: it can go back on the shelf.",
-    "toHoldShelf": "Hold shelf: set aside for {memberNo}",
+    "toHoldShelf": "Hold shelf: set aside for {name} ({memberNo})",
     "toShelfAt": "Back to the shelf: {shelf}",
     "toShelf": "Back to the shelf",
     "foundLost": "Found! It was marked lost: the lost charges are cancelled or refunded.",
