@@ -589,6 +589,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark one notification as read */
+        post: operations["markRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark all my notifications as read */
+        post: operations["markAllRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/membership/renew": {
         parameters: {
             query?: never;
@@ -1273,6 +1307,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My notifications, newest first, in the given language */
+        get: operations["list_6"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How many unread notifications (for the bell badge) */
+        get: operations["unreadCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/membership": {
         parameters: {
             query?: never;
@@ -1519,7 +1587,7 @@ export interface paths {
             cookie?: never;
         };
         /** Browse books page by page; q = ISBN or part of the title */
-        get: operations["list_6"];
+        get: operations["list_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2193,6 +2261,10 @@ export interface components {
             roles: ("MEMBER" | "LIBRARIAN" | "ADMIN")[];
             preferredLanguage: string;
         };
+        MarkAllReadResponse: {
+            /** Format: int32 */
+            marked: number;
+        };
         PlaceHoldRequest: {
             /** Format: uuid */
             bookId: string;
@@ -2660,6 +2732,33 @@ export interface components {
             /** @enum {string} */
             requiredDocument: "NIC" | "STUDENT_ID" | "NONE";
             requiresGuardian: boolean;
+        };
+        NotificationSummary: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            title: string;
+            body: string;
+            link: string;
+            read: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PageResponseNotificationSummary: {
+            content: components["schemas"]["NotificationSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        UnreadCountResponse: {
+            /** Format: int64 */
+            unread: number;
         };
         MembershipResponse: {
             /** Format: uuid */
@@ -3927,6 +4026,46 @@ export interface operations {
             };
         };
     };
+    markRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    markAllRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MarkAllReadResponse"];
+                };
+            };
+        };
+    };
     renew_2: {
         parameters: {
             query?: never;
@@ -4926,6 +5065,50 @@ export interface operations {
             };
         };
     };
+    list_6: {
+        parameters: {
+            query?: {
+                lang?: string;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseNotificationSummary"];
+                };
+            };
+        };
+    };
+    unreadCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UnreadCountResponse"];
+                };
+            };
+        };
+    };
     mine_2: {
         parameters: {
             query?: never;
@@ -5215,7 +5398,7 @@ export interface operations {
             };
         };
     };
-    list_6: {
+    list_7: {
         parameters: {
             query?: {
                 q?: string;
