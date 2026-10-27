@@ -7,6 +7,7 @@ An ADR records one important technical decision: the problem, what we chose, wha
 | [0001](0001-auth-tokens.md) | Login with a short-lived access JWT + rotating refresh token in an httpOnly cookie | Accepted |
 | [0002](0002-frontend-session.md) | Frontend keeps the access token in memory, single-flight refresh, a hint cookie for route guards | Accepted |
 | [0003](0003-catalog-model.md) | Catalog has two levels: Book (title, searched and held) and Copy (physical item, lent) | Accepted |
+| [0004](0004-notifications.md) | Notifications: modules publish events, one notifier decides channels, email/SMS go through an outbox with retries | Accepted |
 
 ## Template
 
