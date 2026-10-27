@@ -92,6 +92,13 @@ bookhive:
     lockout-duration: 15m
     # Refresh cookie only over HTTPS. Turned off in dev, which runs on plain http://localhost
     refresh-cookie-secure: true
+  # Sending queued email/SMS (ADR 0004): retries after 1 min, 2, 4... up to 1 h, 8 tries in all
+  outbox:
+    poll-interval: 15s
+    batch-size: 25
+    max-attempts: 8
+    first-retry: 1m
+    max-retry: 1h
   mail:
     from: ${MAIL_FROM:BookHive <no-reply@bookhive.lk>}
     # Website address used in email links
