@@ -1,70 +1,44 @@
 package lk.bookhive.notification.service;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import lk.bookhive.circulation.event.CheckoutReceiptRequested;
 import lk.bookhive.common.time.LibraryTime;
-import lk.bookhive.notification.service.EmailSender.EmailMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lk.bookhive.notification.domain.NotificationType;
 import org.springframework.stereotype.Component;
 
-/**
- * Loan emails. For now the checkout receipt (CIRC-8, step 239), sent only after the checkout is
- * saved. English only for now, like {@link MemberEmailListener}.
- */
+/** Loan emails: the checkout receipt (CIRC-8, step 239), after the checkout is saved (ADR 0004). */
 @Component
 public class LoanEmailListener {
 
-  private static final Logger log = LoggerFactory.getLogger(LoanEmailListener.class);
-  private static final DateTimeFormatter DATE =
-      DateTimeFormatter.ofPattern("EEE d MMMM yyyy", Locale.ENGLISH);
-  private static final DateTimeFormatter DATE_TIME =
-      DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", Locale.ENGLISH).withZone(LibraryTime.ZONE);
+  private final Notifier notifier;
 
-  private final EmailSender emailSender;
-
-  public LoanEmailListener(EmailSender emailSender) {
-    this.emailSender = emailSender;
+  public LoanEmailListener(Notifier notifier) {
+    this.notifier = notifier;
   }
 
   @NotificationListener
   public void onReceipt(CheckoutReceiptRequested event) {
-    String books =
+    List<Map<String, Object>> books =
         event.lines().stream()
             .map(
                 line ->
-                    "- %s (%s)%n  Due back: %s"
-                        .formatted(line.title(), line.barcode(), DATE.format(line.dueDate())))
-            .collect(Collectors.joining(System.lineSeparator()));
-    String text =
-        """
-        Hello %s,
-
-        Here is your receipt for the books you borrowed on %s.
-        Member number: %s
-
-        %s
-
-        You can renew books from "My loans" on the website, unless someone has reserved them.
-        Late returns are charged a small fine per day, so please bring them back on time.
-
-        Happy reading!
-        BookHive
-        """
-            .formatted(
-                event.fullName(), DATE_TIME.format(event.checkedOutAt()), event.memberNo(), books);
-    try {
-      emailSender.send(
-          new EmailMessage(
-              event.email(),
-              "Your BookHive receipt: %d %s borrowed"
-                  .formatted(event.lines().size(), event.lines().size() == 1 ? "book" : "books"),
-              text));
-    } catch (RuntimeException e) {
-      // The loans are saved either way; reliable retries come with the outbox (step 355)
-      log.error("Could not send checkout receipt to member {}", event.memberNo(), e);
-    }
+                    Map.<String, Object>of(
+                        "title", line.title(),
+                        "barcode", line.barcode(),
+                        "dueDate", line.dueDate()))
+            .toList();
+    notifier.send(
+        new NotificationRequest(
+            event.userId(),
+            NotificationType.CHECKOUT_RECEIPT,
+            Map.of(
+                "memberNo", event.memberNo(),
+                // Shown as library time (Sri Lanka), whatever the server's own time zone
+                "checkedOutAt", LocalDateTime.ofInstant(event.checkedOutAt(), LibraryTime.ZONE),
+                "books", books),
+            "/account/loans",
+            null));
   }
 }
