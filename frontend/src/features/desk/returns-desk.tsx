@@ -49,6 +49,9 @@ export function ReturnsDesk() {
       playSound(result.destination === "HOLD_SHELF" ? "hold" : "success");
       // Loan lists elsewhere in the console are now out of date
       void queryClient.invalidateQueries({ queryKey: ["staff", "loans"] });
+      if (result.destination === "HOLD_SHELF") {
+        void queryClient.invalidateQueries({ queryKey: ["staff", "holds"] });
+      }
     } catch (error) {
       const code = error instanceof ApiError ? error.code : "";
       playSound(code === "COPY_NOT_ON_LOAN" ? "warning" : "error");

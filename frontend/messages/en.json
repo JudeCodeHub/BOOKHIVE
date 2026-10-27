@@ -1364,5 +1364,27 @@
     "collectBy": "collect by {date}",
     "hint": "Bring your library card to the desk. If you don't collect it in time, it goes to the next person in line.",
     "seeHolds": "See my holds"
+  },
+  "HoldShelf": {
+    "metaTitle": "Hold shelf",
+    "title": "Hold shelf",
+    "empty": "Nothing is waiting on the hold shelf.",
+    "count": "{count, plural, one {# book waiting for pickup} other {# books waiting for pickup}}",
+    "pickUpBy": "Pick up by",
+    "book": "Book",
+    "member": "Member",
+    "readySince": "Ready since",
+    "actions": "Actions",
+    "pastDeadline": "Past deadline",
+    "lastDay": "Last day today",
+    "cancel": "Cancel",
+    "nightlyNote": "Every night, holds past their deadline expire and the copy goes to the next person in line, or back to the shelf.",
+    "cancelTitle": "Cancel the hold on “{title}” for {memberNo}?",
+    "cancelText": "The copy goes to the next person in line, or back to the shelf if nobody is waiting.",
+    "reason": "Reason",
+    "reasonPlaceholder": "e.g. Member phoned: no longer needed",
+    "keep": "Keep it",
+    "cancelConfirm": "Cancel hold",
+    "cancelled": "Hold on “{title}” for {memberNo} cancelled."
   }
 }
