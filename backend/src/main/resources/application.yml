@@ -92,6 +92,14 @@ bookhive:
     lockout-duration: 15m
     # Refresh cookie only over HTTPS. Turned off in dev, which runs on plain http://localhost
     refresh-cookie-secure: true
+  # Text messages through Notify.lk (step 311). Off unless SMS_ENABLED=true and the account
+  # values are set in .env; the key is a secret, never commit it.
+  sms:
+    enabled: ${SMS_ENABLED:false}
+    url: ${SMS_URL:https://app.notify.lk/api/v1/send}
+    user-id: ${SMS_USER_ID:}
+    api-key: ${SMS_API_KEY:}
+    sender-id: ${SMS_SENDER_ID:NotifyDEMO}
   # Sending queued email/SMS (ADR 0004): retries after 1 min, 2, 4... up to 1 h, 8 tries in all
   outbox:
     poll-interval: 15s

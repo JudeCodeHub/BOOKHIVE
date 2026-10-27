@@ -13,6 +13,7 @@ import lk.bookhive.notification.repository.OutboxMessageRepository;
 import lk.bookhive.notification.service.EmailRenderer.RenderedEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -22,7 +23,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 /**
  * The {@link Notifier} (ADR 0004, step 310): finds the recipient's address and language, renders
  * the email in that language and queues it in the outbox; the dispatcher sends it with retries. SMS
- * (step 311), in-app messages (step 312) and preferences (step 313) plug in here.
+ * goes the same way when it's switched on and the member has a phone number (step 311); in-app
+ * messages (step 312) and preferences (step 313) plug in here.
  *
  * <p>Never throws: it runs after the action was saved, so a problem here (a template mistake, a
  * duplicate reminder) is logged and must not turn a successful checkout into an error.
@@ -34,6 +36,8 @@ public class OutboxNotifier implements Notifier {
 
   private final AuthService authService;
   private final EmailRenderer emails;
+  private final SmsRenderer smsTexts;
+  private final boolean smsOn;
   private final OutboxMessageRepository outbox;
   private final MailProperties mail;
   private final TransactionTemplate tx;
@@ -42,12 +46,17 @@ public class OutboxNotifier implements Notifier {
   public OutboxNotifier(
       AuthService authService,
       EmailRenderer emails,
+      SmsRenderer smsTexts,
+      ObjectProvider<SmsSender> smsSender,
       OutboxMessageRepository outbox,
       MailProperties mail,
       PlatformTransactionManager transactions,
       LibraryTime time) {
     this.authService = authService;
     this.emails = emails;
+    this.smsTexts = smsTexts;
+    // No SMS provider configured (the default): don't queue messages that can't be sent
+    this.smsOn = smsSender.getIfAvailable() != null;
     this.outbox = outbox;
     this.mail = mail;
     // Its own short transaction: the caller's (if any) is already committed
@@ -82,6 +91,33 @@ public class OutboxNotifier implements Notifier {
     if (request.type().defaultChannels().contains(Channel.EMAIL)) {
       queueEmail(request, user, language, params);
     }
+    if (smsOn
+        && request.type().defaultChannels().contains(Channel.SMS)
+        && user.getPhone() != null
+        && !user.getPhone().isBlank()) {
+      queueSms(request, user, language, params);
+    }
+  }
+
+  private void queueSms(
+      NotificationRequest request, User user, Language language, Map<String, Object> params) {
+    if (request.dedupeKey() != null
+        && outbox.existsByDedupeKeyAndChannel(request.dedupeKey(), Channel.SMS)) {
+      return;
+    }
+    String text = smsTexts.render(request.type(), language, params);
+    if (text == null) {
+      return;
+    }
+    outbox.save(
+        OutboxMessage.sms(
+            request.type(),
+            user.getId(),
+            user.getPhone(),
+            language,
+            text,
+            request.dedupeKey(),
+            time.now()));
   }
 
   private void queueEmail(
