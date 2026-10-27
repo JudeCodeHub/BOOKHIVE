@@ -90,6 +90,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My channel choices per optional notification type */
+        get: operations["mine"];
+        /** Save my channel choices (types that can't be switched off are ignored) */
+        put: operations["update_5"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/membership/reading-history": {
         parameters: {
             query?: never;
@@ -116,7 +134,7 @@ export interface paths {
         };
         get?: never;
         /** Change a type's rules or names; set active=false to retire it */
-        put: operations["update_5"];
+        put: operations["update_6"];
         post?: never;
         delete?: never;
         options?: never;
@@ -562,7 +580,7 @@ export interface paths {
             cookie?: never;
         };
         /** My suggestions and the library's answers, newest first */
-        get: operations["mine"];
+        get: operations["mine_1"];
         put?: never;
         /** Suggest a book (max 5 open; 409 if the library already has it) */
         post: operations["suggest"];
@@ -665,7 +683,7 @@ export interface paths {
             cookie?: never;
         };
         /** My open holds: ready to pick up first, then my place in each queue */
-        get: operations["mine_1"];
+        get: operations["mine_2"];
         put?: never;
         /** Reserve a book (422 HOLD_REFUSED lists every reason) */
         post: operations["place_1"];
@@ -912,7 +930,7 @@ export interface paths {
         options?: never;
         head?: never;
         /** Edit a copy's details (not its status: that changes through actions) */
-        patch: operations["update_6"];
+        patch: operations["update_7"];
         trace?: never;
     };
     "/api/v1/me": {
@@ -1349,7 +1367,7 @@ export interface paths {
             cookie?: never;
         };
         /** My membership or application (204 if none) */
-        get: operations["mine_2"];
+        get: operations["mine_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1434,7 +1452,7 @@ export interface paths {
             cookie?: never;
         };
         /** My balance and fines (open first); history=true adds settled ones */
-        get: operations["mine_3"];
+        get: operations["mine_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1818,6 +1836,24 @@ export interface components {
             id: string;
             name: string;
             bio: string;
+        };
+        PreferenceChoice: {
+            /** @enum {string} */
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            email?: boolean;
+            sms?: boolean;
+            inApp?: boolean;
+        };
+        PreferencesRequest: {
+            choices: components["schemas"]["PreferenceChoice"][];
+        };
+        PreferenceSummary: {
+            /** @enum {string} */
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            available: ("EMAIL" | "SMS" | "IN_APP")[];
+            email: boolean;
+            sms: boolean;
+            inApp: boolean;
         };
         ReadingHistoryRequest: {
             enabled: boolean;
@@ -3165,6 +3201,50 @@ export interface operations {
             };
         };
     };
+    mine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PreferenceSummary"][];
+                };
+            };
+        };
+    };
+    update_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferencesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PreferenceSummary"][];
+                };
+            };
+        };
+    };
     readingHistory: {
         parameters: {
             query?: never;
@@ -3189,7 +3269,7 @@ export interface operations {
             };
         };
     };
-    update_5: {
+    update_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -3958,7 +4038,7 @@ export interface operations {
             };
         };
     };
-    mine: {
+    mine_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -4108,7 +4188,7 @@ export interface operations {
             };
         };
     };
-    mine_1: {
+    mine_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -4488,7 +4568,7 @@ export interface operations {
             };
         };
     };
-    update_6: {
+    update_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -5109,7 +5189,7 @@ export interface operations {
             };
         };
     };
-    mine_2: {
+    mine_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -5216,7 +5296,7 @@ export interface operations {
             };
         };
     };
-    mine_3: {
+    mine_4: {
         parameters: {
             query?: {
                 history?: boolean;
