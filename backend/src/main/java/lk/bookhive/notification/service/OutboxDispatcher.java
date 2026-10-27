@@ -96,7 +96,11 @@ public class OutboxDispatcher {
     try {
       if (message.getChannel() == Channel.EMAIL) {
         email.send(
-            new EmailMessage(message.getRecipient(), message.getSubject(), message.getBodyText()));
+            new EmailMessage(
+                message.getRecipient(),
+                message.getSubject(),
+                message.getBodyText(),
+                message.getBodyHtml()));
       } else if (sms != null) {
         sms.send(message.getRecipient(), message.getBodyText());
       } else {

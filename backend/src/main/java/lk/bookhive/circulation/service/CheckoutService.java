@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
@@ -215,12 +214,9 @@ public class CheckoutService {
               "copies", lent.stream().map(l -> l.copy().barcode()).toList()));
     }
     if (emailReceipt) {
-      User user = authService.getProfile(borrower.userId());
       events.publishEvent(
           new CheckoutReceiptRequested(
-              user.getEmail(),
-              user.getFullName(),
-              user.getPreferredLanguage(),
+              borrower.userId(),
               borrower.memberNo(),
               now,
               lent.stream()
