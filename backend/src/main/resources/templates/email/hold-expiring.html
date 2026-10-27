@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<!-- HOLD_EXPIRING. Values: name, title, pickUpBy (LocalDate), link (My holds) -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.hold-expiring.subject(${title})}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.hold-expiring.intro(${title})}">…</p>
+  <p><strong th:text="#{email.hold-expiring.note(${#temporals.format(pickUpBy, 'EEEE d MMMM yyyy')})}">Collect by</strong></p>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.openHolds}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>

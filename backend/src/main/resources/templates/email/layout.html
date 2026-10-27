@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  Shared look of every BookHive email (step 309): use with
+    th:replace="~{layout :: email(~{::title}, ~{::main})}"
+  Inline styles and a table layout on purpose: email apps (Gmail, Outlook) ignore most CSS.
+  Anything in data-no-text is left out of the plain-text version.
+-->
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="email(title, content)" th:lang="${lang}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:replace="${title}">BookHive</title>
+</head>
+<body style="margin:0;padding:0;background:#faf7f0;font-family:'Noto Sans','Noto Sans Sinhala','Noto Sans Tamil',Arial,sans-serif;color:#1f2937;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#faf7f0;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;border:1px solid #e5e0d5;">
+          <tr>
+            <td data-no-text style="padding:20px 24px;border-bottom:3px solid #f59e0b;font-size:20px;font-weight:bold;color:#0f3d3e;">
+              &#x2B22; BookHive
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px;font-size:15px;line-height:1.6;">
+              <div th:replace="${content}">Content</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 24px;border-top:1px solid #e5e0d5;font-size:12px;color:#6b7280;">
+              <p style="margin:0;" th:text="#{email.footer.sentBy}">BookHive public library</p>
+              <p style="margin:4px 0 0;" th:if="${preferencesLink}">
+                <a th:href="${preferencesLink}" style="color:#6b7280;" th:text="#{email.footer.preferences}">Notification settings</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

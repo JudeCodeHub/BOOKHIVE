@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<!-- MEMBERSHIP_EXPIRING. Values: name, expiresAt (LocalDate), link -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.membership-expiring.subject(${#temporals.format(expiresAt, 'EEEE d MMMM yyyy')})}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.membership-expiring.intro(${#temporals.format(expiresAt, 'EEEE d MMMM yyyy')})}">…</p>
+  <p th:text="#{email.membership-expiring.note}">…</p>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.membership-expiring.action}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>

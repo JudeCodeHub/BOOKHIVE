@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!-- CHECKOUT_RECEIPT. Values: name, memberNo, checkedOutAt (LocalDateTime), books [{title, barcode, dueDate}], link (My loans) -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.checkout-receipt.subject(${books.size()})}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.checkout-receipt.intro(${#temporals.format(checkedOutAt, 'd MMMM yyyy, HH:mm')})}">…</p>
+  <p><span th:text="#{email.memberNo}">Member number</span>: <strong th:text="${memberNo}">BH-000001</strong></p>
+  <ul style="padding-left:20px;">
+    <li th:each="book : ${books}" style="margin-bottom:6px;"><strong th:text="${book.title}">Title</strong> (<span th:text="${book.barcode}">C0000001</span>)<br>
+      <span th:text="#{email.dueOn(${#temporals.format(book.dueDate, 'EEEE d MMMM yyyy')})}">Due</span></li>
+  </ul>
+  <p th:text="#{email.checkout-receipt.note}">…</p>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.openLoans}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>
