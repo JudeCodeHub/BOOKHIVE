@@ -8,7 +8,9 @@ import lk.bookhive.common.domain.Language;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.notification.config.MailProperties;
 import lk.bookhive.notification.domain.Channel;
+import lk.bookhive.notification.domain.InAppNotification;
 import lk.bookhive.notification.domain.OutboxMessage;
+import lk.bookhive.notification.repository.InAppNotificationRepository;
 import lk.bookhive.notification.repository.OutboxMessageRepository;
 import lk.bookhive.notification.service.EmailRenderer.RenderedEmail;
 import org.slf4j.Logger;
@@ -23,8 +25,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 /**
  * The {@link Notifier} (ADR 0004, step 310): finds the recipient's address and language, renders
  * the email in that language and queues it in the outbox; the dispatcher sends it with retries. SMS
- * goes the same way when it's switched on and the member has a phone number (step 311); in-app
- * messages (step 312) and preferences (step 313) plug in here.
+ * goes the same way when it's switched on and the member has a phone number (step 311). In-app
+ * messages are stored straight away (step 312); preferences plug in here (step 313).
  *
  * <p>Never throws: it runs after the action was saved, so a problem here (a template mistake, a
  * duplicate reminder) is logged and must not turn a successful checkout into an error.
@@ -39,6 +41,8 @@ public class OutboxNotifier implements Notifier {
   private final SmsRenderer smsTexts;
   private final boolean smsOn;
   private final OutboxMessageRepository outbox;
+  private final InAppNotificationRepository inApp;
+  private final InAppTexts inAppTexts;
   private final MailProperties mail;
   private final TransactionTemplate tx;
   private final LibraryTime time;
@@ -49,6 +53,8 @@ public class OutboxNotifier implements Notifier {
       SmsRenderer smsTexts,
       ObjectProvider<SmsSender> smsSender,
       OutboxMessageRepository outbox,
+      InAppNotificationRepository inApp,
+      InAppTexts inAppTexts,
       MailProperties mail,
       PlatformTransactionManager transactions,
       LibraryTime time) {
@@ -58,6 +64,8 @@ public class OutboxNotifier implements Notifier {
     // No SMS provider configured (the default): don't queue messages that can't be sent
     this.smsOn = smsSender.getIfAvailable() != null;
     this.outbox = outbox;
+    this.inApp = inApp;
+    this.inAppTexts = inAppTexts;
     this.mail = mail;
     // Its own short transaction: the caller's (if any) is already committed
     this.tx = new TransactionTemplate(transactions);
@@ -78,6 +86,9 @@ public class OutboxNotifier implements Notifier {
   private void queue(NotificationRequest request) {
     User user = authService.getProfile(request.userId());
     Language language = user.getPreferredLanguage();
+    if (request.type().defaultChannels().contains(Channel.IN_APP)) {
+      storeInApp(request);
+    }
     Map<String, Object> params = new HashMap<>(request.params());
     params.putIfAbsent("name", user.getFullName());
     if (request.link() != null) {
@@ -97,6 +108,22 @@ public class OutboxNotifier implements Notifier {
         && !user.getPhone().isBlank()) {
       queueSms(request, user, language, params);
     }
+  }
+
+  /** The bell's message: facts only, the words are written when it's read (any language). */
+  private void storeInApp(NotificationRequest request) {
+    if (request.dedupeKey() != null
+        && inApp.existsByUserIdAndDedupeKey(request.userId(), request.dedupeKey())) {
+      return;
+    }
+    inApp.save(
+        new InAppNotification(
+            request.userId(),
+            request.type(),
+            inAppTexts.facts(request.params()),
+            request.link(),
+            request.dedupeKey(),
+            time.now()));
   }
 
   private void queueSms(
