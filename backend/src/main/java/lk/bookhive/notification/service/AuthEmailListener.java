@@ -12,8 +12,6 @@ import lk.bookhive.notification.service.EmailSender.EmailMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -36,7 +34,7 @@ public class AuthEmailListener {
     this.properties = properties;
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onEmailVerificationRequested(EmailVerificationRequested event) {
     String link = link(event.language(), "verify-email", event.token());
     send(
@@ -57,7 +55,7 @@ public class AuthEmailListener {
             .formatted(event.fullName(), link));
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onPasswordResetRequested(PasswordResetRequested event) {
     String link = link(event.language(), "reset-password", event.token());
     send(
@@ -79,7 +77,7 @@ public class AuthEmailListener {
             .formatted(event.fullName(), link));
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onPasswordChanged(PasswordChanged event) {
     String forgotLink =
         UriComponentsBuilder.fromUriString(properties.frontendUrl())
@@ -103,7 +101,7 @@ public class AuthEmailListener {
             .formatted(event.fullName(), forgotLink));
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onStaffInvited(StaffInvited event) {
     String link = link(event.language(), "accept-invite", event.token());
     String role = event.role() == Role.ADMIN ? "an administrator" : "a librarian";
