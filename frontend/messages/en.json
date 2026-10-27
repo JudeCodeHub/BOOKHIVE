@@ -752,7 +752,8 @@
       "note": "Note (optional)",
       "cancel": "Cancel",
       "working": "Saving…",
-      "historyPrivate": "Reading history is private: staff only see the books a member has out now (Loans tab)."
+      "historyPrivate": "Reading history is private: staff only see the books a member has out now (Loans tab).",
+      "noHoldsYet": "Holds become possible once the membership is approved."
     }
   },
   "StaffCatalog": {
@@ -1386,5 +1387,35 @@
     "keep": "Keep it",
     "cancelConfirm": "Cancel hold",
     "cancelled": "Hold on “{title}” for {memberNo} cancelled."
+  },
+  "MemberHoldsTab": {
+    "placeLabel": "Place a hold for this member",
+    "placeHint": "Same rules as reserving online: only when every copy is out.",
+    "placePlaceholder": "Type a book title",
+    "place": "Place hold",
+    "placed": "Hold placed on “{title}”: number {position} in line.",
+    "empty": "No open holds.",
+    "placedOn": "Reserved {date}",
+    "atDesk": "at the desk",
+    "ready": "Ready · collect by {date} · {barcode}",
+    "position": "Number {position} of {total} in line",
+    "cancel": "Cancel",
+    "cancelTitle": "Cancel the hold on “{title}”?",
+    "cancelText": "A copy set aside goes to the next person in line, or back to the shelf.",
+    "reason": "Reason",
+    "keep": "Keep it",
+    "cancelConfirm": "Cancel hold",
+    "cancelled": "Hold on “{title}” cancelled.",
+    "problems": {
+      "MEMBER_NOT_ACTIVE": "Their membership isn't active.",
+      "MEMBERSHIP_EXPIRED": "Their membership has expired.",
+      "FINES_BLOCK_BORROWING": "Unpaid fines block reserving.",
+      "NOT_LENDABLE": "This book is reference only.",
+      "COPY_AVAILABLE": "A copy is on the shelf now: they can borrow it.",
+      "MAX_HOLDS_REACHED": "They've reached their limit of holds.",
+      "ALREADY_BORROWED": "They have this book out already.",
+      "ALREADY_HELD": "They've already reserved this book.",
+      "SECTION_NOT_ALLOWED": "Their membership can't borrow from this section."
+    }
   }
 }
