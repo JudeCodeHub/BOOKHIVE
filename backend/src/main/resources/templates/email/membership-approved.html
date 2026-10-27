@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!-- MEMBERSHIP_APPROVED. Values: name, membershipType, memberNo, expiresAt (LocalDate), link -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.membership-approved.subject}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.membership-approved.intro(${membershipType})}">…</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0;">
+    <tr><td style="padding:2px 12px 2px 0;color:#6b7280;" th:text="#{email.memberNo}">Member number</td><td style="font-weight:bold;" th:text="${memberNo}">BH-000001</td></tr>
+    <tr><td style="padding:2px 12px 2px 0;color:#6b7280;" th:text="#{email.validUntil}">Valid until</td><td style="font-weight:bold;" th:text="${#temporals.format(expiresAt, 'EEEE d MMMM yyyy')}">date</td></tr>
+  </table>
+  <p th:text="#{email.membership-approved.note}">…</p>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.membership-approved.action}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>

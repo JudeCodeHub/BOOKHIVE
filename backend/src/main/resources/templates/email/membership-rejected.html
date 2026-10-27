@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<!-- MEMBERSHIP_REJECTED. Values: name, reason, link -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.membership-rejected.subject}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.membership-rejected.intro}">…</p>
+  <p><strong th:text="#{email.reason}">Reason</strong> <span th:text="${reason}">…</span></p>
+  <p th:text="#{email.membership-rejected.note}">…</p>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.membership-rejected.action}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>

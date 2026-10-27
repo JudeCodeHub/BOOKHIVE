@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<!-- PAYMENT_RECEIVED. Values: name, amount (BigDecimal), reference, items [{description, amount}], link (My fines) -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.payment-received.subject(${#numbers.formatDecimal(amount, 1, 'COMMA', 2, 'POINT')})}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.payment-received.intro(${#numbers.formatDecimal(amount, 1, 'COMMA', 2, 'POINT')})}">…</p>
+  <p><span th:text="#{email.reference}">Reference</span>: <strong th:text="${reference}">R-0001</strong></p>
+  <ul style="padding-left:20px;">
+    <li th:each="item : ${items}"><span th:text="${item.description}">Fine</span>: LKR <span th:text="${#numbers.formatDecimal(item.amount, 1, 'COMMA', 2, 'POINT')}">0.00</span></li>
+  </ul>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.openFines}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>

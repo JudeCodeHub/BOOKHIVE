@@ -50,6 +50,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // Sending email over SMTP (Mailpit locally, AWS SES in production)
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    // Email templates in EN/SI/TA (ADR 0004); only the engine, the API renders no web pages
+    implementation("org.thymeleaf:thymeleaf-spring6")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     // Redis (Lettuce client) + Bucket4j: rate limits shared by every backend instance
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
