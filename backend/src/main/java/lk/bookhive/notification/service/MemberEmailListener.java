@@ -9,8 +9,6 @@ import lk.bookhive.notification.service.EmailSender.EmailMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -32,7 +30,7 @@ public class MemberEmailListener {
     this.properties = properties;
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onApproved(MembershipApproved event) {
     String cardLink = link(event.language().code(), "account/card");
     send(
@@ -60,7 +58,7 @@ public class MemberEmailListener {
                 cardLink));
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onRejected(MembershipRejected event) {
     String applyLink = link(event.language().code(), "account/membership");
     send(

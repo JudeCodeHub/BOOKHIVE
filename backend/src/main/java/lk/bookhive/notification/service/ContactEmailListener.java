@@ -5,8 +5,6 @@ import lk.bookhive.notification.service.EmailSender.EmailMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /** Forwards contact form messages to the library's inbox, once they're saved. */
 @Component
@@ -20,7 +18,7 @@ public class ContactEmailListener {
     this.emailSender = emailSender;
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onContactMessage(ContactMessageReceived event) {
     try {
       emailSender.send(

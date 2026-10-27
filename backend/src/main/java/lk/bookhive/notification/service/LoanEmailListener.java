@@ -9,8 +9,6 @@ import lk.bookhive.notification.service.EmailSender.EmailMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Loan emails. For now the checkout receipt (CIRC-8, step 239), sent only after the checkout is
@@ -31,7 +29,7 @@ public class LoanEmailListener {
     this.emailSender = emailSender;
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @NotificationListener
   public void onReceipt(CheckoutReceiptRequested event) {
     String books =
         event.lines().stream()
