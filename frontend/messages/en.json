@@ -1358,5 +1358,11 @@
     "keep": "Keep it",
     "cancelConfirm": "Cancel hold",
     "cancelled": "Hold on “{title}” cancelled."
+  },
+  "ReadyBanner": {
+    "title": "{count, plural, one {A book you reserved is ready!} other {# books you reserved are ready!}}",
+    "collectBy": "collect by {date}",
+    "hint": "Bring your library card to the desk. If you don't collect it in time, it goes to the next person in line.",
+    "seeHolds": "See my holds"
   }
 }
