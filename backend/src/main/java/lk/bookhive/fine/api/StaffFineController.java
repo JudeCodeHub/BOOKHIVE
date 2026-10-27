@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
 import lk.bookhive.common.domain.Money;
+import lk.bookhive.fine.api.FineResponses.FineSummary;
 import lk.bookhive.fine.api.FineResponses.MemberFinesResponse;
 import lk.bookhive.fine.service.FinePaymentService;
 import lk.bookhive.fine.service.FinePaymentService.CashReceipt;
 import lk.bookhive.fine.service.FineQueryService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +33,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** A member's fines for staff (step 274) and cash payments at the desk (step 276). */
+/**
+ * A member's fines for staff (step 274), cash payments at the desk (step 276) and waivers with role
+ * limits (step 277).
+ */
 @RestController
 @RequestMapping("/staff/members/{memberId}/fines")
 @Tag(name = "Staff: fines")
@@ -95,6 +100,38 @@ public class StaffFineController {
             request.receiptNo(),
             request.fineIds(),
             UUID.fromString(jwt.getSubject())));
+  }
+
+  /**
+   * @param amount LKR to waive; empty = all that's still owed on the fine
+   * @param reason why (shown in the ledger and the audit log)
+   */
+  public record WaiveRequest(
+      @Positive @Digits(integer = 8, fraction = 2) BigDecimal amount,
+      @NotBlank @Size(min = 5, max = 500) String reason) {}
+
+  @PostMapping("/{fineId}/waive")
+  @Operation(
+      summary =
+          "Waive (part of) a fine with a reason; librarians up to the limit in settings, admins"
+              + " any amount (422 WAIVER_OVER_LIMIT)")
+  public FineSummary waive(
+      @AuthenticationPrincipal Jwt jwt,
+      Authentication authentication,
+      @PathVariable UUID memberId,
+      @PathVariable UUID fineId,
+      @Valid @RequestBody WaiveRequest request) {
+    boolean asAdmin =
+        authentication.getAuthorities().stream()
+            .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+    return FineSummary.from(
+        payments.waive(
+            memberId,
+            fineId,
+            request.amount() == null ? null : new Money(request.amount()),
+            request.reason(),
+            UUID.fromString(jwt.getSubject()),
+            asAdmin));
   }
 
   @GetMapping
