@@ -174,7 +174,7 @@ function ReturnRow({
           {/* Where it goes: the line staff act on, so it's the biggest */}
           <p className={cn("font-semibold", latest ? "text-xl" : "text-base")}>
             {hold
-              ? t("toHoldShelf", { memberNo: r.heldForMemberNo })
+              ? t("toHoldShelf", { name: r.heldForName ?? "", memberNo: r.heldForMemberNo })
               : r.shelfLocation
                 ? t("toShelfAt", { shelf: r.shelfLocation })
                 : t("toShelf")}

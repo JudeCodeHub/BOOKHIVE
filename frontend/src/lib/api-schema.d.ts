@@ -1760,6 +1760,7 @@ export interface components {
             shelfLocation: string;
             callNumber: string;
             heldForMemberNo: string;
+            heldForName: string;
             wasLost: boolean;
         };
         SuspendRequest: {
