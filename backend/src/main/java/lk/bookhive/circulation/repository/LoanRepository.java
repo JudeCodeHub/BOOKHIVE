@@ -55,6 +55,9 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
       nativeQuery = true)
   boolean memberHasBookOut(@Param("memberId") UUID memberId, @Param("bookId") UUID bookId);
 
+  /** Fine accrual job: every open loan past its due date. */
+  List<Loan> findByStatusInAndDueDateBefore(Collection<LoanStatus> statuses, LocalDate today);
+
   /** Staff list: open loans, soonest due first. */
   Page<Loan> findByStatusInOrderByDueDate(Collection<LoanStatus> statuses, Pageable pageable);
 

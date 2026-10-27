@@ -81,6 +81,8 @@ bookhive:
     overdue-cron: "0 5 0 * * *"
     # Expire holds not picked up, pass their copies on, send pickup reminders
     hold-expiry-cron: "0 15 0 * * *"
+    # Add the day's overdue fines (after loans are marked overdue)
+    fine-accrual-cron: "0 20 0 * * *"
   auth:
     email-verification-ttl: 24h
     password-reset-ttl: 1h
