@@ -10,6 +10,7 @@ export function SiteFooter() {
     { href: "/visit", label: t("visit") },
     { href: "/rules", label: t("rules") },
     { href: "/events", label: t("events") },
+    { href: "/news", label: t("news") },
     { href: "/privacy", label: t("privacy") },
     { href: "/terms", label: t("terms") },
   ];
