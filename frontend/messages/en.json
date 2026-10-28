@@ -1556,5 +1556,32 @@
     "sampleNote": "Names, books and dates are made up for the preview.",
     "sendTest": "Send test to me",
     "testSent": "Test email sent to {email}. In development, open Mailpit (localhost:8025)."
+  },
+  "Events": {
+    "metaTitle": "Events",
+    "title": "Events",
+    "intro": "Story times, book clubs, talks and workshops at the library. Most are free.",
+    "listView": "Upcoming",
+    "calendarView": "Calendar",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "thisMonth": "Events this month",
+    "noneThisMonth": "No events this month.",
+    "noneUpcoming": "No events are planned right now. Check back soon.",
+    "loadError": "Events couldn’t be loaded. Please try again.",
+    "eventsOnDay": "{count, plural, one {# event} other {# events}}",
+    "cancelled": "Cancelled",
+    "justComeAlong": "No sign-up needed",
+    "signUpClosed": "Sign-up closed",
+    "signUpOpen": "Sign-up open",
+    "placesLeft": "{count, plural, one {# place left} other {# places left}}",
+    "fullWaitlist": "Full – join the waitlist",
+    "audience": {
+      "ALL": "Everyone",
+      "CHILDREN": "Children",
+      "YOUNG_ADULT": "Teens",
+      "ADULT": "Adults",
+      "SENIOR": "Seniors"
+    }
   }
 }
