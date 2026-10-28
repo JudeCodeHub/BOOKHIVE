@@ -21,6 +21,8 @@ import lk.bookhive.event.domain.LibraryEvent;
 import lk.bookhive.event.domain.LibraryEvent.Details;
 import lk.bookhive.event.service.EventAdminService;
 import lk.bookhive.event.service.EventAdminService.EventWithCounts;
+import lk.bookhive.event.service.EventCheckInService;
+import lk.bookhive.event.service.EventCheckInService.CheckIn;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,10 +50,31 @@ import org.springframework.web.multipart.MultipartFile;
 public class StaffEventController {
 
   private final EventAdminService events;
+  private final EventCheckInService checkIns;
 
-  public StaffEventController(EventAdminService events) {
+  public StaffEventController(EventAdminService events, EventCheckInService checkIns) {
     this.events = events;
+    this.checkIns = checkIns;
   }
+
+  /**
+   * @param code what the QR ticket holds (with or without the BOOKHIVE-EVENT: prefix)
+   */
+  public record CheckInRequest(@NotBlank @Size(max = 80) String code) {}
+
+  /**
+   * The member who was let in.
+   *
+   * @param attended members checked in so far
+   * @param capacity places (null = no limit)
+   */
+  public record CheckInResponse(
+      UUID registrationId,
+      String memberNo,
+      String fullName,
+      Instant checkedInAt,
+      long attended,
+      Integer capacity) {}
 
   /**
    * @param description shown on the event page
@@ -168,6 +191,25 @@ public class StaffEventController {
       @Valid @RequestBody CancelEventRequest request) {
     events.cancel(id, request.reason(), staffId(jwt));
     return StaffEventSummary.from(events.get(id));
+  }
+
+  @PostMapping("/{id}/check-in")
+  @Operation(
+      summary =
+          "Check a member in by their QR ticket (422/409 explain: other event, waitlisted,"
+              + " already in, outside the check-in window)")
+  public CheckInResponse checkIn(
+      @AuthenticationPrincipal Jwt jwt,
+      @PathVariable UUID id,
+      @Valid @RequestBody CheckInRequest request) {
+    CheckIn result = checkIns.checkIn(id, request.code(), staffId(jwt));
+    return new CheckInResponse(
+        result.registration().getId(),
+        result.member() == null ? null : result.member().memberNo(),
+        result.fullName(),
+        result.registration().getCheckedInAt(),
+        result.attended(),
+        events.get(id).event().getCapacity());
   }
 
   @PostMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
