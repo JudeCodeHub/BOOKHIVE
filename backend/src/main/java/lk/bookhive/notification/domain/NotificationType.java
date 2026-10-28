@@ -35,7 +35,9 @@ public enum NotificationType {
   // Money
   PAYMENT_RECEIVED(Set.of(Channel.EMAIL, Channel.IN_APP), false),
 
-  // Library events (phase 11)
+  // Library events (phase 11): a place from the waitlist and a cancellation always go out
+  EVENT_PLACE_CONFIRMED(Set.of(Channel.EMAIL, Channel.IN_APP), false),
+  EVENT_CANCELLED(Set.of(Channel.EMAIL, Channel.IN_APP), false),
   EVENT_REMINDER(Set.of(Channel.EMAIL, Channel.IN_APP), true);
 
   private final Set<Channel> defaultChannels;

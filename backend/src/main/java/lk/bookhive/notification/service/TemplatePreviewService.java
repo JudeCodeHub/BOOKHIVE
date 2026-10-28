@@ -82,9 +82,7 @@ public class TemplatePreviewService {
     Map<String, Object> params = sample(type, language);
     var channels = type.defaultChannels();
     RenderedEmail email =
-        channels.contains(Channel.EMAIL) && type != NotificationType.EVENT_REMINDER
-            ? emails.render(type, language, params)
-            : null;
+        channels.contains(Channel.EMAIL) ? emails.render(type, language, params) : null;
     String text = channels.contains(Channel.SMS) ? sms.render(type, language, params) : null;
     boolean hasInApp = channels.contains(Channel.IN_APP);
     Map<String, String> facts = inApp.facts(params);
@@ -182,9 +180,12 @@ public class TemplatePreviewService {
                     "amount",
                     new BigDecimal("175.00"))));
       }
-      case EVENT_REMINDER -> {
+      case EVENT_REMINDER, EVENT_PLACE_CONFIRMED, EVENT_CANCELLED -> {
         params.put("title", "Children’s story time");
         params.put("date", today.plusDays(1));
+        params.put("startsAt", today.plusDays(1).atTime(10, 0));
+        params.put("venue", "Children’s corner");
+        params.put("reason", "The storyteller is unwell. We’ll announce a new date soon.");
       }
       default -> {
         // Account emails only need the name and link

@@ -816,6 +816,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/events/{eventId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Give up my place or leave the waitlist (the next person moves up) */
+        post: operations["cancel_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/contact": {
         parameters: {
             query?: never;
@@ -2189,7 +2206,7 @@ export interface components {
         };
         PreferenceChoice: {
             /** @enum {string} */
-            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             email?: boolean;
             sms?: boolean;
             inApp?: boolean;
@@ -2199,7 +2216,7 @@ export interface components {
         };
         PreferenceSummary: {
             /** @enum {string} */
-            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             available: ("EMAIL" | "SMS" | "IN_APP")[];
             email: boolean;
             sms: boolean;
@@ -2743,7 +2760,7 @@ export interface components {
             /** @enum {string} */
             channel: "EMAIL" | "SMS" | "IN_APP";
             /** @enum {string} */
-            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             recipient: string;
             subject: string;
             /** @enum {string} */
@@ -3183,7 +3200,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             /** @enum {string} */
-            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             title: string;
             body: string;
             link: string;
@@ -3384,13 +3401,13 @@ export interface components {
         };
         TemplateTypeSummary: {
             /** @enum {string} */
-            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             channels: ("EMAIL" | "SMS" | "IN_APP")[];
             optional: boolean;
         };
         TemplatePreviewResponse: {
             /** @enum {string} */
-            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             language: string;
             emailSubject: string;
             emailText: string;
@@ -4972,6 +4989,26 @@ export interface operations {
             };
         };
     };
+    cancel_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     send: {
         parameters: {
             query?: never;
@@ -5203,7 +5240,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+                type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             };
             cookie?: never;
         };
@@ -6564,7 +6601,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+                type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
             };
             cookie?: never;
         };

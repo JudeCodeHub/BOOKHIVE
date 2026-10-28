@@ -32,6 +32,10 @@ public interface LibraryEventRepository extends JpaRepository<LibraryEvent, UUID
   @Query("SELECT e FROM LibraryEvent e WHERE e.id = :id")
   Optional<LibraryEvent> findByIdForUpdate(@Param("id") UUID id);
 
+  /** Day-before reminders: published events starting in [from, to). */
+  List<LibraryEvent> findByStatusAndStartsAtGreaterThanEqualAndStartsAtLessThan(
+      EventStatus status, Instant from, Instant to);
+
   /** Staff list: every event, newest start first. */
   Page<LibraryEvent> findAllByOrderByStartsAtDesc(Pageable pageable);
 }

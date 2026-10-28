@@ -87,6 +87,7 @@ bookhive:
     due-soon-cron: "0 0 8 * * *"
     overdue-notice-cron: "0 5 8 * * *"
     membership-expiring-cron: "0 10 8 * * *"
+    event-reminder-cron: "0 0 9 * * *"
   auth:
     email-verification-ttl: 24h
     password-reset-ttl: 1h
