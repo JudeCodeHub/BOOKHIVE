@@ -1907,5 +1907,24 @@
       "offTopic": "It isn’t about this book. Reviews should tell other readers about the book.",
       "personal": "It contains personal details (names, phone numbers or addresses). Please leave them out."
     }
+  },
+  "Wishlist": {
+    "title": "My wishlist",
+    "save": "Save to wishlist",
+    "saved": "On your wishlist",
+    "added": "Saved to your wishlist.",
+    "removed": "Removed from your wishlist.",
+    "removedTitle": "“{title}” removed from your wishlist.",
+    "seeWishlist": "See wishlist",
+    "full": "Your wishlist is full (200 books). Remove some to save more.",
+    "notMember": "The wishlist is for library members. <link>Become a member</link>",
+    "empty": "Nothing saved yet. Tap the heart on a book to keep it for later. <link>Find books</link>",
+    "count": "{count, plural, one {# book saved} other {# books saved}}",
+    "gone": "This book is no longer in the catalogue.",
+    "addedOn": "Saved {date}",
+    "remove": "Remove",
+    "referenceOnly": "Read in the library only",
+    "onShelf": "{count, plural, one {# on the shelf now} other {# on the shelf now}}",
+    "allOut": "All on loan"
   }
 }
