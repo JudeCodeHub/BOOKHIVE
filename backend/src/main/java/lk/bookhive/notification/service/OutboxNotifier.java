@@ -102,7 +102,7 @@ public class OutboxNotifier implements Notifier {
     }
     if (request.type().optional()) {
       // Reminders can be switched off: say where (preferences page, step 323)
-      params.put("preferencesLink", absolute("/account/notifications", language));
+      params.put("preferencesLink", absolute("/account/notifications/settings", language));
     }
 
     if (channels.contains(Channel.EMAIL)) {

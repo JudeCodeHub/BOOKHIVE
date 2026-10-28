@@ -1462,6 +1462,70 @@
     "loading": "Loading…",
     "empty": "No notifications yet.",
     "unread": "Unread",
-    "seeAll": "See all notifications"
+    "seeAll": "See all notifications",
+    "metaTitle": "Notifications",
+    "emptyPage": "No notifications yet. Reminders about your loans, holds and membership will appear here.",
+    "unreadSummary": "{count, plural, one {# unread notification} other {# unread notifications}}",
+    "allRead": "You’re all caught up.",
+    "markRead": "Mark read",
+    "open": "Open",
+    "settingsLink": "Choose which messages you get"
+  },
+  "NotificationSettings": {
+    "metaTitle": "Notification settings",
+    "title": "Notification settings",
+    "intro": "Choose how we remind you about your loans, holds and membership.",
+    "message": "Message",
+    "channel": {
+      "EMAIL": "Email",
+      "SMS": "SMS",
+      "IN_APP": "In the app"
+    },
+    "types": {
+      "MEMBERSHIP_EXPIRING": {
+        "name": "Membership ending",
+        "about": "A month before your membership ends"
+      },
+      "DUE_SOON": {
+        "name": "Due soon",
+        "about": "Two days before books are due back"
+      },
+      "OVERDUE": {
+        "name": "Overdue",
+        "about": "When books are 1 and 7 days late"
+      },
+      "HOLD_READY": {
+        "name": "Reserved book ready",
+        "about": "When a book you reserved is waiting at the desk"
+      },
+      "HOLD_EXPIRING": {
+        "name": "Last day to collect",
+        "about": "The day before a reserved book goes to the next person"
+      },
+      "HOLD_EXPIRED": {
+        "name": "Hold expired",
+        "about": "When a reserved book wasn’t collected in time"
+      },
+      "EVENT_REMINDER": {
+        "name": "Event reminders",
+        "about": "Before library events you signed up for"
+      }
+    },
+    "toggle": "{message} by {channel}",
+    "notAvailable": "Not available",
+    "save": "Save",
+    "saving": "Saving…",
+    "undo": "Undo changes",
+    "saved": "Settings saved.",
+    "smsNote": "Text messages are only sent when the library has them switched on and your account has a mobile number.",
+    "alwaysTitle": "Always sent",
+    "alwaysText": "These are about your account’s safety or your money, so they can’t be switched off:",
+    "always": {
+      "PASSWORD_RESET": "Password reset and password changed",
+      "EMAIL_VERIFICATION": "Confirming your email address",
+      "MEMBERSHIP_APPROVED": "Decisions on your membership application",
+      "CHECKOUT_RECEIPT": "Loan receipts (when you ask for one at the desk)",
+      "PAYMENT_RECEIVED": "Payment receipts"
+    }
   }
 }
