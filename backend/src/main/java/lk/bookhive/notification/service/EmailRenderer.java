@@ -1,6 +1,5 @@
 package lk.bookhive.notification.service;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,20 +36,11 @@ public class EmailRenderer {
    */
   public RenderedEmail render(
       NotificationType type, Language language, Map<String, Object> params) {
-    Context context = new Context(locale(language), params);
+    Context context = new Context(MessageBundles.locale(language), params);
     context.setVariable("lang", language.code());
     String html = engine.process(type.templateName(), context);
     Matcher title = TITLE.matcher(html);
     String subject = title.find() ? HtmlUtils.htmlUnescape(title.group(1)).strip() : type.name();
     return new RenderedEmail(subject, HtmlText.toText(html), html);
-  }
-
-  /** Sinhala and Tamil as used in Sri Lanka, so dates come out with local month names. */
-  static Locale locale(Language language) {
-    return switch (language) {
-      case SI -> Locale.forLanguageTag("si-LK");
-      case TA -> Locale.forLanguageTag("ta-LK");
-      case EN -> Locale.forLanguageTag("en-LK");
-    };
   }
 }

@@ -1,7 +1,6 @@
 package lk.bookhive.notification.service;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -42,13 +41,7 @@ public class InAppTexts {
           Map.entry(NotificationType.PAYMENT_RECEIVED, List.of("amount")),
           Map.entry(NotificationType.EVENT_REMINDER, List.of("title", "date")));
 
-  private final ResourceBundleMessageSource messages = new ResourceBundleMessageSource();
-
-  public InAppTexts() {
-    messages.setBasename("messages/inapp");
-    messages.setDefaultEncoding(StandardCharsets.UTF_8.name());
-    messages.setFallbackToSystemLocale(false);
-  }
+  private final ResourceBundleMessageSource messages = MessageBundles.bundle("messages/inapp");
 
   /** The values to store with a new notification: plain text only. */
   public Map<String, String> facts(Map<String, Object> params) {
@@ -74,11 +67,11 @@ public class InAppTexts {
 
   public String title(NotificationType type, Language language) {
     return messages.getMessage(
-        "inapp." + type.templateName() + ".title", null, EmailRenderer.locale(language));
+        "inapp." + type.templateName() + ".title", null, MessageBundles.locale(language));
   }
 
   public String body(NotificationType type, Map<String, String> facts, Language language) {
-    Locale locale = EmailRenderer.locale(language);
+    Locale locale = MessageBundles.locale(language);
     Object[] args =
         BODY_ARGS.getOrDefault(type, List.of()).stream()
             .map(name -> shown(facts.get(name), locale))

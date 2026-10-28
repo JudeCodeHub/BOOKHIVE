@@ -1,20 +1,50 @@
 package lk.bookhive.notification.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import lk.bookhive.circulation.event.CheckoutReceiptRequested;
 import lk.bookhive.circulation.event.LoansDueSoon;
 import lk.bookhive.circulation.event.LoansOverdue;
+import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.notification.domain.NotificationType;
 import org.springframework.stereotype.Component;
 
-/** Loan reminders (NOTIF-4): due soon (step 314), overdue (step 315). */
+/**
+ * Loan notifications (ADR 0004): the checkout receipt (CIRC-8, step 239) and the reminders, due
+ * soon (step 314) and overdue (step 315).
+ */
 @Component
-public class LoanReminderListener {
+public class LoanNotificationListener {
 
   private final Notifier notifier;
 
-  public LoanReminderListener(Notifier notifier) {
+  public LoanNotificationListener(Notifier notifier) {
     this.notifier = notifier;
+  }
+
+  @NotificationListener
+  public void onReceipt(CheckoutReceiptRequested event) {
+    List<Map<String, Object>> books =
+        event.lines().stream()
+            .map(
+                line ->
+                    Map.<String, Object>of(
+                        "title", line.title(),
+                        "barcode", line.barcode(),
+                        "dueDate", line.dueDate()))
+            .toList();
+    notifier.send(
+        new NotificationRequest(
+            event.userId(),
+            NotificationType.CHECKOUT_RECEIPT,
+            Map.of(
+                "memberNo", event.memberNo(),
+                // Shown as library time (Sri Lanka), whatever the server's own time zone
+                "checkedOutAt", LocalDateTime.ofInstant(event.checkedOutAt(), LibraryTime.ZONE),
+                "books", books),
+            "/account/loans",
+            null));
   }
 
   @NotificationListener

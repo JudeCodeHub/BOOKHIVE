@@ -1,11 +1,9 @@
 package lk.bookhive.notification.service;
 
 import java.util.Map;
-import java.util.UUID;
 import lk.bookhive.hold.event.HoldExpired;
 import lk.bookhive.hold.event.HoldExpiring;
 import lk.bookhive.hold.event.HoldReady;
-import lk.bookhive.member.service.BorrowerService;
 import lk.bookhive.notification.domain.NotificationType;
 import org.springframework.stereotype.Component;
 
@@ -16,50 +14,39 @@ import org.springframework.stereotype.Component;
 @Component
 public class HoldNotificationListener {
 
-  private final Notifier notifier;
-  private final BorrowerService borrowers;
+  private final MemberNotifier members;
 
-  public HoldNotificationListener(Notifier notifier, BorrowerService borrowers) {
-    this.notifier = notifier;
-    this.borrowers = borrowers;
+  public HoldNotificationListener(MemberNotifier members) {
+    this.members = members;
   }
 
   @NotificationListener
   public void onReady(HoldReady event) {
-    send(
+    members.send(
         event.memberId(),
         NotificationType.HOLD_READY,
         Map.of("title", event.title(), "pickUpBy", event.pickUpBy()),
+        "/account/holds",
         "HOLD_READY:" + event.holdId());
   }
 
   @NotificationListener
   public void onExpiring(HoldExpiring event) {
-    send(
+    members.send(
         event.memberId(),
         NotificationType.HOLD_EXPIRING,
         Map.of("title", event.title(), "pickUpBy", event.pickUpBy()),
+        "/account/holds",
         "HOLD_EXPIRING:" + event.holdId());
   }
 
   @NotificationListener
   public void onExpired(HoldExpired event) {
-    send(
+    members.send(
         event.memberId(),
         NotificationType.HOLD_EXPIRED,
         Map.of("title", event.title()),
+        "/account/holds",
         "HOLD_EXPIRED:" + event.holdId());
-  }
-
-  private void send(
-      UUID memberId, NotificationType type, Map<String, Object> params, String dedupeKey) {
-    // Holds belong to members; notifications go to their user account
-    borrowers
-        .byId(memberId)
-        .ifPresent(
-            borrower ->
-                notifier.send(
-                    new NotificationRequest(
-                        borrower.userId(), type, params, "/account/holds", dedupeKey)));
   }
 }
