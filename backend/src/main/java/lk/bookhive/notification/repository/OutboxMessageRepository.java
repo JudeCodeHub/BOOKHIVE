@@ -34,6 +34,12 @@ public interface OutboxMessageRepository extends JpaRepository<OutboxMessage, UU
       nativeQuery = true)
   List<UUID> lockDue(@Param("now") Instant now, @Param("limit") int limit);
 
+  /** Admin view: how many messages are in each status. */
+  long countByStatus(OutboxStatus status);
+
+  /** "Send all failed again" (step 319). */
+  List<OutboxMessage> findByStatus(OutboxStatus status);
+
   /** Admin view (step 319): messages in a status, newest change first. */
   Page<OutboxMessage> findByStatusOrderByUpdatedAtDesc(OutboxStatus status, Pageable pageable);
 }

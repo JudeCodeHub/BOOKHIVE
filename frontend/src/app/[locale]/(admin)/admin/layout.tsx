@@ -4,6 +4,7 @@ import {
   IdCard,
   Info,
   LayoutDashboard,
+  Mail,
   ScrollText,
   SlidersHorizontal,
   UserCog,
@@ -26,6 +27,7 @@ export default function AdminLayout({ children }: LayoutProps<"/[locale]/admin">
     { href: "/admin/hours", label: t("hours"), icon: <Clock /> },
     { href: "/admin/staff", label: t("staff"), icon: <UserCog /> },
     { href: "/admin/reports", label: t("reports"), icon: <BarChart3 /> },
+    { href: "/admin/messages", label: t("messages"), icon: <Mail /> },
     { href: "/admin/audit-logs", label: t("auditLogs"), icon: <ScrollText /> },
     { href: "/admin/library-info", label: t("libraryInfo"), icon: <Info /> },
   ];

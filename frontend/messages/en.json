@@ -340,7 +340,8 @@
     "staff": "Staff accounts",
     "reports": "Reports",
     "auditLogs": "Audit log",
-    "libraryInfo": "Library info"
+    "libraryInfo": "Library info",
+    "messages": "Messages"
   },
   "AccountHome": {
     "title": "My account",
@@ -1417,5 +1418,40 @@
       "ALREADY_HELD": "They've already reserved this book.",
       "SECTION_NOT_ALLOWED": "Their membership can't borrow from this section."
     }
+  },
+  "AdminMessages": {
+    "metaTitle": "Messages",
+    "title": "Messages",
+    "description": "Emails and text messages sent by BookHive. Failed ones can be sent again once the problem is fixed.",
+    "counts": {
+      "pending": "Waiting",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "statuses": "Message status",
+    "status": {
+      "FAILED": "Failed",
+      "PENDING": "Waiting",
+      "SENT": "Sent"
+    },
+    "empty": {
+      "FAILED": "No failed messages. 🎉",
+      "PENDING": "Nothing is waiting to be sent.",
+      "SENT": "Nothing has been sent yet."
+    },
+    "message": "Message",
+    "recipient": "To",
+    "tries": "Tries",
+    "sentAt": "Sent",
+    "updatedAt": "Last change",
+    "actions": "Actions",
+    "email": "Email",
+    "sms": "SMS",
+    "retry": "Send again",
+    "retryAll": "Send all failed again",
+    "nextTry": "Next try {when}",
+    "requeuedOne": "Queued again: it goes out within a minute.",
+    "requeuedAll": "{count, plural, one {# message queued again.} other {# messages queued again.}}",
+    "help": "A message is tried up to 8 times over a few hours before it counts as failed. Fix the cause first (e.g. mail server settings), then send it again."
   }
 }

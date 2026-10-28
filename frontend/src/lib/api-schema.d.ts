@@ -880,6 +880,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/notifications/messages/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a failed message again (fresh set of tries) */
+        post: operations["retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications/messages/retry-failed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send every failed message again */
+        post: operations["retryAll"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/membership-types": {
         parameters: {
             query?: never;
@@ -1716,6 +1750,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/notifications/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Messages in a status (FAILED by default), most recently changed first */
+        get: operations["list_8"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications/messages/counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How many messages wait, went out, or failed */
+        get: operations["counts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2365,6 +2433,33 @@ export interface components {
             /** @enum {string} */
             status: "PENDING_VERIFICATION" | "ACTIVE" | "DISABLED";
         };
+        OutboxMessageSummary: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            channel: "EMAIL" | "SMS" | "IN_APP";
+            /** @enum {string} */
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            recipient: string;
+            subject: string;
+            /** @enum {string} */
+            status: "PENDING" | "SENT" | "FAILED";
+            /** Format: int32 */
+            attempts: number;
+            lastError: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            nextAttemptAt: string;
+            /** Format: date-time */
+            sentAt: string;
+        };
+        RetryAllResponse: {
+            /** Format: int32 */
+            requeued: number;
+        };
         DecisionRequest: {
             /** @enum {string} */
             status: "SUBMITTED" | "ORDERED" | "ACQUIRED" | "DECLINED";
@@ -2935,6 +3030,25 @@ export interface components {
             bio: string;
             /** Format: int64 */
             bookCount: number;
+        };
+        PageResponseOutboxMessageSummary: {
+            content: components["schemas"]["OutboxMessageSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        OutboxCountsResponse: {
+            /** Format: int64 */
+            pending: number;
+            /** Format: int64 */
+            sent: number;
+            /** Format: int64 */
+            failed: number;
         };
     };
     responses: never;
@@ -4476,6 +4590,48 @@ export interface operations {
             };
         };
     };
+    retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OutboxMessageSummary"];
+                };
+            };
+        };
+    };
+    retryAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RetryAllResponse"];
+                };
+            };
+        };
+    };
     all: {
         parameters: {
             query?: never;
@@ -5635,6 +5791,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PublicAuthorResponse"];
+                };
+            };
+        };
+    };
+    list_8: {
+        parameters: {
+            query?: {
+                status?: "PENDING" | "SENT" | "FAILED";
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseOutboxMessageSummary"];
+                };
+            };
+        };
+    };
+    counts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OutboxCountsResponse"];
                 };
             };
         };
