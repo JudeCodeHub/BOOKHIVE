@@ -37,6 +37,17 @@ public class LoanLookupService {
     return loans.memberEverBorrowed(memberId, bookId);
   }
 
+  /**
+   * "Readers also borrowed" (step 339): other books borrowed by this book's readers, most shared
+   * first, only when at least {@code minReaders} different readers did (privacy).
+   */
+  @Transactional(readOnly = true)
+  public List<UUID> alsoBorrowed(UUID bookId, int minReaders, int limit) {
+    return loans.alsoBorrowed(bookId, minReaders, limit).stream()
+        .map(LoanRepository.CoBorrow::getBookId)
+        .toList();
+  }
+
   /** Has the member got a copy of this title out now (on time or overdue)? */
   @Transactional(readOnly = true)
   public boolean hasBookOut(UUID memberId, UUID bookId) {

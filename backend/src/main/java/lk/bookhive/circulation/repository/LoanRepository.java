@@ -68,6 +68,42 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
       nativeQuery = true)
   boolean memberEverBorrowed(@Param("memberId") UUID memberId, @Param("bookId") UUID bookId);
 
+  /** One "readers also borrowed" suggestion: a book and how many different readers. */
+  interface CoBorrow {
+    UUID getBookId();
+
+    long getReaders();
+  }
+
+  /**
+   * Books borrowed by the readers of {@code bookId} (step 339), ranked by how many different
+   * readers borrowed both. Only books shared by at least {@code minReaders} readers, so no single
+   * person's reading shows through; members with reading history switched off are left out.
+   */
+  @Query(
+      value =
+          """
+          WITH readers AS (
+              SELECT DISTINCT l.member_id
+              FROM loans l
+              JOIN copies c ON c.id = l.copy_id
+              JOIN members m ON m.id = l.member_id
+              WHERE c.book_id = :bookId AND m.reading_history_enabled
+          )
+          SELECT c.book_id AS bookId, count(DISTINCT l.member_id) AS readers
+          FROM loans l
+          JOIN copies c ON c.id = l.copy_id
+          JOIN readers r ON r.member_id = l.member_id
+          WHERE c.book_id <> :bookId
+          GROUP BY c.book_id
+          HAVING count(DISTINCT l.member_id) >= :minReaders
+          ORDER BY readers DESC, c.book_id
+          LIMIT :limit
+          """,
+      nativeQuery = true)
+  List<CoBorrow> alsoBorrowed(
+      @Param("bookId") UUID bookId, @Param("minReaders") int minReaders, @Param("limit") int limit);
+
   /** Fine accrual job: every open loan past its due date. */
   List<Loan> findByStatusInAndDueDateBefore(Collection<LoanStatus> statuses, LocalDate today);
 
