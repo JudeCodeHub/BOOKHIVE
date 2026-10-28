@@ -18,6 +18,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/news/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One post in full (drafts too) */
+        get: operations["get_1"];
+        /** Change a post */
+        put: operations["update_1"];
+        post?: never;
+        /** Delete a post for good */
+        delete: operations["delete_1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/events/{id}": {
         parameters: {
             query?: never;
@@ -26,9 +45,9 @@ export interface paths {
             cookie?: never;
         };
         /** One event with sign-up counts */
-        get: operations["get_1"];
+        get: operations["get_2"];
         /** Change an event (places can't go below those already taken) */
-        put: operations["update_1"];
+        put: operations["update_2"];
         post?: never;
         delete?: never;
         options?: never;
@@ -44,9 +63,9 @@ export interface paths {
             cookie?: never;
         };
         /** One donation with the copies that came from it */
-        get: operations["get_2"];
+        get: operations["get_3"];
         /** Correct a donation's details */
-        put: operations["update_2"];
+        put: operations["update_3"];
         post?: never;
         delete?: never;
         options?: never;
@@ -63,10 +82,10 @@ export interface paths {
         };
         get?: never;
         /** Rename and/or move a category (400 CATEGORY_LOOP if it would loop) */
-        put: operations["update_3"];
+        put: operations["update_4"];
         post?: never;
         /** Delete an empty category (no subcategories, no books) */
-        delete: operations["delete_1"];
+        delete: operations["delete_2"];
         options?: never;
         head?: never;
         patch?: never;
@@ -81,7 +100,7 @@ export interface paths {
         };
         get?: never;
         /** Edit a title; authors and categories are replaced by the lists sent */
-        put: operations["update_4"];
+        put: operations["update_5"];
         post?: never;
         delete?: never;
         options?: never;
@@ -97,12 +116,12 @@ export interface paths {
             cookie?: never;
         };
         /** One author, with how many books they're on */
-        get: operations["get_3"];
+        get: operations["get_4"];
         /** Edit an author (the change shows on all their books) */
-        put: operations["update_5"];
+        put: operations["update_6"];
         post?: never;
         /** Delete an author who is on no books (409 AUTHOR_HAS_BOOKS otherwise) */
-        delete: operations["delete_2"];
+        delete: operations["delete_3"];
         options?: never;
         head?: never;
         patch?: never;
@@ -118,7 +137,7 @@ export interface paths {
         /** My channel choices per optional notification type */
         get: operations["mine"];
         /** Save my channel choices (types that can't be switched off are ignored) */
-        put: operations["update_6"];
+        put: operations["update_7"];
         post?: never;
         delete?: never;
         options?: never;
@@ -152,7 +171,7 @@ export interface paths {
         };
         get?: never;
         /** Change a type's rules or names; set active=false to retire it */
-        put: operations["update_7"];
+        put: operations["update_8"];
         post?: never;
         delete?: never;
         options?: never;
@@ -190,6 +209,77 @@ export interface paths {
         /** Add a publisher (409 PUBLISHER_EXISTS if the name is taken) */
         post: operations["create"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** All posts (drafts too), most recently changed first */
+        get: operations["list_1"];
+        put?: never;
+        /** Write a post (as a draft) */
+        post: operations["create_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/news/{id}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Take a post off the website (back to a draft) */
+        post: operations["unpublish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/news/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Put a post on the website */
+        post: operations["publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/news/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The picture (drafts too) */
+        get: operations["image"];
+        put?: never;
+        /** Upload the picture (JPG or PNG, max 5 MB) */
+        post: operations["uploadImage"];
+        /** Remove the picture */
+        delete: operations["removeImage"];
         options?: never;
         head?: never;
         patch?: never;
@@ -373,10 +463,10 @@ export interface paths {
             cookie?: never;
         };
         /** All events (drafts too), latest start first, with sign-up counts */
-        get: operations["list_1"];
+        get: operations["list_2"];
         put?: never;
         /** Create an event (as a draft only staff can see) */
-        post: operations["create_1"];
+        post: operations["create_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -393,7 +483,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Publish a draft: on the website and open for sign-up */
-        post: operations["publish"];
+        post: operations["publish_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -408,12 +498,12 @@ export interface paths {
             cookie?: never;
         };
         /** The poster (drafts too) */
-        get: operations["image"];
+        get: operations["image_1"];
         put?: never;
         /** Upload the poster (JPG or PNG, max 5 MB) */
-        post: operations["uploadImage"];
+        post: operations["uploadImage_1"];
         /** Remove the poster */
-        delete: operations["removeImage"];
+        delete: operations["removeImage_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -461,10 +551,10 @@ export interface paths {
             cookie?: never;
         };
         /** Donations, newest first; optionally by part of the donor's name */
-        get: operations["list_2"];
+        get: operations["list_3"];
         put?: never;
         /** Record a donation */
-        post: operations["create_2"];
+        post: operations["create_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -532,7 +622,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Add a category (optionally under a parent) */
-        post: operations["create_3"];
+        post: operations["create_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -549,7 +639,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Catalogue a new title (409 BOOK_ISBN_EXISTS if the ISBN is taken) */
-        post: operations["create_4"];
+        post: operations["create_5"];
         delete?: never;
         options?: never;
         head?: never;
@@ -582,7 +672,7 @@ export interface paths {
             cookie?: never;
         };
         /** All copies of a book, withdrawn ones too */
-        get: operations["list_3"];
+        get: operations["list_4"];
         put?: never;
         /** Add one or more copies (barcodes generated unless one is given) */
         post: operations["add"];
@@ -617,10 +707,10 @@ export interface paths {
             cookie?: never;
         };
         /** Authors A–Z, optionally filtered by part of the name */
-        get: operations["list_4"];
+        get: operations["list_5"];
         put?: never;
         /** Add an author */
-        post: operations["create_5"];
+        post: operations["create_6"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1082,7 +1172,7 @@ export interface paths {
         get: operations["all"];
         put?: never;
         /** Create a membership type */
-        post: operations["create_6"];
+        post: operations["create_7"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1114,14 +1204,14 @@ export interface paths {
             cookie?: never;
         };
         /** One copy */
-        get: operations["get_4"];
+        get: operations["get_5"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** Edit a copy's details (not its status: that changes through actions) */
-        patch: operations["update_8"];
+        patch: operations["update_9"];
         trace?: never;
     };
     "/api/v1/me": {
@@ -1150,7 +1240,7 @@ export interface paths {
             cookie?: never;
         };
         /** Suggestions by status (default: new ones), oldest first */
-        get: operations["list_5"];
+        get: operations["list_6"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1252,7 +1342,7 @@ export interface paths {
             cookie?: never;
         };
         /** Loans out now, soonest due first; overdue=true: only overdue, longest first; dueWithinDays=N: only those due in the next N days */
-        get: operations["list_6"];
+        get: operations["list_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1422,7 +1512,7 @@ export interface paths {
             cookie?: never;
         };
         /** One application with its documents */
-        get: operations["get_5"];
+        get: operations["get_6"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1499,6 +1589,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Published news, pinned first then newest */
+        get: operations["list_8"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/news/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One published post */
+        get: operations["get_7"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/news/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The post's picture; cache it (the URL changes with ?v= when it changes) */
+        get: operations["image_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/memberships/types": {
         parameters: {
             query?: never;
@@ -1524,7 +1665,7 @@ export interface paths {
             cookie?: never;
         };
         /** My notifications, newest first, in the given language */
-        get: operations["list_7"];
+        get: operations["list_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1813,7 +1954,7 @@ export interface paths {
             cookie?: never;
         };
         /** One event with places left (cancelled ones show the reason) */
-        get: operations["get_6"];
+        get: operations["get_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1830,7 +1971,7 @@ export interface paths {
             cookie?: never;
         };
         /** The event poster; cache it (the URL changes with ?v= when it changes) */
-        get: operations["image_1"];
+        get: operations["image_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1881,7 +2022,7 @@ export interface paths {
             cookie?: never;
         };
         /** Browse books page by page; q = ISBN or part of the title */
-        get: operations["list_8"];
+        get: operations["list_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1898,7 +2039,7 @@ export interface paths {
             cookie?: never;
         };
         /** One book with its authors, publisher and categories */
-        get: operations["get_7"];
+        get: operations["get_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1983,7 +2124,7 @@ export interface paths {
             cookie?: never;
         };
         /** An author's name, bio and number of books */
-        get: operations["get_8"];
+        get: operations["get_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2034,7 +2175,7 @@ export interface paths {
             cookie?: never;
         };
         /** Messages in a status (FAILED by default), most recently changed first */
-        get: operations["list_9"];
+        get: operations["list_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2071,6 +2212,27 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+        };
+        NewsRequest: {
+            title: string;
+            summary?: string;
+            bodyHtml?: string;
+            pinned?: boolean;
+        };
+        NewsPostResponse: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            summary: string;
+            bodyHtml: string;
+            pinned: boolean;
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED";
+            /** Format: date-time */
+            publishedAt: string;
+            imageVersion: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
         EventRequest: {
             title: string;
@@ -2871,6 +3033,31 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        NewsSummary: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            summary: string;
+            pinned: boolean;
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED";
+            /** Format: date-time */
+            publishedAt: string;
+            imageVersion: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        PageResponseNewsSummary: {
+            content: components["schemas"]["NewsSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
         MemberSummary: {
             /** Format: uuid */
             id: string;
@@ -3561,12 +3748,80 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["StaffEventSummary"];
+                    "*/*": components["schemas"]["NewsPostResponse"];
                 };
             };
         };
     };
     update_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsPostResponse"];
+                };
+            };
+        };
+    };
+    delete_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffEventSummary"];
+                };
+            };
+        };
+    };
+    update_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -3592,7 +3847,7 @@ export interface operations {
             };
         };
     };
-    get_2: {
+    get_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -3614,7 +3869,7 @@ export interface operations {
             };
         };
     };
-    update_2: {
+    update_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -3640,7 +3895,7 @@ export interface operations {
             };
         };
     };
-    update_3: {
+    update_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -3666,7 +3921,7 @@ export interface operations {
             };
         };
     };
-    delete_1: {
+    delete_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -3686,7 +3941,7 @@ export interface operations {
             };
         };
     };
-    update_4: {
+    update_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -3712,7 +3967,7 @@ export interface operations {
             };
         };
     };
-    get_3: {
+    get_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -3734,7 +3989,7 @@ export interface operations {
             };
         };
     };
-    update_5: {
+    update_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -3760,7 +4015,7 @@ export interface operations {
             };
         };
     };
-    delete_2: {
+    delete_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -3800,7 +4055,7 @@ export interface operations {
             };
         };
     };
-    update_6: {
+    update_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -3848,7 +4103,7 @@ export interface operations {
             };
         };
     };
-    update_7: {
+    update_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -3942,6 +4197,170 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PublisherResponse"];
+                };
+            };
+        };
+    };
+    list_1: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseNewsSummary"];
+                };
+            };
+        };
+    };
+    create_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewsRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsPostResponse"];
+                };
+            };
+        };
+    };
+    unpublish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsPostResponse"];
+                };
+            };
+        };
+    };
+    publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsPostResponse"];
+                };
+            };
+        };
+    };
+    image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                };
+            };
+        };
+    };
+    uploadImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    image: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsPostResponse"];
+                };
+            };
+        };
+    };
+    removeImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsPostResponse"];
                 };
             };
         };
@@ -4195,7 +4614,7 @@ export interface operations {
             };
         };
     };
-    list_1: {
+    list_2: {
         parameters: {
             query?: {
                 page?: number;
@@ -4218,7 +4637,7 @@ export interface operations {
             };
         };
     };
-    create_1: {
+    create_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -4242,7 +4661,7 @@ export interface operations {
             };
         };
     };
-    publish: {
+    publish_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -4264,7 +4683,7 @@ export interface operations {
             };
         };
     };
-    image: {
+    image_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -4286,7 +4705,7 @@ export interface operations {
             };
         };
     };
-    uploadImage: {
+    uploadImage_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -4315,7 +4734,7 @@ export interface operations {
             };
         };
     };
-    removeImage: {
+    removeImage_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -4389,7 +4808,7 @@ export interface operations {
             };
         };
     };
-    list_2: {
+    list_3: {
         parameters: {
             query?: {
                 q?: string;
@@ -4413,7 +4832,7 @@ export interface operations {
             };
         };
     };
-    create_2: {
+    create_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -4511,7 +4930,7 @@ export interface operations {
             };
         };
     };
-    create_3: {
+    create_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -4535,7 +4954,7 @@ export interface operations {
             };
         };
     };
-    create_4: {
+    create_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -4610,7 +5029,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -4687,7 +5106,7 @@ export interface operations {
             };
         };
     };
-    list_4: {
+    list_5: {
         parameters: {
             query?: {
                 q?: string;
@@ -4711,7 +5130,7 @@ export interface operations {
             };
         };
     };
-    create_5: {
+    create_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -5377,7 +5796,7 @@ export interface operations {
             };
         };
     };
-    create_6: {
+    create_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -5427,7 +5846,7 @@ export interface operations {
             };
         };
     };
-    get_4: {
+    get_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -5449,7 +5868,7 @@ export interface operations {
             };
         };
     };
-    update_8: {
+    update_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -5519,7 +5938,7 @@ export interface operations {
             };
         };
     };
-    list_5: {
+    list_6: {
         parameters: {
             query?: {
                 status?: "SUBMITTED" | "ORDERED" | "ACQUIRED" | "DECLINED";
@@ -5657,7 +6076,7 @@ export interface operations {
             };
         };
     };
-    list_6: {
+    list_7: {
         parameters: {
             query?: {
                 overdue?: boolean;
@@ -5884,7 +6303,7 @@ export interface operations {
             };
         };
     };
-    get_5: {
+    get_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -6006,6 +6425,73 @@ export interface operations {
             };
         };
     };
+    list_8: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseNewsSummary"];
+                };
+            };
+        };
+    };
+    get_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewsPostResponse"];
+                };
+            };
+        };
+    };
+    image_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                };
+            };
+        };
+    };
     types: {
         parameters: {
             query?: never;
@@ -6026,7 +6512,7 @@ export interface operations {
             };
         };
     };
-    list_7: {
+    list_9: {
         parameters: {
             query?: {
                 lang?: string;
@@ -6384,7 +6870,7 @@ export interface operations {
             };
         };
     };
-    get_6: {
+    get_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -6406,7 +6892,7 @@ export interface operations {
             };
         };
     };
-    image_1: {
+    image_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -6471,7 +6957,7 @@ export interface operations {
             };
         };
     };
-    list_8: {
+    list_10: {
         parameters: {
             query?: {
                 q?: string;
@@ -6499,7 +6985,7 @@ export interface operations {
             };
         };
     };
-    get_7: {
+    get_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -6610,7 +7096,7 @@ export interface operations {
             };
         };
     };
-    get_8: {
+    get_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -6676,7 +7162,7 @@ export interface operations {
             };
         };
     };
-    list_9: {
+    list_11: {
         parameters: {
             query?: {
                 status?: "PENDING" | "SENT" | "FAILED";
