@@ -126,7 +126,8 @@ public class BookController {
       long copies,
       long availableToBorrow) {
 
-    static BookSummary from(BookListItem item) {
+    /** Also used by other modules' book lists (e.g. "readers also borrowed"). */
+    public static BookSummary from(BookListItem item) {
       Book book = item.book();
       return new BookSummary(
           book.getId(),

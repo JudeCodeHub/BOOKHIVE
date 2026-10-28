@@ -304,6 +304,12 @@ public class SearchService {
 
   // --- Home page lists (step 194) -------------------------------------------------------------
 
+  /** Book cards for these ids, in this order (e.g. "readers also borrowed", step 339). */
+  @Transactional(readOnly = true)
+  public List<BookListItem> byIds(List<UUID> ids) {
+    return ids.isEmpty() ? List.of() : bookList.summaries(inOrder(ids));
+  }
+
   /** The latest titles added to the catalog. */
   @Transactional(readOnly = true)
   public List<BookListItem> newArrivals(int limit) {
