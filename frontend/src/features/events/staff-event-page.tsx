@@ -1,22 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeft,
-  Ban,
-  Download,
-  ExternalLink,
-  ImageUp,
-  ScanQrCode,
-  Send,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Ban, Download, ExternalLink, ScanQrCode, Send } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { HexLoader } from "@/components/brand/hex-loader";
-import { UploadProgress } from "@/components/forms/file-upload";
+import { PictureUpload } from "@/components/forms/picture-upload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,8 +38,6 @@ import { STAFF_EVENTS_KEY, StaffEventStatus, type StaffEvent } from "./staff-eve
 
 type Attendee = Schema<"AttendeeSummary">;
 
-const MAX_POSTER_BYTES = 5 * 1024 * 1024;
-
 /**
  * One event for staff (checklist step 344): edit the details, publish or cancel, the poster,
  * and who's signed up (with a CSV for the organiser).
@@ -59,6 +48,7 @@ export function StaffEventPage() {
   const errorMessage = useAuthErrorMessage();
   const { id } = useParams<{ id: string }>();
   const [now] = useState(() => Date.now());
+  const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: [...STAFF_EVENTS_KEY, "detail", id],
@@ -104,7 +94,16 @@ export function StaffEventPage() {
           <StaffEventForm key={event.id} event={event} />
         </TabsContent>
         <TabsContent value="poster">
-          <EventPoster event={event} />
+          <PictureUpload<StaffEvent>
+            path={`/staff/events/${event.id}/image`}
+            hasImage={event.hasImage}
+            version={event.imageVersion}
+            hint={t("posterHint")}
+            disabled={event.status === "CANCELLED"}
+            onChange={(updated) => {
+              queryClient.setQueryData([...STAFF_EVENTS_KEY, "detail", event.id], updated);
+            }}
+          />
         </TabsContent>
         {event.registrationRequired && (
           <TabsContent value="sign-ups">
@@ -221,114 +220,6 @@ function EventActions({ event, now }: { event: StaffEvent; now: number }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-/** The poster: shown as staff see it (drafts too), replace or remove. */
-function EventPoster({ event }: { event: StaffEvent }) {
-  const t = useTranslations("StaffEvents");
-  const errorMessage = useAuthErrorMessage();
-  const queryClient = useQueryClient();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [progress, setProgress] = useState<number | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const image = useQuery({
-    // A new upload changes the summary (refetched), so key on the event's data
-    queryKey: [...STAFF_EVENTS_KEY, "poster", event.id, event.hasImage],
-    queryFn: () => api.getBlob(`/staff/events/${event.id}/image`),
-    enabled: event.hasImage,
-    staleTime: Infinity,
-  });
-  const url = useMemo(() => (image.data ? URL.createObjectURL(image.data) : null), [image.data]);
-  useEffect(
-    () => () => {
-      if (url) URL.revokeObjectURL(url);
-    },
-    [url],
-  );
-
-  const saved = (updated: StaffEvent) => {
-    queryClient.setQueryData([...STAFF_EVENTS_KEY, "detail", event.id], updated);
-    void queryClient.invalidateQueries({ queryKey: [...STAFF_EVENTS_KEY, "poster", event.id] });
-  };
-
-  async function upload(file: File | undefined) {
-    if (inputRef.current) inputRef.current.value = "";
-    if (!file) return;
-    if (!["image/jpeg", "image/png"].includes(file.type)) return toast.error(t("posterType"));
-    if (file.size > MAX_POSTER_BYTES) return toast.error(t("posterTooLarge"));
-    setBusy(true);
-    try {
-      const body = new FormData();
-      body.append("image", file);
-      saved(
-        await api.post<StaffEvent>(`/staff/events/${event.id}/image`, body, {
-          onUploadProgress: setProgress,
-        }),
-      );
-      toast.success(t("posterSaved"));
-    } catch (error) {
-      toast.error(errorMessage(error));
-    } finally {
-      setBusy(false);
-      setProgress(null);
-    }
-  }
-
-  async function remove() {
-    setBusy(true);
-    try {
-      saved(await api.delete<StaffEvent>(`/staff/events/${event.id}/image`));
-      toast.success(t("posterRemoved"));
-    } catch (error) {
-      toast.error(errorMessage(error));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="grid max-w-xl justify-items-start gap-3">
-      <p className="text-sm text-muted-foreground">{t("posterHint")}</p>
-      {url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt={t("posterCurrent")} className="w-full rounded-lg border" />
-      ) : (
-        <div className="flex aspect-video w-full items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-          {event.hasImage ? <HexLoader label={t("posterCurrent")} /> : t("posterNone")}
-        </div>
-      )}
-      {progress !== null && <UploadProgress value={progress} />}
-      {event.status !== "CANCELLED" && (
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={busy}
-            onClick={() => inputRef.current?.click()}
-          >
-            <ImageUp aria-hidden />
-            {event.hasImage ? t("posterReplace") : t("posterUpload")}
-          </Button>
-          {event.hasImage && (
-            <Button size="sm" variant="ghost" disabled={busy} onClick={() => void remove()}>
-              <Trash2 aria-hidden />
-              {t("posterRemove")}
-            </Button>
-          )}
-        </div>
-      )}
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png"
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden
-        onChange={(e) => void upload(e.target.files?.[0])}
-      />
     </div>
   );
 }
