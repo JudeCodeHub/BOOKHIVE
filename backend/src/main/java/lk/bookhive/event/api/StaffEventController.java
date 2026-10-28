@@ -113,6 +113,7 @@ public class StaffEventController {
    * @param registered members with a place (incl. checked in)
    * @param waitlisted members waiting for a place
    * @param hasImage there's a poster (GET .../image)
+   * @param imageVersion changes with every new poster; null when there's none
    */
   public record StaffEventSummary(
       UUID id,
@@ -128,6 +129,7 @@ public class StaffEventController {
       String cancelReason,
       Instant publishedAt,
       boolean hasImage,
+      String imageVersion,
       long registered,
       long waitlisted) {
 
@@ -147,6 +149,7 @@ public class StaffEventController {
           e.getCancelReason(),
           e.getPublishedAt(),
           e.getImageKey() != null,
+          EventResponses.posterVersion(e),
           row.registered(),
           row.waitlisted());
     }

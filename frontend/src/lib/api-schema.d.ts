@@ -2460,6 +2460,7 @@ export interface components {
             /** Format: date-time */
             publishedAt: string;
             hasImage: boolean;
+            imageVersion: string;
             /** Format: int64 */
             registered: number;
             /** Format: int64 */
