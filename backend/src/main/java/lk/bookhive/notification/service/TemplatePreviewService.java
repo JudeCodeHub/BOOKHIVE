@@ -7,18 +7,27 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import lk.bookhive.auth.domain.User;
+import lk.bookhive.auth.service.AuthService;
+import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.domain.Language;
+import lk.bookhive.common.exception.BusinessRuleException;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.notification.config.MailProperties;
 import lk.bookhive.notification.domain.Channel;
 import lk.bookhive.notification.domain.NotificationType;
+import lk.bookhive.notification.domain.OutboxMessage;
+import lk.bookhive.notification.repository.OutboxMessageRepository;
 import lk.bookhive.notification.service.EmailRenderer.RenderedEmail;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Previews of every message (checklist step 324): each type rendered for each channel in any
  * language, with made-up sample data, so admins can check wording and layout. Nothing is sent or
- * stored.
+ * stored, except a test email an admin asks for (step 325): that goes only to their own address,
+ * through the real outbox, marked [TEST].
  */
 @Service
 public class TemplatePreviewService {
@@ -40,6 +49,9 @@ public class TemplatePreviewService {
   private final SmsRenderer sms;
   private final InAppTexts inApp;
   private final MailProperties mail;
+  private final OutboxMessageRepository outbox;
+  private final AuthService authService;
+  private final AuditService audit;
   private final LibraryTime time;
 
   public TemplatePreviewService(
@@ -47,11 +59,17 @@ public class TemplatePreviewService {
       SmsRenderer sms,
       InAppTexts inApp,
       MailProperties mail,
+      OutboxMessageRepository outbox,
+      AuthService authService,
+      AuditService audit,
       LibraryTime time) {
     this.emails = emails;
     this.sms = sms;
     this.inApp = inApp;
     this.mail = mail;
+    this.outbox = outbox;
+    this.authService = authService;
+    this.audit = audit;
     this.time = time;
   }
 
@@ -77,6 +95,39 @@ public class TemplatePreviewService {
         text,
         hasInApp ? inApp.title(type, language) : null,
         hasInApp ? inApp.body(type, facts, language) : null);
+  }
+
+  /**
+   * Sends the sample email of this type to the admin's own address (step 325), through the outbox
+   * like any email, so it really goes through the mail server (Mailpit in development).
+   *
+   * @return the address it was sent to
+   */
+  @Transactional
+  public String sendTestEmail(NotificationType type, Language language, UUID adminId) {
+    Preview preview = preview(type, language);
+    if (preview.email() == null) {
+      throw new BusinessRuleException("NO_EMAIL_TEMPLATE", "This message isn't sent by email.");
+    }
+    User admin = authService.getProfile(adminId);
+    outbox.save(
+        OutboxMessage.email(
+            type,
+            adminId,
+            admin.getEmail(),
+            language,
+            "[TEST] " + preview.email().subject(),
+            preview.email().text(),
+            preview.email().html(),
+            null,
+            time.now()));
+    audit.record(
+        "notification.test_email",
+        adminId,
+        "notification_type",
+        null,
+        Map.of("type", type.name(), "language", language.code()));
+    return admin.getEmail();
   }
 
   /** Believable values for each type's template (see the comments in templates/email). */

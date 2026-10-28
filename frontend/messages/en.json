@@ -1553,6 +1553,8 @@
     "inApp": "In the app",
     "noInApp": "This message isn’t shown in the app.",
     "sample": "Sample",
-    "sampleNote": "Names, books and dates are made up for the preview."
+    "sampleNote": "Names, books and dates are made up for the preview.",
+    "sendTest": "Send test to me",
+    "testSent": "Test email sent to {email}. In development, open Mailpit (localhost:8025)."
   }
 }

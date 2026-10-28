@@ -5,14 +5,18 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Pattern;
 import java.util.List;
+import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
 import lk.bookhive.common.domain.Language;
 import lk.bookhive.notification.domain.Channel;
 import lk.bookhive.notification.domain.NotificationType;
 import lk.bookhive.notification.service.TemplatePreviewService;
 import lk.bookhive.notification.service.TemplatePreviewService.Preview;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,6 +76,18 @@ public class AdminTemplateController {
                 new TemplateTypeSummary(
                     type, type.defaultChannels().stream().sorted().toList(), type.optional()))
         .toList();
+  }
+
+  public record TestEmailResponse(String sentTo) {}
+
+  @PostMapping("/{type}/test")
+  @Operation(summary = "Send the sample email of this type to me ([TEST], via the outbox)")
+  public TestEmailResponse sendTest(
+      @AuthenticationPrincipal Jwt jwt,
+      @PathVariable NotificationType type,
+      @RequestParam(defaultValue = "en") @Pattern(regexp = "en|si|ta") String lang) {
+    return new TestEmailResponse(
+        previews.sendTestEmail(type, Language.fromCode(lang), UUID.fromString(jwt.getSubject())));
   }
 
   @GetMapping("/{type}/preview")
