@@ -3038,8 +3038,8 @@ export interface components {
         WishlistItemSummary: {
             /** Format: uuid */
             bookId: string;
-            title: string;
-            coverVersion: string;
+            title: string | null;
+            coverVersion: string | null;
             /** Format: int64 */
             availableNow: number;
             /** Format: int64 */

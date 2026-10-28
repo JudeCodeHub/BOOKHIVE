@@ -1,6 +1,7 @@
 package lk.bookhive.community.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -54,8 +55,8 @@ public class WishlistController {
    */
   public record WishlistItemSummary(
       UUID bookId,
-      String title,
-      String coverVersion,
+      @Schema(nullable = true) String title,
+      @Schema(nullable = true) String coverVersion,
       long availableNow,
       long lendableCopies,
       Instant addedAt) {
