@@ -4,14 +4,15 @@ import { FeatureList } from "@/features/home/feature-list";
 import { HeroSearch } from "@/features/home/hero-search";
 import { JoinCta } from "@/features/home/join-cta";
 import { SubjectGrid } from "@/features/home/subject-grid";
+import { WhatsOn } from "@/features/home/whats-on";
 
 // Checked in development for instant navigation (next.config: manual-warning)
 export const instant = true;
 
 /**
- * Home page (checklist step 202): search first, then what's new and popular, then subjects.
- * The page itself is static; the book rows load in the browser with live availability.
- * Events and news join it in the community phase.
+ * Home page (checklist steps 202, 352): search first, then what's new and popular, what's on
+ * (events and news), then subjects. The page itself is static; the book rows and "what's on"
+ * load in the browser, so availability and places left are always current.
  */
 export default function Home() {
   const t = useTranslations("Home");
@@ -33,6 +34,7 @@ export default function Home() {
         endpoint="/books/popular"
         seeAllHref="/search"
       />
+      <WhatsOn />
       <SubjectGrid />
       <FeatureList />
       <JoinCta />

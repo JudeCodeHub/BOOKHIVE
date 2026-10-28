@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { AlsoBorrowed } from "@/features/catalog/also-borrowed";
 import { BookAvailability } from "@/features/catalog/book-availability";
 import { ReserveButton } from "@/features/holds/reserve-button";
 import { BookReviews } from "@/features/reviews/book-reviews";
@@ -176,6 +177,8 @@ async function BookDetails({ params }: PageProps<"/[locale]/books/[id]">) {
         {/* Ratings change all the time: loaded in the browser, the rest of the page is cached */}
         <BookReviews bookId={book.id} />
       </div>
+
+      <AlsoBorrowed bookId={book.id} />
     </article>
   );
 }

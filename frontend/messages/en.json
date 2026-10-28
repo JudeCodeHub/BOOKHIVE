@@ -48,7 +48,12 @@
     "popular": "Popular right now",
     "popularSubtitle": "What other readers are borrowing.",
     "seeAll": "See all",
-    "subjectBooks": "Browse {name}"
+    "subjectBooks": "Browse {name}",
+    "whatsOn": "What’s on",
+    "comingUp": "Coming up",
+    "allEvents": "All events",
+    "latestNews": "Library news",
+    "allNews": "All news"
   },
   "Common": {
     "loading": "Loading",
@@ -124,7 +129,9 @@
       "si": "Sinhala",
       "ta": "Tamil",
       "en": "English"
-    }
+    },
+    "alsoBorrowed": "Readers also borrowed",
+    "alsoBorrowedHint": "Other books borrowed by people who read this one."
   },
   "Search": {
     "metaTitle": "Search the catalog",
