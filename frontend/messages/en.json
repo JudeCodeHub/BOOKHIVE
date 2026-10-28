@@ -207,7 +207,8 @@
     "rules": "Borrowing rules",
     "events": "Events",
     "privacy": "Privacy",
-    "terms": "Terms"
+    "terms": "Terms",
+    "news": "News"
   },
   "Library": {
     "openNow": "Open now",
@@ -1783,5 +1784,20 @@
       "cancelled": "This event was cancelled.",
       "draft": "This event isn’t published yet."
     }
+  },
+  "News": {
+    "metaTitle": "News",
+    "title": "Library news",
+    "intro": "What’s new at the library: new services, opening-hour changes and more.",
+    "pinned": "Pinned",
+    "empty": "No news yet. Check back soon.",
+    "noSuchPage": "There’s no such page of news.",
+    "firstPage": "Go to the latest news",
+    "pages": "News pages",
+    "newer": "Newer",
+    "older": "Older",
+    "pageOf": "Page {page} of {total}",
+    "allNews": "All news",
+    "updated": "Updated {date}"
   }
 }
