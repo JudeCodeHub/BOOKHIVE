@@ -29,6 +29,10 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
   List<EventRegistration> findByEventIdAndStatusInOrderByRegisteredAt(
       UUID eventId, Collection<RegistrationStatus> statuses);
 
+  /** Day-before reminders: everyone with a place at these events. */
+  List<EventRegistration> findByEventIdInAndStatus(
+      Collection<UUID> eventIds, RegistrationStatus status);
+
   /** "My events". */
   List<EventRegistration> findByMemberIdOrderByRegisteredAtDesc(UUID memberId);
 

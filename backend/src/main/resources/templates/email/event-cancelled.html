@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<!-- EVENT_CANCELLED. Values: name, title, startsAt (LocalDateTime), venue, reason, link (events) -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.event-cancelled.subject(${title})}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.event-cancelled.intro(${title}, ${#temporals.format(startsAt, 'EEEE d MMMM')})}">…</p>
+  <p><strong th:text="#{email.reason}">Reason</strong> <span th:text="${reason}">…</span></p>
+  <p th:text="#{email.event-cancelled.note}">…</p>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.openEvent}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>

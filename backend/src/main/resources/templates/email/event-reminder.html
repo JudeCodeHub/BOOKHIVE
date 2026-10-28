@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!-- EVENT_REMINDER. Values: name, title, startsAt (LocalDateTime), venue, link (the event) -->
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: email(~{::title}, ~{::main})}">
+<head>
+  <title th:text="#{email.event-reminder.subject(${title})}">BookHive</title>
+</head>
+<body>
+<main>
+  <p th:text="#{email.hello(${name})}">Hello</p>
+  <p th:text="#{email.event-reminder.intro(${title})}">…</p>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0;">
+    <tr><td style="padding:2px 12px 2px 0;color:#6b7280;" th:text="#{email.event.when}">When</td><td style="font-weight:bold;" th:text="${#temporals.format(startsAt, 'EEEE d MMMM yyyy, HH:mm')}">date</td></tr>
+    <tr><td style="padding:2px 12px 2px 0;color:#6b7280;" th:text="#{email.event.where}">Where</td><td style="font-weight:bold;" th:text="${venue}">venue</td></tr>
+  </table>
+  <p th:text="#{email.event-reminder.note}">…</p>
+  <p style="margin:24px 0;"><a th:href="${link}" style="display:inline-block;background:#0f3d3e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;" th:text="#{email.openEvent}">Open</a></p>
+  <p th:text="#{email.signoff}">BookHive</p>
+</main>
+</body>
+</html>

@@ -139,6 +139,36 @@ public class EventRegistrationService {
     return promoted;
   }
 
+  /**
+   * The member gives up their place or leaves the waitlist (step 333), any time before the event
+   * starts. A freed place goes to the first on the waitlist straight away.
+   */
+  @Transactional
+  public void cancel(UUID eventId, UUID memberId) {
+    LibraryEvent event = locked(eventId);
+    EventRegistration registration =
+        registrations
+            .findFirstByEventIdAndMemberIdAndStatusNot(
+                eventId, memberId, RegistrationStatus.CANCELLED)
+            .filter(r -> r.getStatus().isActive())
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "REGISTRATION_NOT_FOUND", "You aren't signed up for this event."));
+    if (!time.now().isBefore(event.getStartsAt())) {
+      throw new BusinessRuleException("EVENT_ALREADY_STARTED", "This event has already started.");
+    }
+    boolean freedPlace = registration.cancel(time.now());
+    registrations.flush();
+    int promoted = freedPlace ? promoteFromWaitlist(event) : 0;
+    audit.record(
+        "event.registration_cancelled",
+        null,
+        "event",
+        eventId,
+        Map.of("memberId", memberId.toString(), "promotedFromWaitlist", promoted));
+  }
+
   /** The member's current registration for an event, if any (event page: "you're signed up"). */
   @Transactional(readOnly = true)
   public java.util.Optional<RegistrationView> current(UUID eventId, UUID memberId) {

@@ -39,6 +39,8 @@ public class InAppTexts {
           Map.entry(NotificationType.HOLD_EXPIRING, List.of("title", "pickUpBy")),
           Map.entry(NotificationType.HOLD_EXPIRED, List.of("title")),
           Map.entry(NotificationType.PAYMENT_RECEIVED, List.of("amount")),
+          Map.entry(NotificationType.EVENT_PLACE_CONFIRMED, List.of("title", "date")),
+          Map.entry(NotificationType.EVENT_CANCELLED, List.of("title", "reason")),
           Map.entry(NotificationType.EVENT_REMINDER, List.of("title", "date")));
 
   private final ResourceBundleMessageSource messages = MessageBundles.bundle("messages/inapp");

@@ -53,6 +53,13 @@ public class MyEventController {
         .orElseGet(() -> ResponseEntity.noContent().build());
   }
 
+  @PostMapping("/{eventId}/cancel")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Give up my place or leave the waitlist (the next person moves up)")
+  public void cancel(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID eventId) {
+    signUps.cancel(eventId, memberId(jwt));
+  }
+
   private UUID memberId(Jwt jwt) {
     return borrowers
         .byUserId(UUID.fromString(jwt.getSubject()))
