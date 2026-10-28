@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import { Logo } from "@/components/brand/logo";
 import { AccountMenu } from "@/components/layout/account-menu";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { HeaderSearch } from "@/features/search/header-search";
 import { Link } from "@/i18n/navigation";
@@ -24,6 +25,7 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-3 sm:ml-0">
           <LanguageSwitcher />
           <ThemeToggle />
+          <NotificationBell />
           <AccountMenu />
         </div>
       </div>
