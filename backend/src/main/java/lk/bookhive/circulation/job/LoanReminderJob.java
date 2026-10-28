@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/** Every morning (library time): remind members whose books are due in a few days. */
+/** Every morning (library time): due-soon reminders and overdue notices (steps 314-315). */
 @Component
 public class LoanReminderJob {
 
@@ -24,5 +24,12 @@ public class LoanReminderJob {
   public void dueSoon() {
     int members = reminders.remindDueSoon();
     log.info("Due-soon reminders: {} member(s)", members);
+  }
+
+  @Scheduled(cron = "${bookhive.jobs.overdue-notice-cron}", zone = "Asia/Colombo")
+  @SchedulerLock(name = "remindOverdue", lockAtMostFor = "PT10M", lockAtLeastFor = "PT1M")
+  public void overdue() {
+    int notices = reminders.remindOverdue();
+    log.info("Overdue notices: {}", notices);
   }
 }
