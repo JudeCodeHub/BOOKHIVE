@@ -1880,5 +1880,32 @@
     "sending": "Sending…",
     "sent": "Thanks! Your review will appear once staff have checked it.",
     "cancel": "Cancel"
+  },
+  "ReviewQueue": {
+    "title": "Reviews",
+    "description": "Members’ reviews wait here before they appear on the book page. Approve the ones that are about the book and respectful.",
+    "empty": "No reviews are waiting. All caught up!",
+    "waiting": "{count, plural, one {# review waiting} other {# reviews waiting}}",
+    "noText": "Stars only, no text.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "Approved: it’s now on the page for “{title}”.",
+    "rejected": "Rejected. The member can see why.",
+    "rejectTitle": "Reject this review?",
+    "rejectText": "The member sees your reason and can change the review and send it again.",
+    "reason": "Reason (shown to the member)",
+    "cancel": "Cancel",
+    "reasonLabels": {
+      "spoilers": "Spoilers",
+      "offensive": "Offensive",
+      "offTopic": "Not about the book",
+      "personal": "Personal details"
+    },
+    "reasons": {
+      "spoilers": "It gives away the ending or a major twist. Please leave spoilers out.",
+      "offensive": "It contains language that isn’t suitable for the library website.",
+      "offTopic": "It isn’t about this book. Reviews should tell other readers about the book.",
+      "personal": "It contains personal details (names, phone numbers or addresses). Please leave them out."
+    }
   }
 }
