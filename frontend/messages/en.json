@@ -1845,5 +1845,40 @@
     "tabDetails": "Text",
     "tabPicture": "Picture",
     "pictureHint": "A landscape picture (JPG or PNG, up to 5 MB) works best. It’s shown in the news list and at the top of the post."
+  },
+  "Reviews": {
+    "title": "Reviews",
+    "average": "{average} out of 5 · {count, plural, one {# review} other {# reviews}}",
+    "starsLabel": "{rating} out of 5 stars",
+    "starChoice": "{count, plural, one {# star} other {# stars}}",
+    "none": "No reviews yet.",
+    "showMore": "Show more reviews",
+    "logInToReview": "Borrowed this book? <link>Log in</link> to review it.",
+    "borrowFirst": "You can review this book after you’ve borrowed it.",
+    "yourReview": "Your review",
+    "status": {
+      "APPROVED": "Published",
+      "PENDING": "Waiting for approval",
+      "REJECTED": "Not published"
+    },
+    "pendingText": "Library staff check every review before it’s shown. This usually takes a day or two.",
+    "rejectedText": "Staff didn’t publish it: {reason} You can change it and send it again.",
+    "edit": "Change",
+    "delete": "Delete",
+    "deleteTitle": "Delete your review?",
+    "deleteText": "It’s removed from the book page for good.",
+    "keep": "Keep it",
+    "deleted": "Review deleted.",
+    "writeTitle": "Write a review",
+    "editTitle": "Change your review",
+    "ratingLabel": "Your rating",
+    "ratingRequired": "Choose 1 to 5 stars.",
+    "textLabel": "Your review (optional)",
+    "textPlaceholder": "What did you think? No spoilers, please.",
+    "textHint": "{left} characters left",
+    "send": "Send review",
+    "sending": "Sending…",
+    "sent": "Thanks! Your review will appear once staff have checked it.",
+    "cancel": "Cancel"
   }
 }

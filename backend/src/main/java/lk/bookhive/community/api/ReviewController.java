@@ -1,6 +1,7 @@
 package lk.bookhive.community.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -53,7 +54,11 @@ public class ReviewController {
    * @param reviewer first name and initial only
    */
   public record ReviewSummary(
-      UUID id, int rating, String text, String reviewer, Instant createdAt) {
+      UUID id,
+      int rating,
+      @Schema(nullable = true) String text,
+      String reviewer,
+      Instant createdAt) {
 
     static ReviewSummary from(ReviewView view) {
       Review r = view.review();
@@ -66,7 +71,7 @@ public class ReviewController {
    * @param average out of 5, one decimal; null when there are none yet
    */
   public record BookReviewsResponse(
-      Double average, long count, PageResponse<ReviewSummary> reviews) {}
+      @Schema(nullable = true) Double average, long count, PageResponse<ReviewSummary> reviews) {}
 
   /**
    * The member's own review.
@@ -78,7 +83,7 @@ public class ReviewController {
       int rating,
       String text,
       ReviewStatus status,
-      String rejectReason,
+      @Schema(nullable = true) String rejectReason,
       Instant updatedAt) {
 
     static MyReviewSummary from(Review r) {
@@ -96,7 +101,8 @@ public class ReviewController {
    * @param canReview they borrowed this book, so they may review it
    * @param review their review, if they wrote one
    */
-  public record MyReviewResponse(boolean canReview, MyReviewSummary review) {}
+  public record MyReviewResponse(
+      boolean canReview, @Schema(nullable = true) MyReviewSummary review) {}
 
   public record ReviewRequest(@Min(1) @Max(5) int rating, @Size(max = 2000) String text) {}
 
