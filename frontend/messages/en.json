@@ -1758,5 +1758,30 @@
     "linkPrompt": "Link address (leave empty to remove the link)",
     "undo": "Undo",
     "redo": "Redo"
+  },
+  "CheckIn": {
+    "title": "Check-in",
+    "back": "Back to the event",
+    "countOf": "{count} of {capacity} checked in",
+    "count": "{count} checked in",
+    "signedUp": "{count, plural, one {# person signed up} other {# people signed up}}",
+    "cameraOff": "Camera is off. Type the code under the QR ticket instead.",
+    "turnCameraOff": "Turn camera off",
+    "turnCameraOn": "Turn camera on",
+    "typeCode": "Ticket code",
+    "checkIn": "Check in",
+    "recent": "Just checked in",
+    "checking": "Checking…",
+    "waiting": "Hold the member’s QR ticket in front of the camera.",
+    "welcome": "Welcome, {name}!",
+    "errors": {
+      "TICKET_NOT_FOUND": "This isn’t a BookHive event ticket.",
+      "TICKET_OTHER_EVENT": "This ticket is for a different event.",
+      "ALREADY_CHECKED_IN": "Already checked in.",
+      "NOT_REGISTERED": "No place: this member is on the waitlist or gave up their place.",
+      "CHECK_IN_CLOSED": "Check-in opens 2 hours before the event and closes 1 hour after it.",
+      "cancelled": "This event was cancelled.",
+      "draft": "This event isn’t published yet."
+    }
   }
 }
