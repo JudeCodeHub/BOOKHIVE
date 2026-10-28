@@ -1,6 +1,7 @@
 package lk.bookhive.notification.config;
 
 import java.nio.charset.StandardCharsets;
+import lk.bookhive.notification.service.MessageBundles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -25,11 +26,7 @@ public class EmailTemplateConfig {
     resolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
     resolver.setCacheable(true);
 
-    ResourceBundleMessageSource messages = new ResourceBundleMessageSource();
-    messages.setBasename("messages/email");
-    messages.setDefaultEncoding(StandardCharsets.UTF_8.name());
-    // A missing Sinhala or Tamil line falls back to English, never to the server's own language
-    messages.setFallbackToSystemLocale(false);
+    ResourceBundleMessageSource messages = MessageBundles.bundle("messages/email");
 
     SpringTemplateEngine engine = new SpringTemplateEngine();
     engine.setTemplateResolver(resolver);

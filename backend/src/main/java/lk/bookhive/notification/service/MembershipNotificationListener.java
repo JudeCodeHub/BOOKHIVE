@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
  * saved, and the reminder before a membership ends (step 317), in the member's language.
  */
 @Component
-public class MemberEmailListener {
+public class MembershipNotificationListener {
 
   private final Notifier notifier;
 
-  public MemberEmailListener(Notifier notifier) {
+  public MembershipNotificationListener(Notifier notifier) {
     this.notifier = notifier;
   }
 

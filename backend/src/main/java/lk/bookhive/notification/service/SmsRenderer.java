@@ -1,6 +1,5 @@
 package lk.bookhive.notification.service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Map;
 import lk.bookhive.common.domain.Language;
 import lk.bookhive.notification.domain.NotificationType;
 import org.springframework.context.MessageSource;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,19 +18,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class SmsRenderer {
 
-  private final MessageSource messages;
-
-  public SmsRenderer() {
-    ResourceBundleMessageSource source = new ResourceBundleMessageSource();
-    source.setBasename("messages/sms");
-    source.setDefaultEncoding(StandardCharsets.UTF_8.name());
-    source.setFallbackToSystemLocale(false);
-    this.messages = source;
-  }
+  private final MessageSource messages = MessageBundles.bundle("messages/sms");
 
   /** The text, or null when this type has no SMS wording. */
   public String render(NotificationType type, Language language, Map<String, Object> params) {
-    Locale locale = EmailRenderer.locale(language);
+    Locale locale = MessageBundles.locale(language);
     DateTimeFormatter day = DateTimeFormatter.ofPattern("d MMM", locale);
     Object[] args =
         switch (type) {
