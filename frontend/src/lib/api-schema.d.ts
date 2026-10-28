@@ -799,6 +799,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/events/{eventId}/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign up: a place, or the waitlist when the event is full */
+        post: operations["register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/contact": {
         parameters: {
             query?: never;
@@ -860,7 +877,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Create an account; a verification link is emailed */
-        post: operations["register"];
+        post: operations["register_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1601,6 +1618,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/events/{eventId}/registration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My sign-up for this event (204 if I'm not signed up) */
+        get: operations["mine_5"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/card": {
         parameters: {
             query?: never;
@@ -1720,6 +1754,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Upcoming and ongoing events, soonest first */
+        get: operations["upcoming"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One event with places left (cancelled ones show the reason) */
+        get: operations["get_6"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/events/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The event poster; cache it (the URL changes with ?v= when it changes) */
+        get: operations["image_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/events/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Events starting between from and to (at most about two months) */
+        get: operations["calendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/categories": {
         parameters: {
             query?: never;
@@ -1762,7 +1864,7 @@ export interface paths {
             cookie?: never;
         };
         /** One book with its authors, publisher and categories */
-        get: operations["get_6"];
+        get: operations["get_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1847,7 +1949,7 @@ export interface paths {
             cookie?: never;
         };
         /** An author's name, bio and number of books */
-        get: operations["get_7"];
+        get: operations["get_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2556,6 +2658,22 @@ export interface components {
             /** Format: uuid */
             bookId: string;
         };
+        RegistrationSummary: {
+            /** Format: uuid */
+            registrationId: string;
+            /** Format: uuid */
+            eventId: string;
+            eventTitle: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** @enum {string} */
+            status: "REGISTERED" | "WAITLISTED" | "CANCELLED" | "ATTENDED";
+            /** Format: int32 */
+            waitlistPosition: number;
+            /** Format: date-time */
+            registeredAt: string;
+            checkInCode: string;
+        };
         ContactRequest: {
             name: string;
             /** Format: email */
@@ -3187,6 +3305,42 @@ export interface components {
             todayHoliday: components["schemas"]["HolidaySummary"];
             week: components["schemas"]["DaySummary"][];
             upcomingHolidays: components["schemas"]["HolidaySummary"][];
+        };
+        EventSummary: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            description: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            venue: string;
+            /** @enum {string} */
+            audience: "ALL" | "CHILDREN" | "YOUNG_ADULT" | "ADULT" | "SENIOR";
+            registrationRequired: boolean;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int64 */
+            placesLeft: number;
+            /** Format: int64 */
+            waitlisted: number;
+            /** @enum {string} */
+            status: "DRAFT" | "PUBLISHED" | "CANCELLED";
+            cancelReason: string;
+            imageVersion: string;
+            openForRegistration: boolean;
+        };
+        PageResponseEventSummary: {
+            content: components["schemas"]["EventSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
         };
         CategoryTreeResponse: {
             /** Format: uuid */
@@ -4796,6 +4950,28 @@ export interface operations {
             };
         };
     };
+    register: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationSummary"];
+                };
+            };
+        };
+    };
     send: {
         parameters: {
             query?: never;
@@ -4862,7 +5038,7 @@ export interface operations {
             };
         };
     };
-    register: {
+    register_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -5928,6 +6104,28 @@ export interface operations {
             };
         };
     };
+    mine_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationSummary"];
+                };
+            };
+        };
+    };
     card: {
         parameters: {
             query?: never;
@@ -6068,6 +6266,96 @@ export interface operations {
             };
         };
     };
+    upcoming: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseEventSummary"];
+                };
+            };
+        };
+    };
+    get_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EventSummary"];
+                };
+            };
+        };
+    };
+    image_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                };
+            };
+        };
+    };
+    calendar: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EventSummary"][];
+                };
+            };
+        };
+    };
     tree: {
         parameters: {
             query?: never;
@@ -6116,7 +6404,7 @@ export interface operations {
             };
         };
     };
-    get_6: {
+    get_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -6227,7 +6515,7 @@ export interface operations {
             };
         };
     };
-    get_7: {
+    get_8: {
         parameters: {
             query?: never;
             header?: never;
