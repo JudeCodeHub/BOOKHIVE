@@ -85,6 +85,7 @@ bookhive:
     fine-accrual-cron: "0 20 0 * * *"
     # Loan reminders go out in the morning, not at midnight
     due-soon-cron: "0 0 8 * * *"
+    overdue-notice-cron: "0 5 8 * * *"
   auth:
     email-verification-ttl: 24h
     password-reset-ttl: 1h
