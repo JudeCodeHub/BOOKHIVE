@@ -341,7 +341,8 @@
     "reports": "Reports",
     "auditLogs": "Audit log",
     "libraryInfo": "Library info",
-    "messages": "Messages"
+    "messages": "Messages",
+    "templates": "Templates"
   },
   "AccountHome": {
     "title": "My account",
@@ -1527,5 +1528,31 @@
       "CHECKOUT_RECEIPT": "Loan receipts (when you ask for one at the desk)",
       "PAYMENT_RECEIVED": "Payment receipts"
     }
+  },
+  "AdminTemplates": {
+    "metaTitle": "Message templates",
+    "title": "Message templates",
+    "description": "See every email, SMS and in-app message as members get them, in each language. Sample data only; nothing is sent.",
+    "type": "Message",
+    "alwaysSent": "always sent",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "si": "සිංහල",
+      "ta": "தமிழ்"
+    },
+    "email": "Email",
+    "subject": "Subject",
+    "html": "As shown",
+    "text": "Plain text",
+    "frameTitle": "Email preview",
+    "noEmail": "This message isn’t sent by email.",
+    "sms": "SMS",
+    "smsLength": "{count} characters (one SMS part is 160, or 70 in Sinhala/Tamil)",
+    "noSms": "This message isn’t sent by SMS.",
+    "inApp": "In the app",
+    "noInApp": "This message isn’t shown in the app.",
+    "sample": "Sample",
+    "sampleNote": "Names, books and dates are made up for the preview."
   }
 }
