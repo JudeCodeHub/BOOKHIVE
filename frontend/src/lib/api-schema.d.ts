@@ -1899,6 +1899,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My sign-ups (not given up), newest first, with QR codes for my places */
+        get: operations["mine_6"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/events/{eventId}/registration": {
         parameters: {
             query?: never;
@@ -1907,7 +1924,7 @@ export interface paths {
             cookie?: never;
         };
         /** My sign-up for this event (204 if I'm not signed up) */
-        get: operations["mine_6"];
+        get: operations["mine_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3053,6 +3070,12 @@ export interface components {
             eventTitle: string;
             /** Format: date-time */
             startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            venue: string;
+            /** @enum {string} */
+            eventStatus: "DRAFT" | "PUBLISHED" | "CANCELLED";
+            imageVersion: string;
             /** @enum {string} */
             status: "REGISTERED" | "WAITLISTED" | "CANCELLED" | "ATTENDED";
             /** Format: int32 */
@@ -7160,6 +7183,26 @@ export interface operations {
         };
     };
     mine_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationSummary"][];
+                };
+            };
+        };
+    };
+    mine_7: {
         parameters: {
             query?: never;
             header?: never;
