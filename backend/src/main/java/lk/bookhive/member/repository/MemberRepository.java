@@ -1,5 +1,6 @@
 package lk.bookhive.member.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -66,6 +67,9 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
   /** Junior members this member is guardian of. */
   List<Member> findByGuardianId(UUID guardianId);
+
+  /** Expiry reminders (step 317): members in this status whose membership ends on this date. */
+  List<Member> findByStatusAndExpiresAt(MemberStatus status, LocalDate expiresAt);
 
   /** Next value of the member number sequence (V9 migration). */
   @Query(value = "SELECT nextval('member_no_seq')", nativeQuery = true)
