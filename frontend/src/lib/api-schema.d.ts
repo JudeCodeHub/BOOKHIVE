@@ -821,6 +821,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/wishlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My wishlist, newest first, with what's on the shelf now */
+        get: operations["list_6"];
+        put?: never;
+        /** Save a book (saving it again changes nothing) */
+        post: operations["add_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/suggestions": {
         parameters: {
             query?: never;
@@ -1293,7 +1311,7 @@ export interface paths {
             cookie?: never;
         };
         /** Suggestions by status (default: new ones), oldest first */
-        get: operations["list_6"];
+        get: operations["list_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1412,7 +1430,7 @@ export interface paths {
             cookie?: never;
         };
         /** Loans out now, soonest due first; overdue=true: only overdue, longest first; dueWithinDays=N: only those due in the next N days */
-        get: operations["list_7"];
+        get: operations["list_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1667,7 +1685,7 @@ export interface paths {
             cookie?: never;
         };
         /** Published news, pinned first then newest */
-        get: operations["list_8"];
+        get: operations["list_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1727,6 +1745,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/wishlist/{bookId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Is this book on my wishlist? (for the heart button) */
+        get: operations["status"];
+        put?: never;
+        post?: never;
+        /** Take a book off my wishlist */
+        delete: operations["remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/notifications": {
         parameters: {
             query?: never;
@@ -1735,7 +1771,7 @@ export interface paths {
             cookie?: never;
         };
         /** My notifications, newest first, in the given language */
-        get: operations["list_9"];
+        get: operations["list_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2092,7 +2128,7 @@ export interface paths {
             cookie?: never;
         };
         /** Browse books page by page; q = ISBN or part of the title */
-        get: operations["list_10"];
+        get: operations["list_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2262,7 +2298,7 @@ export interface paths {
             cookie?: never;
         };
         /** Messages in a status (FAILED by default), most recently changed first */
-        get: operations["list_11"];
+        get: operations["list_12"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2926,6 +2962,22 @@ export interface components {
             /** Format: date-time */
             appliedAt: string;
         };
+        AddToWishlistRequest: {
+            /** Format: uuid */
+            bookId: string;
+        };
+        WishlistItemSummary: {
+            /** Format: uuid */
+            bookId: string;
+            title: string;
+            coverVersion: string;
+            /** Format: int64 */
+            availableNow: number;
+            /** Format: int64 */
+            lendableCopies: number;
+            /** Format: date-time */
+            addedAt: string;
+        };
         SuggestionRequest: {
             title: string;
             author?: string;
@@ -3545,6 +3597,20 @@ export interface components {
             /** @enum {string} */
             requiredDocument: "NIC" | "STUDENT_ID" | "NONE";
             requiresGuardian: boolean;
+        };
+        PageResponseWishlistItemSummary: {
+            content: components["schemas"]["WishlistItemSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        WishlistStatusResponse: {
+            saved: boolean;
         };
         MyReviewResponse: {
             canReview: boolean;
@@ -5509,6 +5575,53 @@ export interface operations {
             };
         };
     };
+    list_6: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseWishlistItemSummary"];
+                };
+            };
+        };
+    };
+    add_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddToWishlistRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WishlistItemSummary"];
+                };
+            };
+        };
+    };
     mine_2: {
         parameters: {
             query?: never;
@@ -6217,7 +6330,7 @@ export interface operations {
             };
         };
     };
-    list_6: {
+    list_7: {
         parameters: {
             query?: {
                 status?: "SUBMITTED" | "ORDERED" | "ACQUIRED" | "DECLINED";
@@ -6378,7 +6491,7 @@ export interface operations {
             };
         };
     };
-    list_7: {
+    list_8: {
         parameters: {
             query?: {
                 overdue?: boolean;
@@ -6727,7 +6840,7 @@ export interface operations {
             };
         };
     };
-    list_8: {
+    list_9: {
         parameters: {
             query?: {
                 page?: number;
@@ -6814,7 +6927,49 @@ export interface operations {
             };
         };
     };
-    list_9: {
+    status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WishlistStatusResponse"];
+                };
+            };
+        };
+    };
+    remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_10: {
         parameters: {
             query?: {
                 lang?: string;
@@ -7259,7 +7414,7 @@ export interface operations {
             };
         };
     };
-    list_10: {
+    list_11: {
         parameters: {
             query?: {
                 q?: string;
@@ -7489,7 +7644,7 @@ export interface operations {
             };
         };
     };
-    list_11: {
+    list_12: {
         parameters: {
             query?: {
                 status?: "PENDING" | "SENT" | "FAILED";
