@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { TimeAgo } from "@/components/common/time-ago";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +42,6 @@ export function yearsSince(isoDate: string) {
 export function ApplicationsQueue() {
   const t = useTranslations("StaffApplications");
   const tCommon = useTranslations("Common");
-  const format = useFormatter();
   const errorMessage = useAuthErrorMessage();
   const [page, setPage] = useState(0);
 
@@ -96,7 +96,7 @@ export function ApplicationsQueue() {
               <TableCell className="font-mono">{application.guardianMemberNo ?? "–"}</TableCell>
               <TableCell>
                 <time dateTime={application.appliedAt} title={application.appliedAt}>
-                  {format.relativeTime(new Date(application.appliedAt))}
+                  <TimeAgo date={application.appliedAt} />
                 </time>
               </TableCell>
               <TableCell className="text-right">

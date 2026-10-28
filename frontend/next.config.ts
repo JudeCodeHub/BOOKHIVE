@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
   output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    // Dev-time "instant navigation" checks only for pages that ask for them (export const
+    // instant = true): the public pages. The member/staff/admin pages wait for the login, which
+    // lives only in the browser, so they can't be rendered ahead of time and aren't checked.
+    instantInsights: {
+      validationLevel: "manual-warning",
+    },
+  },
   turbopack: {
     rules: {
       "*.css": {

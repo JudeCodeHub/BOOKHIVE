@@ -1750,6 +1750,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/notifications/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every message type with its channels */
+        get: operations["types_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications/templates/{type}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One message type rendered with sample data in a language */
+        get: operations["preview_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/notifications/messages": {
         parameters: {
             query?: never;
@@ -3030,6 +3064,23 @@ export interface components {
             bio: string;
             /** Format: int64 */
             bookCount: number;
+        };
+        TemplateTypeSummary: {
+            /** @enum {string} */
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            channels: ("EMAIL" | "SMS" | "IN_APP")[];
+            optional: boolean;
+        };
+        TemplatePreviewResponse: {
+            /** @enum {string} */
+            type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            language: string;
+            emailSubject: string;
+            emailText: string;
+            emailHtml: string;
+            sms: string;
+            inAppTitle: string;
+            inAppBody: string;
         };
         PageResponseOutboxMessageSummary: {
             content: components["schemas"]["OutboxMessageSummary"][];
@@ -5791,6 +5842,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PublicAuthorResponse"];
+                };
+            };
+        };
+    };
+    types_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TemplateTypeSummary"][];
+                };
+            };
+        };
+    };
+    preview_1: {
+        parameters: {
+            query?: {
+                lang?: string;
+            };
+            header?: never;
+            path: {
+                type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TemplatePreviewResponse"];
                 };
             };
         };

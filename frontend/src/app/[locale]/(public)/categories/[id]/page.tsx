@@ -9,6 +9,9 @@ import { getCategoryPath, type CategoryNode } from "@/features/catalog/data";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 function nameIn(locale: string, node: CategoryNode) {
   return locale === "si" ? node.nameSi : locale === "ta" ? node.nameTa : node.nameEn;
 }

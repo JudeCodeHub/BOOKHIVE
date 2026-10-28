@@ -2,7 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck } from "lucide-react";
-import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { TimeAgo } from "@/components/common/time-ago";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,7 +32,6 @@ const LATEST = 6;
  */
 export function NotificationBell({ className }: { className?: string }) {
   const t = useTranslations("Notifications");
-  const format = useFormatter();
   const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -139,7 +139,7 @@ export function NotificationBell({ className }: { className?: string }) {
               </span>
               <span className="line-clamp-2 text-xs text-muted-foreground">{n.body}</span>
               <span className="text-[11px] text-muted-foreground">
-                {format.relativeTime(new Date(n.createdAt))}
+                <TimeAgo date={n.createdAt} />
               </span>
             </DropdownMenuItem>
           ))

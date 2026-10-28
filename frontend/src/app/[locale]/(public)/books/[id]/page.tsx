@@ -10,6 +10,9 @@ import { getPublicBook, type Book } from "@/features/catalog/data";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 /**
  * Public book page (checklist step 184). Rendered on the server so search engines and link
  * previews get the full content; the book data is cached for a few minutes (data.ts) and the

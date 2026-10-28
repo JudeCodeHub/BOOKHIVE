@@ -5,6 +5,9 @@ import { HeroSearch } from "@/features/home/hero-search";
 import { JoinCta } from "@/features/home/join-cta";
 import { SubjectGrid } from "@/features/home/subject-grid";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 /**
  * Home page (checklist step 202): search first, then what's new and popular, then subjects.
  * The page itself is static; the book rows load in the browser with live availability.
