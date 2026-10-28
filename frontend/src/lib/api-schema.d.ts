@@ -419,6 +419,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/events/{id}/check-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check a member in by their QR ticket (422/409 explain: other event, waitlisted, already in, outside the check-in window) */
+        post: operations["checkIn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/events/{id}/cancel": {
         parameters: {
             query?: never;
@@ -2435,6 +2452,21 @@ export interface components {
         StaffCancelHoldRequest: {
             reason: string;
         };
+        CheckInRequest: {
+            code: string;
+        };
+        CheckInResponse: {
+            /** Format: uuid */
+            registrationId: string;
+            memberNo: string;
+            fullName: string;
+            /** Format: date-time */
+            checkedInAt: string;
+            /** Format: int64 */
+            attended: number;
+            /** Format: int32 */
+            capacity: number;
+        };
         CancelEventRequest: {
             reason: string;
         };
@@ -4301,6 +4333,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["StaffEventSummary"];
+                };
+            };
+        };
+    };
+    checkIn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckInRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CheckInResponse"];
                 };
             };
         };
