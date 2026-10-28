@@ -5,6 +5,9 @@ import { AuthCard } from "@/features/auth/auth-card";
 import { RegisterForm } from "@/features/auth/register-form";
 import { Link } from "@/i18n/navigation";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Auth.register");
   return { title: t("metaTitle") };

@@ -4,6 +4,9 @@ import { getTranslations } from "next-intl/server";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { SearchPage } from "@/features/search/search-page";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Search");
   return {

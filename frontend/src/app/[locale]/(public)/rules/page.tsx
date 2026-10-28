@@ -3,6 +3,9 @@ import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { RulesContent } from "@/features/library/rules-content";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Rules");
   return { title: t("metaTitle") };

@@ -8,6 +8,9 @@ import { BookResults } from "@/features/catalog/book-results";
 import { getPublicAuthor } from "@/features/catalog/data";
 import { routing } from "@/i18n/routing";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/authors/[id]">): Promise<Metadata> {

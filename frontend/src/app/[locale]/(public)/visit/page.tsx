@@ -4,6 +4,9 @@ import { getTranslations } from "next-intl/server";
 import { ContactForm } from "@/features/library/contact-form";
 import { VisitDetails } from "@/features/library/visit-details";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Library");
   return { title: t("metaTitle") };

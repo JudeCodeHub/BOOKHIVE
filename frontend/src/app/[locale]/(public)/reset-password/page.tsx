@@ -6,6 +6,9 @@ import { PageLoader } from "@/components/feedback/page-loader";
 import { AuthCard } from "@/features/auth/auth-card";
 import { SetPasswordForm } from "@/features/auth/set-password-form";
 
+// Checked in development for instant navigation (next.config: manual-warning)
+export const instant = true;
+
 export async function generateMetadata(): Promise<Metadata> {
   // The token is in the URL: keep this page out of search engines
   const t = await getTranslations("Auth.reset");
