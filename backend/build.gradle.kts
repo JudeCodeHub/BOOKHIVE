@@ -28,6 +28,7 @@ val zxingVersion = "3.5.4"
 val openpdfVersion = "3.0.5"
 val thumbnailatorVersion = "0.4.21"
 val commonsCsvVersion = "1.14.1"
+val jsoupVersion = "1.23.2"
 val shedlockVersion = "7.10.1"
 // 1.37.0 is not yet compatible with Spotless 8.10.4
 val googleJavaFormatVersion = "1.36.1"
@@ -71,6 +72,8 @@ dependencies {
     implementation("net.coobird:thumbnailator:$thumbnailatorVersion")
     // Bulk catalog import from spreadsheets saved as CSV
     implementation("org.apache.commons:commons-csv:$commonsCsvVersion")
+    // Cleans rich text (news, event descriptions) to a safe list of tags before it's saved
+    implementation("org.jsoup:jsoup:$jsoupVersion")
     // Scheduled jobs run on one backend instance at a time (lock row in the database)
     implementation("net.javacrumbs.shedlock:shedlock-spring:$shedlockVersion")
     implementation("net.javacrumbs.shedlock:shedlock-provider-jdbc-template:$shedlockVersion")

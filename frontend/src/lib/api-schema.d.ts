@@ -127,6 +127,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/reviews/{bookId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Can I review this book, and my review if I wrote one */
+        get: operations["mine"];
+        /** Write or change my review (it waits for staff before it shows) */
+        put: operations["write"];
+        post?: never;
+        /** Delete my review */
+        delete: operations["delete_4"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/notification-preferences": {
         parameters: {
             query?: never;
@@ -135,7 +154,7 @@ export interface paths {
             cookie?: never;
         };
         /** My channel choices per optional notification type */
-        get: operations["mine"];
+        get: operations["mine_1"];
         /** Save my channel choices (types that can't be switched off are ignored) */
         put: operations["update_7"];
         post?: never;
@@ -173,6 +192,40 @@ export interface paths {
         /** Change a type's rules or names; set active=false to retire it */
         put: operations["update_8"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/reviews/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a review with a reason the member sees */
+        post: operations["reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/reviews/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a review: it appears on the book page */
+        post: operations["approve"];
         delete?: never;
         options?: never;
         head?: never;
@@ -727,7 +780,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Reject with a reason, which is emailed to the applicant */
-        post: operations["reject"];
+        post: operations["reject_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -744,7 +797,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Approve: assigns the member number, emails the member */
-        post: operations["approve"];
+        post: operations["approve_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -776,7 +829,7 @@ export interface paths {
             cookie?: never;
         };
         /** My suggestions and the library's answers, newest first */
-        get: operations["mine_1"];
+        get: operations["mine_2"];
         put?: never;
         /** Suggest a book (max 5 open; 409 if the library already has it) */
         post: operations["suggest"];
@@ -879,7 +932,7 @@ export interface paths {
             cookie?: never;
         };
         /** My open holds: ready to pick up first, then my place in each queue */
-        get: operations["mine_2"];
+        get: operations["mine_3"];
         put?: never;
         /** Reserve a book (422 HOLD_REFUSED lists every reason) */
         post: operations["place_1"];
@@ -1249,6 +1302,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/reviews/pending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reviews waiting for moderation, oldest first */
+        get: operations["pending"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/members": {
         parameters: {
             query?: never;
@@ -1495,7 +1565,7 @@ export interface paths {
             cookie?: never;
         };
         /** Pending applications, oldest first */
-        get: operations["pending"];
+        get: operations["pending_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1699,7 +1769,7 @@ export interface paths {
             cookie?: never;
         };
         /** My membership or application (204 if none) */
-        get: operations["mine_3"];
+        get: operations["mine_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1784,7 +1854,7 @@ export interface paths {
             cookie?: never;
         };
         /** My balance and fines (open first); history=true adds settled ones */
-        get: operations["mine_4"];
+        get: operations["mine_5"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1801,7 +1871,7 @@ export interface paths {
             cookie?: never;
         };
         /** My sign-up for this event (204 if I'm not signed up) */
-        get: operations["mine_5"];
+        get: operations["mine_6"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2074,6 +2144,23 @@ export interface paths {
         };
         /** How many copies are on the shelf, on loan, waiting... and where */
         get: operations["availability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/books/{bookId}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A book's approved reviews (newest first) and its average rating */
+        get: operations["bookReviews"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2383,6 +2470,23 @@ export interface components {
             name: string;
             bio: string;
         };
+        ReviewRequest: {
+            /** Format: int32 */
+            rating?: number;
+            text?: string;
+        };
+        MyReviewSummary: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            rating: number;
+            text: string;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REJECTED";
+            rejectReason: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         PreferenceChoice: {
             /** @enum {string} */
             type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_PLACE_CONFIRMED" | "EVENT_CANCELLED" | "EVENT_REMINDER";
@@ -2456,6 +2560,9 @@ export interface components {
             requiresGuardian: boolean;
             allowedSections: string[];
             active: boolean;
+        };
+        RejectReviewRequest: {
+            reason: string;
         };
         ReturnRequest: {
             barcode: string;
@@ -3022,6 +3129,30 @@ export interface components {
             /** Format: int64 */
             sameIsbnCount: number;
         };
+        PageResponsePendingReviewSummary: {
+            content: components["schemas"]["PendingReviewSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        PendingReviewSummary: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            bookId: string;
+            bookTitle: string;
+            reviewer: string;
+            /** Format: int32 */
+            rating: number;
+            text: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         PageResponsePublisherResponse: {
             content: components["schemas"]["PublisherResponse"][];
             /** Format: int32 */
@@ -3415,6 +3546,10 @@ export interface components {
             requiredDocument: "NIC" | "STUDENT_ID" | "NONE";
             requiresGuardian: boolean;
         };
+        MyReviewResponse: {
+            canReview: boolean;
+            review: components["schemas"]["MyReviewSummary"];
+        };
         NotificationSummary: {
             /** Format: uuid */
             id: string;
@@ -3609,6 +3744,34 @@ export interface components {
             /** Format: int64 */
             holdsWaiting: number;
             shelves: string[];
+        };
+        BookReviewsResponse: {
+            /** Format: double */
+            average: number;
+            /** Format: int64 */
+            count: number;
+            reviews: components["schemas"]["PageResponseReviewSummary"];
+        };
+        PageResponseReviewSummary: {
+            content: components["schemas"]["ReviewSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        ReviewSummary: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            rating: number;
+            text: string;
+            reviewer: string;
+            /** Format: date-time */
+            createdAt: string;
         };
         PublicAuthorResponse: {
             /** Format: uuid */
@@ -4039,6 +4202,74 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MyReviewResponse"];
+                };
+            };
+        };
+    };
+    write: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MyReviewSummary"];
+                };
+            };
+        };
+    };
+    delete_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mine_1: {
+        parameters: {
+            query?: never;
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -4125,6 +4356,54 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminMembershipTypeResponse"];
+                };
+            };
+        };
+    };
+    reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MyReviewSummary"];
+                };
+            };
+        };
+    };
+    approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MyReviewSummary"];
                 };
             };
         };
@@ -5154,7 +5433,7 @@ export interface operations {
             };
         };
     };
-    reject: {
+    reject_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -5180,7 +5459,7 @@ export interface operations {
             };
         };
     };
-    approve: {
+    approve_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -5230,7 +5509,7 @@ export interface operations {
             };
         };
     };
-    mine_1: {
+    mine_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -5380,7 +5659,7 @@ export interface operations {
             };
         };
     };
-    mine_2: {
+    mine_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -5962,6 +6241,29 @@ export interface operations {
             };
         };
     };
+    pending: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponsePendingReviewSummary"];
+                };
+            };
+        };
+    };
     search: {
         parameters: {
             query?: {
@@ -6280,7 +6582,7 @@ export interface operations {
             };
         };
     };
-    pending: {
+    pending_1: {
         parameters: {
             query?: {
                 page?: number;
@@ -6556,7 +6858,7 @@ export interface operations {
             };
         };
     };
-    mine_3: {
+    mine_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -6663,7 +6965,7 @@ export interface operations {
             };
         };
     };
-    mine_4: {
+    mine_5: {
         parameters: {
             query?: {
                 history?: boolean;
@@ -6685,7 +6987,7 @@ export interface operations {
             };
         };
     };
-    mine_5: {
+    mine_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -7048,6 +7350,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AvailabilityResponse"];
+                };
+            };
+        };
+    };
+    bookReviews: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BookReviewsResponse"];
                 };
             };
         };

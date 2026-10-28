@@ -46,7 +46,7 @@ public class NewsPost extends BaseEntity {
   /**
    * What staff fill in.
    *
-   * @param bodyHtml already sanitised (step 336)
+   * @param bodyHtml already cleaned to safe HTML by NewsService (step 336)
    */
   public record Details(String title, String summary, String bodyHtml, boolean pinned) {}
 

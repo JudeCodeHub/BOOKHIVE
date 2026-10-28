@@ -28,6 +28,15 @@ public class LoanLookupService {
         .toList();
   }
 
+  /**
+   * Has the member ever borrowed this title (reviews, step 337)? Loans anonymised because the
+   * member switched reading history off no longer count.
+   */
+  @Transactional(readOnly = true)
+  public boolean hasEverBorrowed(UUID memberId, UUID bookId) {
+    return loans.memberEverBorrowed(memberId, bookId);
+  }
+
   /** Has the member got a copy of this title out now (on time or overdue)? */
   @Transactional(readOnly = true)
   public boolean hasBookOut(UUID memberId, UUID bookId) {

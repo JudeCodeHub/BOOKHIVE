@@ -63,7 +63,7 @@ public class LibraryEvent extends BaseEntity {
     // for JPA
   }
 
-  /** What staff fill in. {@code description} is already sanitised (step 336). */
+  /** What staff fill in. {@code description} is already cleaned to safe HTML (step 336). */
   public record Details(
       String title,
       String description,
