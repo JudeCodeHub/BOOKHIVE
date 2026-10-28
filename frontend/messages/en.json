@@ -1583,5 +1583,48 @@
       "ADULT": "Adults",
       "SENIOR": "Seniors"
     }
+  },
+  "EventPage": {
+    "allEvents": "All events",
+    "cancelledBanner": "This event has been cancelled.",
+    "about": "About this event",
+    "date": "Date",
+    "time": "Time",
+    "venue": "Place",
+    "audience": "For",
+    "signUp": "Sign up",
+    "noSignUpNeeded": "No sign-up needed: just come along.",
+    "capacity": "{count, plural, one {# place in total} other {# places in total}}",
+    "waiting": "{count, plural, one {# on the waitlist} other {# on the waitlist}}",
+    "closedText": "Sign-up for this event has closed.",
+    "logInToSignUp": "Log in to sign up",
+    "notMember": "Only library members can sign up. <link>Become a member</link>",
+    "waitlistText": "All places are taken. Join the waitlist and you’ll get a place automatically if someone cancels; we’ll let you know.",
+    "signUpButton": "Sign up",
+    "joinWaitlist": "Join the waitlist",
+    "signingUp": "Signing up…",
+    "gotPlace": "You have a place. A confirmation is on its way.",
+    "joinedWaitlist": "You’re number {position} on the waitlist.",
+    "onWaitlist": "You’re number {position} on the waitlist. If a place opens up, it’s yours and we’ll tell you.",
+    "havePlaceText": "You have a place. Show your ticket at the door.",
+    "attended": "You were checked in at this event.",
+    "myEvents": "My events",
+    "cancelPlace": "Give up my place",
+    "leaveWaitlist": "Leave the waitlist",
+    "cancelPlaceTitle": "Give up your place?",
+    "leaveWaitlistTitle": "Leave the waitlist?",
+    "cancelText": "Your place goes to the next person waiting. You can sign up again later if places are left.",
+    "keep": "Keep it",
+    "cancelled": "Done: you’re no longer signed up.",
+    "errors": {
+      "REGISTRATION_CLOSED": "Sign-up for this event has closed.",
+      "ALREADY_REGISTERED": "You’re already signed up for this event.",
+      "MEMBERSHIP_NOT_ACTIVE": "Only members with an active membership can sign up.",
+      "MEMBER_NOT_FOUND": "Only library members can sign up.",
+      "EVENT_ALREADY_STARTED": "The event has already started.",
+      "REGISTRATION_NOT_FOUND": "You aren’t signed up for this event.",
+      "EVENT_NOT_FOUND": "This event no longer exists.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }
