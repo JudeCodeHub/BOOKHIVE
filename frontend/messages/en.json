@@ -1603,7 +1603,7 @@
     "signUpButton": "Sign up",
     "joinWaitlist": "Join the waitlist",
     "signingUp": "Signing up…",
-    "gotPlace": "You have a place. A confirmation is on its way.",
+    "gotPlace": "You have a place. Your ticket is in My events.",
     "joinedWaitlist": "You’re number {position} on the waitlist.",
     "onWaitlist": "You’re number {position} on the waitlist. If a place opens up, it’s yours and we’ll tell you.",
     "havePlaceText": "You have a place. Show your ticket at the door.",
@@ -1625,6 +1625,34 @@
       "REGISTRATION_NOT_FOUND": "You aren’t signed up for this event.",
       "EVENT_NOT_FOUND": "This event no longer exists.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "MyEvents": {
+    "metaTitle": "My events",
+    "title": "My events",
+    "comingUp": "Coming up",
+    "past": "Past and cancelled",
+    "empty": "You haven’t signed up for any events yet. <link>See what’s on</link>",
+    "noneComingUp": "Nothing coming up. <link>See what’s on</link>",
+    "notMember": "Events sign-up is for library members. <link>Become a member</link>",
+    "showTicket": "Show ticket",
+    "ticketText": "Show this at the door. The library staff scan it to check you in.",
+    "ticketLabel": "QR ticket for {title}",
+    "cancelPlace": "Give up my place",
+    "leaveWaitlist": "Leave the waitlist",
+    "cancelPlaceTitle": "Give up your place?",
+    "leaveWaitlistTitle": "Leave the waitlist?",
+    "cancelText": "Your place at “{title}” goes to the next person waiting.",
+    "keep": "Keep it",
+    "cancelled": "You’re no longer signed up for “{title}”.",
+    "alreadyStarted": "The event has already started.",
+    "status": {
+      "registered": "Place confirmed",
+      "waitlisted": "Waitlist: number {position}",
+      "attended": "Attended",
+      "eventCancelled": "Cancelled by the library",
+      "noPlace": "No place became free",
+      "notCheckedIn": "Not checked in"
     }
   }
 }

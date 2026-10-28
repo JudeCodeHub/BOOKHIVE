@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.exception.BusinessRuleException;
 import lk.bookhive.common.exception.ConflictException;
@@ -33,6 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class EventRegistrationService {
+
+  /** "My events" shows at most this many sign-ups (a member's whole history is rarely more). */
+  static final int MY_EVENTS_LIMIT = 100;
 
   /**
    * A member's registration with where they stand.
@@ -175,6 +180,23 @@ public class EventRegistrationService {
     return registrations
         .findFirstByEventIdAndMemberIdAndStatusNot(eventId, memberId, RegistrationStatus.CANCELLED)
         .map(r -> view(r, require(eventId)));
+  }
+
+  /**
+   * "My events" (step 343): the member's sign-ups that weren't given up, newest sign-up first,
+   * including past ones and events the library cancelled.
+   */
+  @Transactional(readOnly = true)
+  public List<RegistrationView> mine(UUID memberId) {
+    List<EventRegistration> mine =
+        registrations.findByMemberIdOrderByRegisteredAtDesc(memberId).stream()
+            .filter(r -> r.getStatus() != RegistrationStatus.CANCELLED)
+            .limit(MY_EVENTS_LIMIT)
+            .toList();
+    Map<UUID, LibraryEvent> byId =
+        events.findAllById(mine.stream().map(EventRegistration::getEventId).toList()).stream()
+            .collect(Collectors.toMap(LibraryEvent::getId, Function.identity()));
+    return mine.stream().map(r -> view(r, byId.get(r.getEventId()))).toList();
   }
 
   /** Places taken: REGISTERED plus already ATTENDED. */

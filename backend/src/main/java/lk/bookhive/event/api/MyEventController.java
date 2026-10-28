@@ -3,6 +3,7 @@ package lk.bookhive.event.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
 import lk.bookhive.common.exception.NotFoundException;
@@ -33,6 +34,12 @@ public class MyEventController {
   public MyEventController(EventRegistrationService signUps, BorrowerService borrowers) {
     this.signUps = signUps;
     this.borrowers = borrowers;
+  }
+
+  @GetMapping
+  @Operation(summary = "My sign-ups (not given up), newest first, with QR codes for my places")
+  public List<RegistrationSummary> mine(@AuthenticationPrincipal Jwt jwt) {
+    return signUps.mine(memberId(jwt)).stream().map(RegistrationSummary::from).toList();
   }
 
   @PostMapping("/{eventId}/register")
