@@ -50,6 +50,7 @@ public class EventAdminService {
   private final LibraryEventRepository events;
   private final EventRegistrationRepository registrations;
   private final FileStorage storage;
+  private final EventRegistrationService signUps;
   private final ApplicationEventPublisher publisher;
   private final AuditService audit;
   private final LibraryTime time;
@@ -58,12 +59,14 @@ public class EventAdminService {
       LibraryEventRepository events,
       EventRegistrationRepository registrations,
       FileStorage storage,
+      EventRegistrationService signUps,
       ApplicationEventPublisher publisher,
       AuditService audit,
       LibraryTime time) {
     this.events = events;
     this.registrations = registrations;
     this.storage = storage;
+    this.signUps = signUps;
     this.publisher = publisher;
     this.audit = audit;
     this.time = time;
@@ -105,7 +108,14 @@ public class EventAdminService {
       }
     }
     event.update(details);
-    audit.record("event.updated", staffId, "event", id, Map.of("title", event.getTitle()));
+    // More places (or no limit now): the waitlist moves up straight away (step 332)
+    int promoted = signUps.promoteFromWaitlist(event);
+    audit.record(
+        "event.updated",
+        staffId,
+        "event",
+        id,
+        Map.of("title", event.getTitle(), "promotedFromWaitlist", promoted));
     return event;
   }
 
@@ -192,10 +202,8 @@ public class EventAdminService {
     }
   }
 
-  /** Places taken: REGISTERED plus already ATTENDED. */
-  long placesTaken(UUID eventId) {
-    return registrations.countByEventIdAndStatusIn(
-        eventId, List.of(RegistrationStatus.REGISTERED, RegistrationStatus.ATTENDED));
+  private long placesTaken(UUID eventId) {
+    return signUps.placesTaken(eventId);
   }
 
   private EventWithCounts withCounts(LibraryEvent event) {
