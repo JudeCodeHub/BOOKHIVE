@@ -15,6 +15,7 @@ import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.storage.FileStorage;
 import lk.bookhive.common.storage.Pictures;
+import lk.bookhive.common.text.RichText;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.event.domain.EventRegistration;
 import lk.bookhive.event.domain.EventStatus;
@@ -85,7 +86,7 @@ public class EventAdminService {
   /** A new event, as a draft only staff can see. */
   @Transactional
   public LibraryEvent create(Details details, UUID staffId) {
-    LibraryEvent event = events.save(LibraryEvent.draft(details, staffId));
+    LibraryEvent event = events.save(LibraryEvent.draft(clean(details), staffId));
     audit.record(
         "event.created", staffId, "event", event.getId(), Map.of("title", event.getTitle()));
     return event;
@@ -107,7 +108,7 @@ public class EventAdminService {
             taken + " members already have a place: the number of places can't be lower.");
       }
     }
-    event.update(details);
+    event.update(clean(details));
     // More places (or no limit now): the waitlist moves up straight away (step 332)
     int promoted = signUps.promoteFromWaitlist(event);
     audit.record(
@@ -212,6 +213,19 @@ public class EventAdminService {
         placesTaken(event.getId()),
         registrations.countByEventIdAndStatusIn(
             event.getId(), List.of(RegistrationStatus.WAITLISTED)));
+  }
+
+  /** The description as safe HTML (step 336): only simple formatting and links survive. */
+  private static Details clean(Details d) {
+    return new Details(
+        d.title(),
+        RichText.clean(d.description()),
+        d.startsAt(),
+        d.endsAt(),
+        d.venue(),
+        d.audience(),
+        d.registrationRequired(),
+        d.capacity());
   }
 
   /** Locked so a change and a sign-up can't overlap (e.g. fewer places vs. the last place). */

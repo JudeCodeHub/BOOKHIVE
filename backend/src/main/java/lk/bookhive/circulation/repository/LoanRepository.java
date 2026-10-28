@@ -58,6 +58,16 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
   /** Reminder jobs: open loans due on exactly this date. */
   List<Loan> findByStatusInAndDueDate(Collection<LoanStatus> statuses, LocalDate dueDate);
 
+  /** Has the member ever borrowed a copy of this book (out now or returned)? Reviews, step 337. */
+  @Query(
+      value =
+          """
+          SELECT EXISTS (SELECT 1 FROM loans l JOIN copies c ON c.id = l.copy_id
+                         WHERE l.member_id = :memberId AND c.book_id = :bookId)
+          """,
+      nativeQuery = true)
+  boolean memberEverBorrowed(@Param("memberId") UUID memberId, @Param("bookId") UUID bookId);
+
   /** Fine accrual job: every open loan past its due date. */
   List<Loan> findByStatusInAndDueDateBefore(Collection<LoanStatus> statuses, LocalDate today);
 

@@ -10,6 +10,7 @@ import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.storage.FileStorage;
 import lk.bookhive.common.storage.Pictures;
+import lk.bookhive.common.text.RichText;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.event.domain.NewsPost;
 import lk.bookhive.event.domain.NewsPost.Details;
@@ -73,7 +74,7 @@ public class NewsService {
 
   @Transactional
   public NewsPost create(Details details, UUID staffId) {
-    NewsPost post = news.save(NewsPost.draft(details, staffId));
+    NewsPost post = news.save(NewsPost.draft(clean(details), staffId));
     audit.record("news.created", staffId, "news", post.getId(), Map.of("title", post.getTitle()));
     return post;
   }
@@ -81,7 +82,7 @@ public class NewsService {
   @Transactional
   public NewsPost update(UUID id, Details details, UUID staffId) {
     NewsPost post = require(id);
-    post.update(details);
+    post.update(clean(details));
     audit.record("news.updated", staffId, "news", id, Map.of("title", post.getTitle()));
     return post;
   }
@@ -155,6 +156,12 @@ public class NewsService {
     } catch (IOException e) {
       throw new NotFoundException("NEWS_IMAGE_NOT_FOUND", "This post has no picture.");
     }
+  }
+
+  /** The body as safe HTML (step 336): only simple formatting and links survive. */
+  private static Details clean(Details details) {
+    return new Details(
+        details.title(), details.summary(), RichText.clean(details.bodyHtml()), details.pinned());
   }
 
   private NewsPost require(UUID id) {
