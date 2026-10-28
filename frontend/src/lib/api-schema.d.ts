@@ -1490,6 +1490,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/events/{id}/attendees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Everyone signed up: places first (sign-up order), then the waitlist */
+        get: operations["attendees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/events/{id}/attendees.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The attendee list as CSV (contains contact details; the export is audited) */
+        get: operations["attendeesCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/copies/{id}/history": {
         parameters: {
             query?: never;
@@ -3451,6 +3485,22 @@ export interface components {
             totalElements: number;
             /** Format: int32 */
             totalPages: number;
+        };
+        AttendeeSummary: {
+            /** Format: uuid */
+            registrationId: string;
+            memberNo: string;
+            fullName: string;
+            email: string;
+            phone: string | null;
+            /** @enum {string} */
+            status: "REGISTERED" | "WAITLISTED" | "CANCELLED" | "ATTENDED";
+            /** Format: int32 */
+            waitlistPosition: number | null;
+            /** Format: date-time */
+            registeredAt: string;
+            /** Format: date-time */
+            checkedInAt: string | null;
         };
         PageResponseDonationResponse: {
             content: components["schemas"]["DonationResponse"][];
@@ -6619,6 +6669,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PageResponseHoldShelfSummary"];
+                };
+            };
+        };
+    };
+    attendees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AttendeeSummary"][];
+                };
+            };
+        };
+    };
+    attendeesCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
                 };
             };
         };

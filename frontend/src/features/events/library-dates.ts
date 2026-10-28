@@ -53,3 +53,13 @@ export function plainText(html: string | null | undefined): string {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+/** An instant as a datetime-local value in library time: "2026-11-20T10:00". */
+export function toLibraryInput(instant: string): string {
+  return new Date(new Date(instant).getTime() + LIBRARY_OFFSET_MS).toISOString().slice(0, 16);
+}
+
+/** A datetime-local value ("2026-11-20T10:00", library time) as an ISO instant for the API. */
+export function fromLibraryInput(value: string): string {
+  return new Date(new Date(`${value}:00Z`).getTime() - LIBRARY_OFFSET_MS).toISOString();
+}

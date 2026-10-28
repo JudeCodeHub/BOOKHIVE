@@ -11,7 +11,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
 import lk.bookhive.common.web.PageResponse;
@@ -21,9 +23,13 @@ import lk.bookhive.event.domain.LibraryEvent;
 import lk.bookhive.event.domain.LibraryEvent.Details;
 import lk.bookhive.event.service.EventAdminService;
 import lk.bookhive.event.service.EventAdminService.EventWithCounts;
+import lk.bookhive.event.service.EventAttendeeService;
+import lk.bookhive.event.service.EventAttendeeService.AttendeeSummary;
 import lk.bookhive.event.service.EventCheckInService;
 import lk.bookhive.event.service.EventCheckInService.CheckIn;
 import org.springframework.http.CacheControl;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -51,10 +57,13 @@ public class StaffEventController {
 
   private final EventAdminService events;
   private final EventCheckInService checkIns;
+  private final EventAttendeeService attendees;
 
-  public StaffEventController(EventAdminService events, EventCheckInService checkIns) {
+  public StaffEventController(
+      EventAdminService events, EventCheckInService checkIns, EventAttendeeService attendees) {
     this.events = events;
     this.checkIns = checkIns;
+    this.attendees = attendees;
   }
 
   /**
@@ -210,6 +219,26 @@ public class StaffEventController {
         result.registration().getCheckedInAt(),
         result.attended(),
         events.get(id).event().getCapacity());
+  }
+
+  @GetMapping("/{id}/attendees")
+  @Operation(summary = "Everyone signed up: places first (sign-up order), then the waitlist")
+  public List<AttendeeSummary> attendees(@PathVariable UUID id) {
+    return attendees.attendees(id);
+  }
+
+  @GetMapping(path = "/{id}/attendees.csv", produces = "text/csv")
+  @Operation(summary = "The attendee list as CSV (contains contact details; the export is audited)")
+  public ResponseEntity<String> attendeesCsv(
+      @AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+    String body = attendees.csv(id, staffId(jwt));
+    return ResponseEntity.ok()
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.attachment().filename(attendees.fileName(id)).build().toString())
+        .cacheControl(CacheControl.noStore())
+        .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+        .body(body);
   }
 
   @PostMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -1,10 +1,14 @@
 package lk.bookhive.member.service;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lk.bookhive.member.domain.Member;
 import lk.bookhive.member.domain.MemberStatus;
 import lk.bookhive.member.domain.MembershipType;
@@ -48,6 +52,14 @@ public class BorrowerService {
   @Transactional(readOnly = true)
   public Optional<Borrower> byId(UUID memberId) {
     return members.findById(memberId).map(BorrowerService::borrower);
+  }
+
+  /** Several members at once (event attendee lists), keyed by member id. */
+  @Transactional(readOnly = true)
+  public Map<UUID, Borrower> byIds(Collection<UUID> memberIds) {
+    return members.findAllById(memberIds).stream()
+        .map(BorrowerService::borrower)
+        .collect(Collectors.toMap(Borrower::memberId, Function.identity()));
   }
 
   /** The desk scans the library card: "BH-000123". */
