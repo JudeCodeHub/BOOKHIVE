@@ -17,8 +17,10 @@ import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.fine.domain.Fine;
 import lk.bookhive.fine.domain.FineStatus;
 import lk.bookhive.fine.domain.PaymentMethod;
+import lk.bookhive.fine.event.FinePaymentRecorded;
 import lk.bookhive.fine.repository.FineRepository;
 import lk.bookhive.fine.repository.FineTransactionRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +50,7 @@ public class FinePaymentService {
   private final FineQueryService query;
   private final SettingsService settings;
   private final AuditService audit;
+  private final ApplicationEventPublisher events;
   private final LibraryTime time;
 
   public FinePaymentService(
@@ -56,12 +59,14 @@ public class FinePaymentService {
       FineQueryService query,
       SettingsService settings,
       AuditService audit,
+      ApplicationEventPublisher events,
       LibraryTime time) {
     this.fines = fines;
     this.transactions = transactions;
     this.query = query;
     this.settings = settings;
     this.audit = audit;
+    this.events = events;
     this.time = time;
   }
 
@@ -116,6 +121,19 @@ public class FinePaymentService {
     details.put("amount", amount.amount().toPlainString());
     details.put("fines", allocations.stream().map(a -> a.fine().getId().toString()).toList());
     audit.record("fine.cash_payment", staffId, "member", memberId, details);
+    // The member gets a receipt once this is saved (step 318)
+    events.publishEvent(
+        new FinePaymentRecorded(
+            memberId,
+            amount,
+            PaymentMethod.CASH,
+            receipt,
+            allocations.stream()
+                .map(
+                    a ->
+                        new FinePaymentRecorded.Item(
+                            a.fine().getId(), a.fine().getDescription(), a.amount()))
+                .toList()));
     return new CashReceipt(receipt, amount, allocations, query.of(memberId));
   }
 
