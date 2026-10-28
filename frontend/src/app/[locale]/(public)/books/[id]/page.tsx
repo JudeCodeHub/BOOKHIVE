@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { BookAvailability } from "@/features/catalog/book-availability";
 import { ReserveButton } from "@/features/holds/reserve-button";
+import { BookReviews } from "@/features/reviews/book-reviews";
 import { BookCover } from "@/features/catalog/book-cover";
 import { coverUrl } from "@/features/catalog/cover";
 import { getPublicBook, type Book } from "@/features/catalog/data";
@@ -167,6 +168,9 @@ async function BookDetails({ params }: PageProps<"/[locale]/books/[id]">) {
             )}
           </dl>
         </section>
+
+        {/* Ratings change all the time: loaded in the browser, the rest of the page is cached */}
+        <BookReviews bookId={book.id} />
       </div>
     </article>
   );

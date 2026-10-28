@@ -2588,7 +2588,7 @@ export interface components {
             text: string;
             /** @enum {string} */
             status: "PENDING" | "APPROVED" | "REJECTED";
-            rejectReason: string;
+            rejectReason: string | null;
             /** Format: date-time */
             updatedAt: string;
         };
@@ -3904,7 +3904,7 @@ export interface components {
         };
         BookReviewsResponse: {
             /** Format: double */
-            average: number;
+            average: number | null;
             /** Format: int64 */
             count: number;
             reviews: components["schemas"]["PageResponseReviewSummary"];
@@ -3925,7 +3925,7 @@ export interface components {
             id: string;
             /** Format: int32 */
             rating: number;
-            text: string;
+            text: string | null;
             reviewer: string;
             /** Format: date-time */
             createdAt: string;
