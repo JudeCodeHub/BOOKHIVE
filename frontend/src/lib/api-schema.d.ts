@@ -880,6 +880,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/notifications/templates/{type}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send the sample email of this type to me ([TEST], via the outbox) */
+        post: operations["sendTest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/notifications/messages/{id}/retry": {
         parameters: {
             query?: never;
@@ -2466,6 +2483,9 @@ export interface components {
             roles: ("MEMBER" | "LIBRARIAN" | "ADMIN")[];
             /** @enum {string} */
             status: "PENDING_VERIFICATION" | "ACTIVE" | "DISABLED";
+        };
+        TestEmailResponse: {
+            sentTo: string;
         };
         OutboxMessageSummary: {
             /** Format: uuid */
@@ -4637,6 +4657,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["StaffResponse"];
+                };
+            };
+        };
+    };
+    sendTest: {
+        parameters: {
+            query?: {
+                lang?: string;
+            };
+            header?: never;
+            path: {
+                type: "EMAIL_VERIFICATION" | "PASSWORD_RESET" | "PASSWORD_CHANGED" | "STAFF_INVITE" | "MEMBERSHIP_APPROVED" | "MEMBERSHIP_REJECTED" | "MEMBERSHIP_EXPIRING" | "CHECKOUT_RECEIPT" | "DUE_SOON" | "OVERDUE" | "HOLD_READY" | "HOLD_EXPIRING" | "HOLD_EXPIRED" | "PAYMENT_RECEIVED" | "EVENT_REMINDER";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TestEmailResponse"];
                 };
             };
         };
