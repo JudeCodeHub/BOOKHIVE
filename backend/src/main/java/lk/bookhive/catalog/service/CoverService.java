@@ -1,25 +1,19 @@
 package lk.bookhive.catalog.service;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.UUID;
-import javax.imageio.ImageIO;
 import lk.bookhive.catalog.domain.Book;
 import lk.bookhive.catalog.repository.BookRepository;
 import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.cache.PublicCache;
-import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.storage.FileStorage;
-import lk.bookhive.common.storage.UploadCheck;
-import net.coobird.thumbnailator.Thumbnails;
+import lk.bookhive.common.storage.Pictures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -75,11 +69,11 @@ public class CoverService {
   @Transactional
   public Book upload(UUID bookId, InputStream content, long sizeBytes, UUID staffId) {
     Book book = require(bookId);
-    BufferedImage image = read(content, sizeBytes);
+    BufferedImage image = Pictures.read("cover", content, sizeBytes);
     String base = "covers/" + bookId + "/" + UUID.randomUUID();
     try {
       for (CoverSize size : CoverSize.values()) {
-        byte[] jpeg = resize(image, size.width);
+        byte[] jpeg = Pictures.jpeg(image, size.width);
         storage.put(
             base + "/" + size.fileName(),
             new ByteArrayInputStream(jpeg),
@@ -119,42 +113,6 @@ public class CoverService {
       return in.readAllBytes();
     } catch (IOException e) {
       throw new NotFoundException("COVER_NOT_FOUND", "This book has no cover yet.");
-    }
-  }
-
-  private static BufferedImage read(InputStream content, long sizeBytes) {
-    try (InputStream raw = content) {
-      UploadCheck.CheckedUpload checked = UploadCheck.image("cover", raw, sizeBytes);
-      BufferedImage image = ImageIO.read(checked.content());
-      if (image == null) {
-        throw new FieldValidationException(
-            "cover", "FILE_TYPE_NOT_ALLOWED", "This picture can't be read. Try a JPG or PNG.");
-      }
-      return image;
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  /** JPEG at most {@code width} wide. Never enlarges; transparent parts become white. */
-  private static byte[] resize(BufferedImage image, int width) {
-    BufferedImage rgb =
-        new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-    Graphics2D graphics = rgb.createGraphics();
-    graphics.setColor(Color.WHITE);
-    graphics.fillRect(0, 0, rgb.getWidth(), rgb.getHeight());
-    graphics.drawImage(image, 0, 0, null);
-    graphics.dispose();
-
-    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      Thumbnails.of(rgb)
-          .scale(Math.min(1.0, (double) width / rgb.getWidth()))
-          .outputFormat("jpg")
-          .outputQuality(0.85)
-          .toOutputStream(out);
-      return out.toByteArray();
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
     }
   }
 
