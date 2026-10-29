@@ -2341,5 +2341,82 @@
     "downloadCSV": "Download CSV",
     "downloadPDF": "Download PDF",
     "downloading": "Preparing…"
+  },
+  "Stocktake": {
+    "title": "Title",
+    "description": "Scan every book on a shelf to find what’s missing. Start one for a section, a subject, or the whole library.",
+    "start": "Start stock-take",
+    "empty": "No stock-takes yet.",
+    "statuses": {
+      "OPEN": "In progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "wholeLibrary": "The whole library",
+    "scopeShelves": "Shelves: {shelves}",
+    "scopeCategory": "Subject: {category}",
+    "startTitle": "Start a stock-take",
+    "startText": "Choose what to check. Leave both empty for the whole library.",
+    "name": "Name",
+    "defaultName": "Stock-take {date}",
+    "shelves": "Shelves (optional)",
+    "shelvesPlaceholder": "e.g. Non-fiction 500s",
+    "shelvesHint": "A section (Non-fiction 500s) or one shelf (Non-fiction 500s, shelf 1).",
+    "category": "Subject (optional)",
+    "anyCategory": "Any subject",
+    "categoryHint": "Includes everything under it.",
+    "cancel": "Cancel",
+    "startScanning": "Start scanning",
+    "progressLabel": "Stock-take progress",
+    "progress": "{found} of {expected} found ({percent})",
+    "back": "All stock-takes",
+    "complete": "Complete",
+    "cancelStocktake": "Cancel stock-take",
+    "counts": {
+      "found": "Found",
+      "missing": "Missing",
+      "needsLook": "Need a look"
+    },
+    "frozenNote": "Numbers as they were when the stock-take was completed.",
+    "scanLabel": "Scan a book",
+    "scanHint": "Use the scanner or the camera, or type the barcode and press Enter.",
+    "scanPlaceholder": "Barcode",
+    "waiting": "Scan the first book on the shelf.",
+    "recent": "Just scanned",
+    "results": {
+      "FOUND": "Found: it belongs here",
+      "again": "Already scanned",
+      "NOT_IN_SCOPE": "Belongs elsewhere",
+      "NOT_ON_SHELF": "Shouldn’t be on the shelf",
+      "UNKNOWN": "Unknown barcode"
+    },
+    "systemSays": "The system says: {status}. Take it to the desk.",
+    "missingTab": "Missing ({count})",
+    "issuesTab": "Need a look ({count})",
+    "noneMissing": "Nothing missing.",
+    "noIssues": "No problems found.",
+    "missingHint": "In shelf order: walk along and look again before deciding anything.",
+    "shelf": "Shelf",
+    "callNumber": "Call number",
+    "barcode": "Barcode",
+    "when": "When",
+    "whatsWrong": "What’s wrong",
+    "issues": {
+      "NOT_IN_SCOPE": "Belongs on another shelf",
+      "NOT_ON_SHELF": "System says: {status}",
+      "UNKNOWN": "Not in the catalogue",
+      "FOUND": "Found"
+    },
+    "completeTitle": "Complete this stock-take?",
+    "completeText": "{missing, plural, =0 {Nothing is missing.} one {# book is missing.} other {# books are missing.}} The numbers are kept as they are now. Nothing in the catalogue is changed.",
+    "cancelTitle": "Cancel this stock-take?",
+    "cancelText": "It’s kept in the list as cancelled, without a result.",
+    "keepScanning": "Keep scanning",
+    "completed": "Stock-take completed.",
+    "cancelled": "Stock-take cancelled.",
+    "errors": {
+      "STOCKTAKE_CLOSED": "This stock-take has already finished.",
+      "STOCKTAKE_NOT_FOUND": "This stock-take no longer exists."
+    }
   }
 }

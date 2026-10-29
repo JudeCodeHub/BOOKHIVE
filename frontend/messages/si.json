@@ -2341,5 +2341,82 @@
     "downloadCSV": "CSV බාගන්න",
     "downloadPDF": "PDF බාගන්න",
     "downloading": "සකසමින්…"
+  },
+  "Stocktake": {
+    "title": "මාතෘකාව",
+    "description": "නැති දේ සොයා ගැනීමට රාක්කයක ඇති සෑම පොතක්ම ස්කෑන් කරන්න. කොටසක්, විෂයයක් හෝ මුළු පුස්තකාලය සඳහා ආරම්භ කරන්න.",
+    "start": "තොග පරීක්ෂාව ආරම්භ කරන්න",
+    "empty": "තවම තොග පරීක්ෂා නැත.",
+    "statuses": {
+      "OPEN": "සිදු වෙමින්",
+      "COMPLETED": "අවසන්",
+      "CANCELLED": "අවලංගුයි"
+    },
+    "wholeLibrary": "මුළු පුස්තකාලය",
+    "scopeShelves": "රාක්ක: {shelves}",
+    "scopeCategory": "විෂයය: {category}",
+    "startTitle": "තොග පරීක්ෂාවක් ආරම්භ කරන්න",
+    "startText": "පරීක්ෂා කළ යුතු දේ තෝරන්න. මුළු පුස්තකාලය සඳහා දෙකම හිස්ව තබන්න.",
+    "name": "නම",
+    "defaultName": "තොග පරීක්ෂාව {date}",
+    "shelves": "රාක්ක (අත්‍යවශ්‍ය නොවේ)",
+    "shelvesPlaceholder": "උදා: Non-fiction 500s",
+    "shelvesHint": "කොටසක් (Non-fiction 500s) හෝ එක් රාක්කයක් (Non-fiction 500s, shelf 1).",
+    "category": "විෂයය (අත්‍යවශ්‍ය නොවේ)",
+    "anyCategory": "ඕනෑම විෂයයක්",
+    "categoryHint": "ඊට යටින් ඇති සියල්ල ඇතුළත්.",
+    "cancel": "අවලංගු කරන්න",
+    "startScanning": "ස්කෑන් කිරීම අරඹන්න",
+    "progressLabel": "තොග පරීක්ෂාවේ ප්‍රගතිය",
+    "progress": "{expected} න් {found} ක් හමු විය ({percent})",
+    "back": "සියලු තොග පරීක්ෂා",
+    "complete": "අවසන් කරන්න",
+    "cancelStocktake": "තොග පරීක්ෂාව අවලංගු කරන්න",
+    "counts": {
+      "found": "හමු විය",
+      "missing": "නැති",
+      "needsLook": "බැලිය යුතු"
+    },
+    "frozenNote": "තොග පරීක්ෂාව අවසන් කළ අවස්ථාවේ තිබූ අංක.",
+    "scanLabel": "පොතක් ස්කෑන් කරන්න",
+    "scanHint": "ස්කෑනරය හෝ කැමරාව භාවිත කරන්න, නැතහොත් තීරු කේතය ටයිප් කර Enter ඔබන්න.",
+    "scanPlaceholder": "තීරු කේතය",
+    "waiting": "රාක්කයේ පළමු පොත ස්කෑන් කරන්න.",
+    "recent": "දැන් ස්කෑන් කළ",
+    "results": {
+      "FOUND": "හමු විය: එය මෙහි අයත්",
+      "again": "දැනටමත් ස්කෑන් කළා",
+      "NOT_IN_SCOPE": "වෙනත් තැනකට අයත්",
+      "NOT_ON_SHELF": "රාක්කයේ නොතිබිය යුතුයි",
+      "UNKNOWN": "නොදන්නා තීරු කේතය"
+    },
+    "systemSays": "පද්ධතිය පවසන්නේ: {status}. එය කවුන්ටරයට ගෙන යන්න.",
+    "missingTab": "නැති ({count})",
+    "issuesTab": "බැලිය යුතු ({count})",
+    "noneMissing": "කිසිවක් නැති වී නැත.",
+    "noIssues": "ගැටලු හමු නොවීය.",
+    "missingHint": "රාක්ක අනුපිළිවෙළට: තීරණයකට පෙර ඇවිද නැවත බලන්න.",
+    "shelf": "රාක්කය",
+    "callNumber": "ඇමතුම් අංකය",
+    "barcode": "තීරු කේතය",
+    "when": "කවදාද",
+    "whatsWrong": "ගැටලුව",
+    "issues": {
+      "NOT_IN_SCOPE": "වෙනත් රාක්කයකට අයත්",
+      "NOT_ON_SHELF": "පද්ධතිය පවසන්නේ: {status}",
+      "UNKNOWN": "නාමාවලියේ නැත",
+      "FOUND": "හමු විය"
+    },
+    "completeTitle": "මෙම තොග පරීක්ෂාව අවසන් කරන්නද?",
+    "completeText": "{missing, plural, =0 {කිසිවක් නැති වී නැත.} one {පොත් # ක් නැත.} other {පොත් # ක් නැත.}} අංක දැන් පවතින ආකාරයෙන් තබා ගැනේ. නාමාවලියේ කිසිවක් වෙනස් නොවේ.",
+    "cancelTitle": "මෙම තොග පරීක්ෂාව අවලංගු කරන්නද?",
+    "cancelText": "එය ප්‍රතිඵලයක් නොමැතිව අවලංගු ලෙස ලැයිස්තුවේ තබා ගැනේ.",
+    "keepScanning": "ස්කෑන් කිරීම දිගටම",
+    "completed": "තොග පරීක්ෂාව අවසන් කළා.",
+    "cancelled": "තොග පරීක්ෂාව අවලංගු කළා.",
+    "errors": {
+      "STOCKTAKE_CLOSED": "මෙම තොග පරීක්ෂාව දැනටමත් අවසන්.",
+      "STOCKTAKE_NOT_FOUND": "මෙම තොග පරීක්ෂාව තවදුරටත් නැත."
+    }
   }
 }
