@@ -16,6 +16,7 @@ import lk.bookhive.report.service.BookUsageReportService;
 import lk.bookhive.report.service.CirculationReportService;
 import lk.bookhive.report.service.CirculationReportService.CirculationReport;
 import lk.bookhive.report.service.CirculationReportService.GroupBy;
+import lk.bookhive.report.service.MembershipReportService;
 import lk.bookhive.report.service.OverdueFineReportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -209,17 +210,52 @@ public class AdminReportController {
       List<FinePeriodSummary> periods,
       List<FineTypeSummary> byType) {}
 
+  /**
+   * @param activeNow ACTIVE and not past their expiry today
+   * @param pendingNow applications waiting for a decision
+   */
+  public record MembershipTotalsSummary(
+      long applications, long newMembers, long activeNow, long pendingNow) {}
+
+  /**
+   * @param newMembers applications approved in the period
+   * @param membersAtEnd with a valid membership on the period's last day (from each member's
+   *     current expiry: a past suspension that was lifted isn't visible)
+   */
+  public record MembershipPeriodSummary(
+      LocalDate start, long applications, long newMembers, long membersAtEnd) {}
+
+  public record MembershipTypeSummary(
+      UUID typeId,
+      String code,
+      String nameEn,
+      String nameSi,
+      String nameTa,
+      long newMembers,
+      long activeNow) {}
+
+  public record MembershipReportResponse(
+      LocalDate from,
+      LocalDate to,
+      Period groupBy,
+      MembershipTotalsSummary totals,
+      List<MembershipPeriodSummary> periods,
+      List<MembershipTypeSummary> byType) {}
+
   private final CirculationReportService circulation;
   private final BookUsageReportService usage;
   private final OverdueFineReportService money;
+  private final MembershipReportService membership;
 
   public AdminReportController(
       CirculationReportService circulation,
       BookUsageReportService usage,
-      OverdueFineReportService money) {
+      OverdueFineReportService money,
+      MembershipReportService membership) {
     this.circulation = circulation;
     this.usage = usage;
     this.money = money;
+    this.membership = membership;
   }
 
   @GetMapping("/circulation")
@@ -359,6 +395,43 @@ public class AdminReportController {
             .toList(),
         r.byType().stream()
             .map(x -> new FineTypeSummary(x.type(), x.charged(), x.collected(), x.waived()))
+            .toList());
+  }
+
+  @GetMapping("/membership")
+  @Operation(
+      summary =
+          "Membership growth per day (up to 366 days) or month: applications, new members,"
+              + " members at the end of each period; and per membership type")
+  public MembershipReportResponse membership(
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+      @RequestParam(defaultValue = "MONTH") Period groupBy) {
+    var r = membership.growth(from, to, groupBy);
+    var t = r.totals();
+    return new MembershipReportResponse(
+        r.from(),
+        r.to(),
+        r.groupBy(),
+        new MembershipTotalsSummary(
+            t.applications(), t.newMembers(), t.activeNow(), t.pendingNow()),
+        r.periods().stream()
+            .map(
+                p ->
+                    new MembershipPeriodSummary(
+                        p.start(), p.applications(), p.newMembers(), p.membersAtEnd()))
+            .toList(),
+        r.byType().stream()
+            .map(
+                x ->
+                    new MembershipTypeSummary(
+                        x.typeId(),
+                        x.code(),
+                        x.nameEn(),
+                        x.nameSi(),
+                        x.nameTa(),
+                        x.newMembers(),
+                        x.activeNow()))
             .toList());
   }
 }

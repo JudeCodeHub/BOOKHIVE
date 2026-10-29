@@ -2617,6 +2617,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/membership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Membership growth per day (up to 366 days) or month: applications, new members, members at the end of each period; and per membership type */
+        get: operations["membership_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/fines": {
         parameters: {
             query?: never;
@@ -4519,6 +4536,49 @@ export interface components {
             checkouts: number;
             /** Format: int64 */
             borrowers: number;
+        };
+        MembershipPeriodSummary: {
+            /** Format: date */
+            start: string;
+            /** Format: int64 */
+            applications: number;
+            /** Format: int64 */
+            newMembers: number;
+            /** Format: int64 */
+            membersAtEnd: number;
+        };
+        MembershipReportResponse: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** @enum {string} */
+            groupBy: "DAY" | "MONTH";
+            totals: components["schemas"]["MembershipTotalsSummary"];
+            periods: components["schemas"]["MembershipPeriodSummary"][];
+            byType: components["schemas"]["MembershipTypeSummary"][];
+        };
+        MembershipTotalsSummary: {
+            /** Format: int64 */
+            applications: number;
+            /** Format: int64 */
+            newMembers: number;
+            /** Format: int64 */
+            activeNow: number;
+            /** Format: int64 */
+            pendingNow: number;
+        };
+        MembershipTypeSummary: {
+            /** Format: uuid */
+            typeId: string;
+            code: string;
+            nameEn: string;
+            nameSi: string;
+            nameTa: string;
+            /** Format: int64 */
+            newMembers: number;
+            /** Format: int64 */
+            activeNow: number;
         };
         FinePeriodSummary: {
             /** Format: date */
@@ -8955,6 +9015,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MostBorrowedSummary"][];
+                };
+            };
+        };
+    };
+    membership_1: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                groupBy?: "DAY" | "MONTH";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MembershipReportResponse"];
                 };
             };
         };
