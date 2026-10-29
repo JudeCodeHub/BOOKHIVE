@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import lk.bookhive.admin.settings.Settings;
+import lk.bookhive.admin.settings.SettingsService;
 import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.catalog.service.LendingCatalogService;
 import lk.bookhive.catalog.service.LendingCatalogService.LendableCopy;
@@ -49,8 +51,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CheckoutService {
 
-  /** Most items in one checkout (a family's weekly pile, not a whole shelf). */
-  public static final int MAX_ITEMS = 20;
+  /**
+   * Most items a checkout request may contain. The library's own limit (default 20, a family's
+   * weekly pile, not a whole shelf) is a setting at most this high (Settings.Loans).
+   */
+  public static final int MAX_ITEMS = Settings.Loans.MOST_PER_CHECKOUT;
 
   private final BorrowerService borrowers;
   private final LendingCatalogService catalog;
@@ -61,6 +66,7 @@ public class CheckoutService {
   private final AuditService audit;
   private final ApplicationEventPublisher events;
   private final LibraryTime time;
+  private final SettingsService settings;
 
   public CheckoutService(
       BorrowerService borrowers,
@@ -71,7 +77,8 @@ public class CheckoutService {
       AuthService authService,
       AuditService audit,
       ApplicationEventPublisher events,
-      LibraryTime time) {
+      LibraryTime time,
+      SettingsService settings) {
     this.borrowers = borrowers;
     this.catalog = catalog;
     this.loans = loans;
@@ -81,6 +88,7 @@ public class CheckoutService {
     this.audit = audit;
     this.events = events;
     this.time = time;
+    this.settings = settings;
   }
 
   /** The member at the desk: who they are and where they stand. */
@@ -292,16 +300,17 @@ public class CheckoutService {
   }
 
   /** Upper-case, no blanks, each barcode once (a double scan is not two copies). */
-  private static List<String> normalise(List<String> barcodes) {
+  private List<String> normalise(List<String> barcodes) {
     LinkedHashSet<String> unique = new LinkedHashSet<>();
     for (String barcode : barcodes == null ? List.<String>of() : barcodes) {
       if (barcode != null && !barcode.isBlank()) {
         unique.add(barcode.strip().toUpperCase(Locale.ROOT));
       }
     }
-    if (unique.size() > MAX_ITEMS) {
+    int most = settings.loans().maxItemsPerCheckout();
+    if (unique.size() > most) {
       throw new FieldValidationException(
-          "barcodes", "TOO_MANY_ITEMS", "At most " + MAX_ITEMS + " items in one checkout.");
+          "barcodes", "TOO_MANY_ITEMS", "At most " + most + " items in one checkout.");
     }
     return List.copyOf(unique);
   }

@@ -21,12 +21,13 @@ import { ApiError, api, type Schema } from "@/lib/api";
 
 type CheckoutPreview = Schema<"CheckoutPreviewResponse">;
 type CheckoutReceipt = Schema<"CheckoutReceiptResponse">;
+type Rules = Schema<"RulesResponse">;
 
 /** Library cards are "BH-000123"; anything else scanned at the desk is a book. */
 export const isMemberCard = (code: string) => /^BH-\d+$/.test(code);
 
-/** Most books in one checkout (the server's limit too). */
-const MAX_ITEMS = 20;
+/** Most books in one checkout until the library's own setting has loaded (the server checks too). */
+const DEFAULT_MAX_ITEMS = 20;
 
 /**
  * Check out at the desk. Scanning a library card loads the member card with every alert (step
@@ -51,6 +52,13 @@ export function CheckoutDesk() {
   const [receipt, setReceipt] = useState<{ data: CheckoutReceipt; emailed: boolean } | null>(null);
   // The code just scanned: the next check's result is sounded for it (not for removals)
   const soundFor = useRef<string | null>(null);
+  // Admins set the limit (Admin settings, loans); same query as the public rules page
+  const rules = useQuery({
+    queryKey: ["library", "rules"],
+    queryFn: () => api.get<Rules>("/library/rules"),
+    staleTime: 5 * 60_000,
+  });
+  const maxItems = rules.data?.maxItemsPerCheckout ?? DEFAULT_MAX_ITEMS;
 
   const preview = useQuery({
     queryKey: ["desk", "preview", memberNo, barcodes],
@@ -127,9 +135,9 @@ export function CheckoutDesk() {
     } else if (barcodes.includes(code)) {
       playSound("warning");
       setNotice(t("alreadyInList", { code }));
-    } else if (barcodes.length >= MAX_ITEMS) {
+    } else if (barcodes.length >= maxItems) {
       playSound("warning");
-      setNotice(t("tooManyItems", { max: MAX_ITEMS }));
+      setNotice(t("tooManyItems", { max: maxItems }));
     } else {
       soundFor.current = code;
       setNotice(null);

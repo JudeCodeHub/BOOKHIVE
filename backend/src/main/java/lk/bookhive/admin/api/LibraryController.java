@@ -52,10 +52,11 @@ public class LibraryController {
       BigDecimal blockBorrowingAt,
       int holdPickupOpenDays,
       int membershipValidityYears,
-      int documentRetentionDays) {}
+      int documentRetentionDays,
+      int maxItemsPerCheckout) {}
 
   @GetMapping("/rules")
-  @Operation(summary = "Borrowing rules: fines, lost items, holds, membership")
+  @Operation(summary = "Borrowing rules: fines, lost items, holds, membership, checkout size")
   public RulesResponse rules() {
     // From the admin-editable settings, so the page says exactly what the system enforces
     Fines fines = settings.fines();
@@ -69,7 +70,8 @@ public class LibraryController {
         fines.blockBorrowingAt(),
         settings.holds().pickupOpenDays(),
         membership.validityYears(),
-        membership.documentRetentionDays());
+        membership.documentRetentionDays(),
+        settings.loans().maxItemsPerCheckout());
   }
 
   /** One weekday. Both times null = closed. */

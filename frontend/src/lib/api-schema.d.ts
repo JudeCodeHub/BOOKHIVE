@@ -181,6 +181,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/settings/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save when reminders go out */
+        put: operations["notifications"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings/membership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save the membership rules */
+        put: operations["membership"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save the loan rules (version: from the last read; 409 if it changed) */
+        put: operations["loans"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings/holds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save the hold rules */
+        put: operations["holds"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings/fines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save the fine rules (amounts in LKR) */
+        put: operations["fines"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/membership-types/{id}": {
         parameters: {
             query?: never;
@@ -2042,7 +2127,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Borrowing rules: fines, lost items, holds, membership */
+        /** Borrowing rules: fines, lost items, holds, membership, checkout size */
         get: operations["rules"];
         put?: never;
         post?: never;
@@ -2316,6 +2401,23 @@ export interface paths {
         };
         /** An author's name, bio and number of books */
         get: operations["get_10"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** All library settings, with who changed each group last */
+        get: operations["all_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2615,6 +2717,61 @@ export interface components {
         };
         ReadingHistorySettingResponse: {
             enabled: boolean;
+        };
+        ReminderSettings: {
+            /** Format: int32 */
+            dueSoonDaysBefore: number;
+            /** Format: int32 */
+            holdExpiringDaysBefore: number;
+            /** Format: int32 */
+            membershipExpiringDaysBefore: number;
+        };
+        FineSettings: {
+            perDay: number;
+            /** Format: int32 */
+            graceDays: number;
+            maxPerItem: number;
+            lostDefaultPrice: number;
+            lostProcessingFee: number;
+            blockBorrowingAt: number;
+            librarianWaiveLimit: number;
+        };
+        HoldSettings: {
+            /** Format: int32 */
+            pickupOpenDays: number;
+        };
+        LoanSettings: {
+            /** Format: int32 */
+            maxItemsPerCheckout: number;
+        };
+        MembershipSettings: {
+            /** Format: int32 */
+            validityYears: number;
+            /** Format: int32 */
+            renewalWindowDays: number;
+            /** Format: int32 */
+            documentRetentionDays: number;
+            /** Format: int32 */
+            historyAnonymiseDays: number;
+        };
+        SettingChangeSummary: {
+            /** Format: int64 */
+            version: number;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: uuid */
+            updatedBy: string | null;
+            updatedByName: string | null;
+        };
+        SettingsResponse: {
+            loans: components["schemas"]["LoanSettings"];
+            fines: components["schemas"]["FineSettings"];
+            holds: components["schemas"]["HoldSettings"];
+            membership: components["schemas"]["MembershipSettings"];
+            notifications: components["schemas"]["ReminderSettings"];
+            changes: {
+                [key: string]: components["schemas"]["SettingChangeSummary"];
+            };
         };
         MembershipTypeRequest: {
             code?: string;
@@ -3796,6 +3953,8 @@ export interface components {
             membershipValidityYears: number;
             /** Format: int32 */
             documentRetentionDays: number;
+            /** Format: int32 */
+            maxItemsPerCheckout: number;
         };
         LibraryInfoResponse: {
             name: string;
@@ -4487,6 +4646,136 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ReadingHistorySettingResponse"];
+                };
+            };
+        };
+    };
+    notifications: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReminderSettings"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SettingsResponse"];
+                };
+            };
+        };
+    };
+    membership: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MembershipSettings"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SettingsResponse"];
+                };
+            };
+        };
+    };
+    loans: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoanSettings"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SettingsResponse"];
+                };
+            };
+        };
+    };
+    holds: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HoldSettings"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SettingsResponse"];
+                };
+            };
+        };
+    };
+    fines: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FineSettings"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SettingsResponse"];
                 };
             };
         };
@@ -7773,6 +8062,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PublicAuthorResponse"];
+                };
+            };
+        };
+    };
+    all_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SettingsResponse"];
                 };
             };
         };

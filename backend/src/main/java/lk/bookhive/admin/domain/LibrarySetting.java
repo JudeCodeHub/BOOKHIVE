@@ -65,4 +65,8 @@ public class LibrarySetting {
   public Instant getUpdatedAt() {
     return updatedAt;
   }
+
+  public Long getVersion() {
+    return version;
+  }
 }
