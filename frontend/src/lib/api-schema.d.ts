@@ -2566,6 +2566,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/circulation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Loans and returns per day (up to 366 days), per month, or per top-level category (up to 5 years) */
+        get: operations["circulation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/notifications/templates": {
         parameters: {
             query?: never;
@@ -4357,6 +4374,49 @@ export interface components {
             bio: string;
             /** Format: int64 */
             bookCount: number;
+        };
+        CirculationCategorySummary: {
+            /** Format: uuid */
+            categoryId: string;
+            nameEn: string;
+            nameSi: string;
+            nameTa: string;
+            ddcCode: string | null;
+            /** Format: int64 */
+            checkouts: number;
+            /** Format: int64 */
+            borrowers: number;
+        };
+        CirculationPeriodSummary: {
+            /** Format: date */
+            start: string;
+            /** Format: int64 */
+            checkouts: number;
+            /** Format: int64 */
+            returns: number;
+            /** Format: int64 */
+            borrowers: number;
+        };
+        CirculationReportResponse: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** @enum {string} */
+            groupBy: "DAY" | "MONTH" | "CATEGORY";
+            totals: components["schemas"]["CirculationTotalsSummary"];
+            periods: components["schemas"]["CirculationPeriodSummary"][];
+            categories: components["schemas"]["CirculationCategorySummary"][];
+        };
+        CirculationTotalsSummary: {
+            /** Format: int64 */
+            checkouts: number;
+            /** Format: int64 */
+            returns: number;
+            /** Format: int64 */
+            borrowers: number;
+            /** Format: int64 */
+            uncategorised: number;
         };
         TemplateTypeSummary: {
             /** @enum {string} */
@@ -8640,6 +8700,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SettingsResponse"];
+                };
+            };
+        };
+    };
+    circulation: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                groupBy?: "DAY" | "MONTH" | "CATEGORY";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CirculationReportResponse"];
                 };
             };
         };
