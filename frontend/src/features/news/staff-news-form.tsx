@@ -13,10 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { useRouter } from "@/i18n/navigation";
 import { api } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 import { STAFF_NEWS_KEY, type StaffNewsPost } from "./staff-news";
 
 /**
@@ -50,6 +49,7 @@ export function StaffNewsForm({ post }: { post?: StaffNewsPost }) {
   });
   const { errors, isSubmitting, isDirty } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     const body = { ...values, summary: values.summary || undefined };
@@ -66,7 +66,7 @@ export function StaffNewsForm({ post }: { post?: StaffNewsPost }) {
       }
       void queryClient.invalidateQueries({ queryKey: STAFF_NEWS_KEY });
     } catch (error) {
-      if (!applyServerErrors(error, form.setError)) setFormError(errorMessage(error));
+      if (!applyFieldErrors(error, form.setError)) setFormError(errorMessage(error));
     }
   });
 

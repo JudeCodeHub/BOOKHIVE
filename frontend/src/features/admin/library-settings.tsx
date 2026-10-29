@@ -13,9 +13,8 @@ import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { ApiError, api, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 type Settings = Schema<"SettingsResponse">;
 type Change = Schema<"SettingChangeSummary">;
@@ -168,6 +167,7 @@ function SettingsCard({
   });
   const { errors, isDirty, isSubmitting } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (body) => {
     setFormError(null);
     try {
@@ -187,7 +187,7 @@ function SettingsCard({
         const f = fields.find((x) => x.name === fieldError.field);
         return f ? t("errors.range", { min: f.min, max: f.max }) : undefined;
       };
-      if (!applyServerErrors(error, form.setError, translate)) setFormError(errorMessage(error));
+      if (!applyFieldErrors(error, form.setError, translate)) setFormError(errorMessage(error));
     }
   });
 

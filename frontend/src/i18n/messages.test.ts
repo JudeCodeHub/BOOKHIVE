@@ -24,8 +24,12 @@ describe.each([
     expect(Object.keys(translated).sort()).toEqual(Object.keys(english).sort());
   });
 
-  it("have no empty texts", () => {
-    expect(Object.entries(translated).filter(([, text]) => !text.trim())).toEqual([]);
+  // English leaves a few deliberately empty (roles.AUTHOR: the book page already says "by X")
+  it("have no empty texts where English has one", () => {
+    const blank = Object.entries(translated).filter(
+      ([key, text]) => !text.trim() && english[key]?.trim(),
+    );
+    expect(blank).toEqual([]);
   });
 
   it("keep the same {placeholders} as English", () => {

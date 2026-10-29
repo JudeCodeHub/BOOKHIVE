@@ -33,11 +33,10 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { Pager } from "@/features/staff/pager";
 import { Link } from "@/i18n/navigation";
 import { api, type PageResponse, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 type Donation = Schema<"DonationResponse">;
 type DonationDetail = Schema<"DonationDetailResponse">;
@@ -171,6 +170,7 @@ function DonationForm({ donation, onDone }: { donation?: Donation; onDone: () =>
   });
   const { errors, isSubmitting } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     const body = {
@@ -185,7 +185,7 @@ function DonationForm({ donation, onDone }: { donation?: Donation; onDone: () =>
       await queryClient.invalidateQueries({ queryKey: DONATIONS_KEY });
       onDone();
     } catch (error) {
-      if (!applyServerErrors(error, form.setError)) setFormError(errorMessage(error));
+      if (!applyFieldErrors(error, form.setError)) setFormError(errorMessage(error));
     }
   });
 

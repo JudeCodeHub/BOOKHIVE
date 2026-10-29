@@ -16,10 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { Link, useRouter } from "@/i18n/navigation";
 import { ApiError, api, type PageResponse, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 type Book = Schema<"BookResponse">;
 type BookRequest = Schema<"BookRequest">;
@@ -181,6 +180,7 @@ export function BookForm({
     return created.id;
   }
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     try {
@@ -217,7 +217,7 @@ export function BookForm({
         t.has(`errors.${code}` as never) ? t(`errors.${code}` as never) : undefined;
       if (error instanceof ApiError && error.code === "BOOK_ISBN_EXISTS") {
         form.setError("isbn", { message: t("errors.BOOK_ISBN_EXISTS") }, { shouldFocus: true });
-      } else if (!applyServerErrors(error, form.setError, translate)) {
+      } else if (!applyFieldErrors(error, form.setError, translate)) {
         setFormError(
           translate({ code: error instanceof ApiError ? error.code : "" }) ?? errorMessage(error),
         );

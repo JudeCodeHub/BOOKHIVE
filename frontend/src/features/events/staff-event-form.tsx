@@ -12,10 +12,9 @@ import { RichTextEditor } from "@/components/forms/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { useRouter } from "@/i18n/navigation";
 import { api } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 import { fromLibraryInput, toLibraryInput } from "./library-dates";
 import { STAFF_EVENTS_KEY, type StaffEvent } from "./staff-events";
 
@@ -75,6 +74,7 @@ export function StaffEventForm({ event }: { event?: StaffEvent }) {
   const registrationRequired = useWatch({ control: form.control, name: "registrationRequired" });
   const locked = event?.status === "CANCELLED";
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     const body = {
@@ -103,7 +103,7 @@ export function StaffEventForm({ event }: { event?: StaffEvent }) {
     } catch (error) {
       const translate = (field: { code: string }) =>
         t.has(`errors.${field.code}` as never) ? t(`errors.${field.code}` as never) : undefined;
-      if (!applyServerErrors(error, form.setError, translate)) setFormError(errorMessage(error));
+      if (!applyFieldErrors(error, form.setError, translate)) setFormError(errorMessage(error));
     }
   });
 

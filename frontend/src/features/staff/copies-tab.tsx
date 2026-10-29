@@ -29,9 +29,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { ApiError, api, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 import { EntityCombobox, type EntityChoice } from "@/components/forms/entity-combobox";
 import { searchDonations } from "@/features/staff/donations";
 import { CopyDetail } from "@/features/staff/copy-detail";
@@ -279,6 +278,7 @@ function AddCopiesForm({ bookId, onDone }: { bookId: string; onDone: () => void 
   const ownBarcode = useWatch({ control: form.control, name: "barcode" }).trim() !== "";
   const selectClass = "h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm";
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     const body: AddCopiesRequest = {
@@ -306,7 +306,7 @@ function AddCopiesForm({ bookId, onDone }: { bookId: string; onDone: () => void 
     } catch (error) {
       const translate = ({ code }: { code: string }) =>
         t.has(`errors.${code}` as never) ? t(`errors.${code}` as never) : undefined;
-      if (!applyServerErrors(error, form.setError, translate)) {
+      if (!applyFieldErrors(error, form.setError, translate)) {
         setFormError(
           error instanceof ApiError
             ? (translate(error) ?? errorMessage(error))

@@ -12,9 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { ApiError, api } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 /** Contact form on the visit page (checklist step 207), protected by Turnstile and a rate limit. */
 export function ContactForm() {
@@ -45,6 +44,7 @@ export function ContactForm() {
   });
   const { errors, isSubmitting } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     if (!token) {
@@ -63,7 +63,7 @@ export function ContactForm() {
       // The robot check isn't a visible field: show it above the form; the rest under their boxes
       if (
         code === "CAPTCHA_FAILED" ||
-        !applyServerErrors(error, form.setError, ({ code: c }) => translate(c))
+        !applyFieldErrors(error, form.setError, ({ code: c }) => translate(c))
       ) {
         setFormError(translate(code) ?? errorMessage(error));
       }

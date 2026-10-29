@@ -10,10 +10,10 @@ import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { Link } from "@/i18n/navigation";
 import { ApiError, api } from "@/lib/api";
-import { applyServerErrors, utf8Length } from "@/lib/forms";
+import { utf8Length } from "@/lib/forms";
 
 /** Same limits as the backend's RegisterRequest, so most mistakes are caught before sending. */
 const PASSWORD_MIN = 8;
@@ -55,6 +55,7 @@ export function RegisterForm() {
   });
   const { errors, isSubmitting } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     try {
@@ -78,7 +79,7 @@ export function RegisterForm() {
       }
       const translate = ({ code }: { code: string }) =>
         errorsT.has(code as never) ? errorsT(code as never) : undefined;
-      if (!applyServerErrors(error, form.setError, translate)) {
+      if (!applyFieldErrors(error, form.setError, translate)) {
         setFormError(errorMessage(error));
       }
     }

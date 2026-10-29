@@ -265,7 +265,9 @@ function ResultPanel({ result: r }: { result: ScanResult | null }) {
       ) : (
         <>
           <ResultIcon result={r} className="size-9" />
-          <p className="text-lg font-semibold">{t(`results.${r.alreadyScanned ? "again" : r.result}`)}</p>
+          <p className="text-lg font-semibold">
+            {t(`results.${r.alreadyScanned ? "again" : r.result}`)}
+          </p>
           {r.title && <p className="text-sm">{r.title}</p>}
           <p className="font-mono text-xs text-muted-foreground">
             {r.barcode}

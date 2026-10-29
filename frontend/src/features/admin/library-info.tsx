@@ -15,9 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { ApiError, api, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 type LibraryInfo = Schema<"AdminLibraryInfoResponse">;
 
@@ -107,6 +106,7 @@ function InfoForm({ info }: { info: LibraryInfo }) {
     number | string,
   ];
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     try {
@@ -122,7 +122,7 @@ function InfoForm({ info }: { info: LibraryInfo }) {
         setStale(true);
         return;
       }
-      if (!applyServerErrors(error, form.setError)) setFormError(errorMessage(error));
+      if (!applyFieldErrors(error, form.setError)) setFormError(errorMessage(error));
     }
   });
 

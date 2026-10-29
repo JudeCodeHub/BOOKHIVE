@@ -14,10 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { Link } from "@/i18n/navigation";
 import { ApiError, api, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 type Suggestion = Schema<"SuggestionResponse">;
 
@@ -58,6 +57,7 @@ export function MySuggestions({ initialTitle }: { initialTitle?: string } = {}) 
   });
   const { errors, isSubmitting } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     try {
@@ -73,7 +73,7 @@ export function MySuggestions({ initialTitle }: { initialTitle?: string } = {}) 
     } catch (error) {
       const translate = ({ code }: { code: string }) =>
         t.has(`errors.${code}` as never) ? t(`errors.${code}` as never) : undefined;
-      if (!applyServerErrors(error, form.setError, translate)) {
+      if (!applyFieldErrors(error, form.setError, translate)) {
         const code = error instanceof ApiError ? error.code : "";
         setFormError(translate({ code }) ?? errorMessage(error));
       }
