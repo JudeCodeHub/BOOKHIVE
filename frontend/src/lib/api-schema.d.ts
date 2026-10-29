@@ -336,6 +336,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/stocktakes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stock-takes, newest first */
+        get: operations["list"];
+        put?: never;
+        /** Start a stock-take for a category and/or shelves (both empty = everything) */
+        post: operations["start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/stocktakes/{id}/scans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Scan one barcode: says at once whether it belongs here */
+        post: operations["scan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/stocktakes/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Finish: the counts are kept as they are now */
+        post: operations["complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/stocktakes/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop without a result */
+        post: operations["cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/reviews/{id}/reject": {
         parameters: {
             query?: never;
@@ -395,7 +464,7 @@ export interface paths {
             cookie?: never;
         };
         /** Publishers A–Z, optionally filtered by part of the name */
-        get: operations["list"];
+        get: operations["list_1"];
         put?: never;
         /** Add a publisher (409 PUBLISHER_EXISTS if the name is taken) */
         post: operations["create"];
@@ -413,7 +482,7 @@ export interface paths {
             cookie?: never;
         };
         /** All posts (drafts too), most recently changed first */
-        get: operations["list_1"];
+        get: operations["list_2"];
         put?: never;
         /** Write a post (as a draft) */
         post: operations["create_1"];
@@ -639,7 +708,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Cancel a member's hold, with a reason (audited) */
-        post: operations["cancel"];
+        post: operations["cancel_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -654,7 +723,7 @@ export interface paths {
             cookie?: never;
         };
         /** All events (drafts too), latest start first, with sign-up counts */
-        get: operations["list_2"];
+        get: operations["list_3"];
         put?: never;
         /** Create an event (as a draft only staff can see) */
         post: operations["create_2"];
@@ -727,7 +796,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Cancel an event with a reason (everyone signed up is told) */
-        post: operations["cancel_1"];
+        post: operations["cancel_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -742,7 +811,7 @@ export interface paths {
             cookie?: never;
         };
         /** Donations, newest first; optionally by part of the donor's name */
-        get: operations["list_3"];
+        get: operations["list_4"];
         put?: never;
         /** Record a donation */
         post: operations["create_3"];
@@ -863,7 +932,7 @@ export interface paths {
             cookie?: never;
         };
         /** All copies of a book, withdrawn ones too */
-        get: operations["list_4"];
+        get: operations["list_5"];
         put?: never;
         /** Add one or more copies (barcodes generated unless one is given) */
         post: operations["add"];
@@ -898,7 +967,7 @@ export interface paths {
             cookie?: never;
         };
         /** Authors A–Z, optionally filtered by part of the name */
-        get: operations["list_5"];
+        get: operations["list_6"];
         put?: never;
         /** Add an author */
         post: operations["create_6"];
@@ -967,7 +1036,7 @@ export interface paths {
             cookie?: never;
         };
         /** My wishlist, newest first, with what's on the shelf now */
-        get: operations["list_6"];
+        get: operations["list_7"];
         put?: never;
         /** Save a book (saving it again changes nothing) */
         post: operations["add_1"];
@@ -1108,7 +1177,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Cancel my hold (a copy set aside goes to the next in line) */
-        post: operations["cancel_2"];
+        post: operations["cancel_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1142,7 +1211,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Give up my place or leave the waitlist (the next person moves up) */
-        post: operations["cancel_3"];
+        post: operations["cancel_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1310,7 +1379,7 @@ export interface paths {
             cookie?: never;
         };
         /** All librarians and admins by name, deactivated ones included */
-        get: operations["list_7"];
+        get: operations["list_8"];
         put?: never;
         /** Create a librarian or admin account; they get an invite email */
         post: operations["invite"];
@@ -1519,7 +1588,58 @@ export interface paths {
             cookie?: never;
         };
         /** Suggestions by status (default: new ones), oldest first */
-        get: operations["list_8"];
+        get: operations["list_9"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/stocktakes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One stock-take with its counts */
+        get: operations["get_6"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/stocktakes/{id}/missing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Copies that should be on the shelf but weren't scanned, in shelf order */
+        get: operations["missing"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/stocktakes/{id}/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Scans that need a look: other shelf, wrong status, unknown barcode */
+        get: operations["issues"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1638,7 +1758,7 @@ export interface paths {
             cookie?: never;
         };
         /** Loans out now, soonest due first; overdue=true: only overdue, longest first; dueWithinDays=N: only those due in the next N days */
-        get: operations["list_9"];
+        get: operations["list_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1859,7 +1979,7 @@ export interface paths {
             cookie?: never;
         };
         /** One application with its documents */
-        get: operations["get_6"];
+        get: operations["get_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1944,7 +2064,7 @@ export interface paths {
             cookie?: never;
         };
         /** Published news, pinned first then newest */
-        get: operations["list_10"];
+        get: operations["list_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1961,7 +2081,7 @@ export interface paths {
             cookie?: never;
         };
         /** One published post */
-        get: operations["get_7"];
+        get: operations["get_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2030,7 +2150,7 @@ export interface paths {
             cookie?: never;
         };
         /** My notifications, newest first, in the given language */
-        get: operations["list_11"];
+        get: operations["list_12"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2336,7 +2456,7 @@ export interface paths {
             cookie?: never;
         };
         /** One event with places left (cancelled ones show the reason) */
-        get: operations["get_8"];
+        get: operations["get_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2404,7 +2524,7 @@ export interface paths {
             cookie?: never;
         };
         /** Browse books page by page; q = ISBN or part of the title */
-        get: operations["list_12"];
+        get: operations["list_13"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2421,7 +2541,7 @@ export interface paths {
             cookie?: never;
         };
         /** One book with its authors, publisher and categories */
-        get: operations["get_9"];
+        get: operations["get_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2540,7 +2660,7 @@ export interface paths {
             cookie?: never;
         };
         /** An author's name, bio and number of books */
-        get: operations["get_10"];
+        get: operations["get_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2710,7 +2830,7 @@ export interface paths {
             cookie?: never;
         };
         /** Messages in a status (FAILED by default), most recently changed first */
-        get: operations["list_13"];
+        get: operations["list_14"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3160,6 +3280,54 @@ export interface components {
             nameEn: string;
             nameSi: string;
             nameTa: string;
+        };
+        StartStocktakeRequest: {
+            name: string;
+            /** Format: uuid */
+            categoryId?: string;
+            shelfPrefix?: string;
+        };
+        StocktakeCountsSummary: {
+            /** Format: int64 */
+            expected: number;
+            /** Format: int64 */
+            found: number;
+            /** Format: int64 */
+            missing: number;
+            /** Format: int64 */
+            scanned: number;
+            /** Format: int64 */
+            needsLook: number;
+        };
+        StocktakeSummary: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** Format: uuid */
+            categoryId: string | null;
+            shelfPrefix: string | null;
+            /** @enum {string} */
+            status: "OPEN" | "COMPLETED" | "CANCELLED";
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            finishedAt: string | null;
+            counts: components["schemas"]["StocktakeCountsSummary"];
+        };
+        ScanRequest: {
+            barcode: string;
+        };
+        ScanResultResponse: {
+            barcode: string;
+            /** @enum {string} */
+            result: "FOUND" | "NOT_IN_SCOPE" | "NOT_ON_SHELF" | "UNKNOWN";
+            alreadyScanned: boolean;
+            /** Format: uuid */
+            copyId: string | null;
+            title: string | null;
+            shelfLocation: string | null;
+            copyStatus: string | null;
+            counts: components["schemas"]["StocktakeCountsSummary"];
         };
         RejectReviewRequest: {
             reason: string;
@@ -3741,6 +3909,41 @@ export interface components {
             suggestedByEmail: string;
             /** Format: int64 */
             sameIsbnCount: number;
+        };
+        PageResponseStocktakeSummary: {
+            content: components["schemas"]["StocktakeSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        MissingCopySummary: {
+            /** Format: uuid */
+            copyId: string;
+            barcode: string;
+            /** Format: uuid */
+            bookId: string;
+            title: string;
+            callNumber: string | null;
+            shelfLocation: string | null;
+        };
+        StocktakeIssueSummary: {
+            /** Format: uuid */
+            scanId: string;
+            barcode: string;
+            /** @enum {string} */
+            result: "FOUND" | "NOT_IN_SCOPE" | "NOT_ON_SHELF" | "UNKNOWN";
+            /** Format: uuid */
+            copyId: string | null;
+            copyStatus: string | null;
+            title: string | null;
+            shelfLocation: string | null;
+            /** Format: date-time */
+            scannedAt: string;
         };
         PageResponsePendingReviewSummary: {
             content: components["schemas"]["PendingReviewSummary"][];
@@ -5513,6 +5716,123 @@ export interface operations {
             };
         };
     };
+    list: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseStocktakeSummary"];
+                };
+            };
+        };
+    };
+    start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartStocktakeRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StocktakeSummary"];
+                };
+            };
+        };
+    };
+    scan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScanRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ScanResultResponse"];
+                };
+            };
+        };
+    };
+    complete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StocktakeSummary"];
+                };
+            };
+        };
+    };
+    cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StocktakeSummary"];
+                };
+            };
+        };
+    };
     reject: {
         parameters: {
             query?: never;
@@ -5585,7 +5905,7 @@ export interface operations {
             };
         };
     };
-    list: {
+    list_1: {
         parameters: {
             query?: {
                 q?: string;
@@ -5633,7 +5953,7 @@ export interface operations {
             };
         };
     };
-    list_1: {
+    list_2: {
         parameters: {
             query?: {
                 page?: number;
@@ -6022,7 +6342,7 @@ export interface operations {
             };
         };
     };
-    cancel: {
+    cancel_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -6046,7 +6366,7 @@ export interface operations {
             };
         };
     };
-    list_2: {
+    list_3: {
         parameters: {
             query?: {
                 page?: number;
@@ -6214,7 +6534,7 @@ export interface operations {
             };
         };
     };
-    cancel_1: {
+    cancel_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -6240,7 +6560,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_4: {
         parameters: {
             query?: {
                 q?: string;
@@ -6461,7 +6781,7 @@ export interface operations {
             };
         };
     };
-    list_4: {
+    list_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -6538,7 +6858,7 @@ export interface operations {
             };
         };
     };
-    list_5: {
+    list_6: {
         parameters: {
             query?: {
                 q?: string;
@@ -6662,7 +6982,7 @@ export interface operations {
             };
         };
     };
-    list_6: {
+    list_7: {
         parameters: {
             query?: {
                 page?: number;
@@ -6903,7 +7223,7 @@ export interface operations {
             };
         };
     };
-    cancel_2: {
+    cancel_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -6945,7 +7265,7 @@ export interface operations {
             };
         };
     };
-    cancel_3: {
+    cancel_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -7165,7 +7485,7 @@ export interface operations {
             };
         };
     };
-    list_7: {
+    list_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -7549,7 +7869,7 @@ export interface operations {
             };
         };
     };
-    list_8: {
+    list_9: {
         parameters: {
             query?: {
                 status?: "SUBMITTED" | "ORDERED" | "ACQUIRED" | "DECLINED";
@@ -7569,6 +7889,75 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PageResponseStaffSuggestionSummary"];
+                };
+            };
+        };
+    };
+    get_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StocktakeSummary"];
+                };
+            };
+        };
+    };
+    missing: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MissingCopySummary"][];
+                };
+            };
+        };
+    };
+    issues: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StocktakeIssueSummary"][];
                 };
             };
         };
@@ -7710,7 +8099,7 @@ export interface operations {
             };
         };
     };
-    list_9: {
+    list_10: {
         parameters: {
             query?: {
                 overdue?: boolean;
@@ -8001,7 +8390,7 @@ export interface operations {
             };
         };
     };
-    get_6: {
+    get_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -8123,7 +8512,7 @@ export interface operations {
             };
         };
     };
-    list_10: {
+    list_11: {
         parameters: {
             query?: {
                 page?: number;
@@ -8146,7 +8535,7 @@ export interface operations {
             };
         };
     };
-    get_7: {
+    get_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -8252,7 +8641,7 @@ export interface operations {
             };
         };
     };
-    list_11: {
+    list_12: {
         parameters: {
             query?: {
                 lang?: string;
@@ -8630,7 +9019,7 @@ export interface operations {
             };
         };
     };
-    get_8: {
+    get_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -8717,7 +9106,7 @@ export interface operations {
             };
         };
     };
-    list_12: {
+    list_13: {
         parameters: {
             query?: {
                 q?: string;
@@ -8745,7 +9134,7 @@ export interface operations {
             };
         };
     };
-    get_9: {
+    get_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -8903,7 +9292,7 @@ export interface operations {
             };
         };
     };
-    get_10: {
+    get_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -9135,7 +9524,7 @@ export interface operations {
             };
         };
     };
-    list_13: {
+    list_14: {
         parameters: {
             query?: {
                 status?: "PENDING" | "SENT" | "FAILED";
