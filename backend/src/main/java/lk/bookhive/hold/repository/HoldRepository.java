@@ -57,4 +57,7 @@ public interface HoldRepository extends JpaRepository<Hold, UUID> {
 
   /** Nightly job: READY holds whose last pickup day has passed. */
   List<Hold> findByStatusAndExpiresAtBefore(HoldStatus status, LocalDate today);
+
+  /** Holds waiting on the shelf with a last pickup day from {@code from} on (step 357). */
+  List<Hold> findByStatusAndExpiresAtGreaterThanEqual(HoldStatus status, LocalDate from);
 }

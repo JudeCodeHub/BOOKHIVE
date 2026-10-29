@@ -104,6 +104,9 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
   List<CoBorrow> alsoBorrowed(
       @Param("bookId") UUID bookId, @Param("minReaders") int minReaders, @Param("limit") int limit);
 
+  /** Loans still to come back from {@code from} on (due dates to move off new closed days). */
+  List<Loan> findByStatusAndDueDateGreaterThanEqual(LoanStatus status, LocalDate from);
+
   /** Fine accrual job: every open loan past its due date. */
   List<Loan> findByStatusInAndDueDateBefore(Collection<LoanStatus> statuses, LocalDate today);
 

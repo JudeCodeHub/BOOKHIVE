@@ -9,6 +9,8 @@ import jakarta.persistence.Version;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalTime;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.descriptor.jdbc.LocalTimeJdbcType;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -21,8 +23,12 @@ public class OpeningHours {
   /** ISO weekday: 1 = Monday ... 7 = Sunday */
   @Id private short dayOfWeek;
 
+  // A time of day, not a moment: passed to the database as it is. Without this, the UTC JDBC
+  // time zone (application.yml, meant for timestamps) shifted 08:00 to 13:30 when read back.
+  @JdbcType(LocalTimeJdbcType.class)
   private LocalTime opensAt;
 
+  @JdbcType(LocalTimeJdbcType.class)
   private LocalTime closesAt;
 
   @LastModifiedDate
@@ -35,6 +41,12 @@ public class OpeningHours {
 
   protected OpeningHours() {
     // for JPA
+  }
+
+  /** New hours for this weekday (admin, step 357); both null = closed all day. */
+  public void change(LocalTime opensAt, LocalTime closesAt) {
+    this.opensAt = opensAt;
+    this.closesAt = closesAt;
   }
 
   public DayOfWeek getDay() {

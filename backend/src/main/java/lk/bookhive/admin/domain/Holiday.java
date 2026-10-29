@@ -28,6 +28,20 @@ public class Holiday extends BaseEntity {
     // for JPA
   }
 
+  /** A new closed day (admin, step 357). Names are shown on the visit page in each language. */
+  public static Holiday of(LocalDate date, String nameEn, String nameSi, String nameTa) {
+    Holiday holiday = new Holiday();
+    holiday.change(date, nameEn, nameSi, nameTa);
+    return holiday;
+  }
+
+  public void change(LocalDate date, String nameEn, String nameSi, String nameTa) {
+    this.date = date;
+    this.nameEn = nameEn;
+    this.nameSi = nameSi;
+    this.nameTa = nameTa;
+  }
+
   public LocalDate getDate() {
     return date;
   }
