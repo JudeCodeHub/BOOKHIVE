@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -27,6 +28,7 @@ import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.domain.Language;
 import lk.bookhive.common.exception.BusinessRuleException;
 import lk.bookhive.common.exception.ConflictException;
+import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -265,6 +267,123 @@ public class AuthService {
     audit.record("auth.staff_invited", adminId, "user", user.getId(), Map.of("role", role.name()));
     log.info("Admin {} invited {} {}", adminId, role, user.getId());
     return user;
+  }
+
+  /** Staff accounts (step 358): librarians and admins, by name, deactivated ones included. */
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional(readOnly = true)
+  public List<User> staff() {
+    return users.findByAnyRole(List.of(Role.LIBRARIAN, Role.ADMIN));
+  }
+
+  /**
+   * Librarian <-> admin. Their sessions end, so the new role applies at once (a demoted admin's
+   * current access token still works for at most its last 15 minutes).
+   */
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  public User changeStaffRole(UUID adminId, UUID userId, Role role) {
+    User user = requireStaff(userId);
+    Role old = user.getStaffRole();
+    if (old == role) {
+      return user;
+    }
+    notYourself(adminId, userId, "role");
+    if (old == Role.ADMIN) {
+      notLastAdmin(user, "role");
+    }
+    user.changeStaffRole(role);
+    endSessions(user);
+    audit.record(
+        "auth.staff_role_changed",
+        adminId,
+        "user",
+        userId,
+        Map.of("from", old.name(), "to", role.name()));
+    log.info("Admin {} changed {} from {} to {}", adminId, userId, old, role);
+    return user;
+  }
+
+  /** The person left or shouldn't sign in: they're logged out everywhere and can't log in. */
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  public User deactivateStaff(UUID adminId, UUID userId) {
+    User user = requireStaff(userId);
+    if (user.getStatus() == UserStatus.DISABLED) {
+      return user;
+    }
+    notYourself(adminId, userId, "status");
+    notLastAdmin(user, "status");
+    user.disable();
+    endSessions(user);
+    audit.record("auth.staff_deactivated", adminId, "user", userId, Map.of());
+    log.info("Admin {} deactivated staff account {}", adminId, userId);
+    return user;
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  public User reactivateStaff(UUID adminId, UUID userId) {
+    User user = requireStaff(userId);
+    if (user.getStatus() != UserStatus.DISABLED) {
+      return user;
+    }
+    user.enable();
+    audit.record("auth.staff_reactivated", adminId, "user", userId, Map.of());
+    return user;
+  }
+
+  /** A new invite email for someone who hasn't accepted theirs yet (the link lasts 72 h). */
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  public User resendInvite(UUID adminId, UUID userId) {
+    User user = requireStaff(userId);
+    if (user.getStatus() != UserStatus.PENDING_VERIFICATION) {
+      throw new BusinessRuleException(
+          "INVITE_ALREADY_ACCEPTED", "This person has already set up their account.");
+    }
+    String token = issueToken(user, VerificationTokenType.INVITE);
+    events.publishEvent(
+        new StaffInvited(
+            user.getId(),
+            user.getEmail(),
+            user.getFullName(),
+            user.getPreferredLanguage(),
+            user.getStaffRole(),
+            token));
+    audit.record("auth.staff_invite_resent", adminId, "user", userId, Map.of());
+    return user;
+  }
+
+  private User requireStaff(UUID userId) {
+    User user = requireUser(userId);
+    if (user.getStaffRole() == null) {
+      throw new NotFoundException("STAFF_NOT_FOUND", "This isn't a staff account.");
+    }
+    return user;
+  }
+
+  /** An admin can't lock themselves out by mistake; another admin has to do it. */
+  private static void notYourself(UUID adminId, UUID userId, String field) {
+    if (adminId.equals(userId)) {
+      throw new FieldValidationException(
+          field, "CANNOT_CHANGE_SELF", "You can't change your own account here.");
+    }
+  }
+
+  /** Someone must always be able to run the library's settings and staff. */
+  private void notLastAdmin(User user, String field) {
+    if (user.getStaffRole() == Role.ADMIN
+        && user.getStatus() == UserStatus.ACTIVE
+        && users.countByRoleAndStatus(Role.ADMIN, UserStatus.ACTIVE) <= 1) {
+      throw new FieldValidationException(
+          field, "LAST_ADMIN", "This is the only active admin. Make someone else an admin first.");
+    }
+  }
+
+  private void endSessions(User user) {
+    int ended = refreshTokens.revokeAllForUser(user.getId(), Instant.now(clock));
+    log.debug("Ended {} session(s) of {}", ended, user.getId());
   }
 
   /**

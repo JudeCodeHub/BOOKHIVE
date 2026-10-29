@@ -181,6 +181,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/staff/{id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Make someone a librarian or an admin (not yourself; never the last active admin). Their sessions end so the new role applies at once */
+        put: operations["changeRole"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/settings/notifications": {
         parameters: {
             query?: never;
@@ -1292,10 +1309,62 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** All librarians and admins by name, deactivated ones included */
+        get: operations["list_7"];
         put?: never;
         /** Create a librarian or admin account; they get an invite email */
         post: operations["invite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff/{id}/resend-invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a new invite email to someone who hasn't accepted theirs */
+        post: operations["resendInvite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff/{id}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Switch an account back on */
+        post: operations["reactivate_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/staff/{id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Switch an account off: logged out everywhere, can't log in */
+        post: operations["deactivate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1450,7 +1519,7 @@ export interface paths {
             cookie?: never;
         };
         /** Suggestions by status (default: new ones), oldest first */
-        get: operations["list_7"];
+        get: operations["list_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1569,7 +1638,7 @@ export interface paths {
             cookie?: never;
         };
         /** Loans out now, soonest due first; overdue=true: only overdue, longest first; dueWithinDays=N: only those due in the next N days */
-        get: operations["list_8"];
+        get: operations["list_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1858,7 +1927,7 @@ export interface paths {
             cookie?: never;
         };
         /** Published news, pinned first then newest */
-        get: operations["list_9"];
+        get: operations["list_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1944,7 +2013,7 @@ export interface paths {
             cookie?: never;
         };
         /** My notifications, newest first, in the given language */
-        get: operations["list_10"];
+        get: operations["list_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2318,7 +2387,7 @@ export interface paths {
             cookie?: never;
         };
         /** Browse books page by page; q = ISBN or part of the title */
-        get: operations["list_11"];
+        get: operations["list_12"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2522,7 +2591,7 @@ export interface paths {
             cookie?: never;
         };
         /** Messages in a status (FAILED by default), most recently changed first */
-        get: operations["list_12"];
+        get: operations["list_13"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2771,6 +2840,24 @@ export interface components {
         };
         ReadingHistorySettingResponse: {
             enabled: boolean;
+        };
+        ChangeRoleRequest: {
+            role: string;
+        };
+        StaffSummary: {
+            /** Format: uuid */
+            id: string;
+            email: string;
+            fullName: string;
+            phone: string | null;
+            /** @enum {string} */
+            role: "MEMBER" | "LIBRARIAN" | "ADMIN";
+            /** @enum {string} */
+            status: "PENDING_VERIFICATION" | "ACTIVE" | "DISABLED";
+            /** Format: date-time */
+            invitedAt: string;
+            /** Format: date-time */
+            joinedAt: string | null;
         };
         ReminderSettings: {
             /** Format: int32 */
@@ -3424,15 +3511,6 @@ export interface components {
             phone?: string;
             role: string;
             preferredLanguage?: string;
-        };
-        StaffResponse: {
-            /** Format: uuid */
-            id: string;
-            email: string;
-            fullName: string;
-            roles: ("MEMBER" | "LIBRARIAN" | "ADMIN")[];
-            /** @enum {string} */
-            status: "PENDING_VERIFICATION" | "ACTIVE" | "DISABLED";
         };
         TestEmailResponse: {
             sentTo: string;
@@ -4736,6 +4814,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ReadingHistorySettingResponse"];
+                };
+            };
+        };
+    };
+    changeRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeRoleRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffSummary"];
                 };
             };
         };
@@ -6638,6 +6742,26 @@ export interface operations {
             };
         };
     };
+    list_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffSummary"][];
+                };
+            };
+        };
+    };
     invite: {
         parameters: {
             query?: never;
@@ -6657,7 +6781,73 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["StaffResponse"];
+                    "*/*": components["schemas"]["StaffSummary"];
+                };
+            };
+        };
+    };
+    resendInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffSummary"];
+                };
+            };
+        };
+    };
+    reactivate_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffSummary"];
+                };
+            };
+        };
+    };
+    deactivate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffSummary"];
                 };
             };
         };
@@ -6936,7 +7126,7 @@ export interface operations {
             };
         };
     };
-    list_7: {
+    list_8: {
         parameters: {
             query?: {
                 status?: "SUBMITTED" | "ORDERED" | "ACQUIRED" | "DECLINED";
@@ -7097,7 +7287,7 @@ export interface operations {
             };
         };
     };
-    list_8: {
+    list_9: {
         parameters: {
             query?: {
                 overdue?: boolean;
@@ -7490,7 +7680,7 @@ export interface operations {
             };
         };
     };
-    list_9: {
+    list_10: {
         parameters: {
             query?: {
                 page?: number;
@@ -7619,7 +7809,7 @@ export interface operations {
             };
         };
     };
-    list_10: {
+    list_11: {
         parameters: {
             query?: {
                 lang?: string;
@@ -8084,7 +8274,7 @@ export interface operations {
             };
         };
     };
-    list_11: {
+    list_12: {
         parameters: {
             query?: {
                 q?: string;
@@ -8356,7 +8546,7 @@ export interface operations {
             };
         };
     };
-    list_12: {
+    list_13: {
         parameters: {
             query?: {
                 status?: "PENDING" | "SENT" | "FAILED";
