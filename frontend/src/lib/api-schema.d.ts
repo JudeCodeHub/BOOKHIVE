@@ -2566,6 +2566,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/overdue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Books still out past their due date, most overdue first, with the member's contact details and what's owed */
+        get: operations["overdue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/not-borrowed": {
         parameters: {
             query?: never;
@@ -2592,6 +2609,23 @@ export interface paths {
         };
         /** The most borrowed titles between two days, optionally in one category */
         get: operations["mostBorrowed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/fines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Money from fines per day (up to 366 days) or month: charged, collected (cash/online), refunded, waived, cancelled; and per kind of fine */
+        get: operations["fines_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4409,6 +4443,44 @@ export interface components {
             /** Format: int64 */
             bookCount: number;
         };
+        OverdueLoanSummary: {
+            /** Format: uuid */
+            loanId: string;
+            memberNo: string;
+            memberName: string;
+            email: string;
+            phone: string | null;
+            title: string;
+            barcode: string;
+            /** Format: date */
+            dueDate: string;
+            /** Format: int64 */
+            daysOverdue: number;
+            fineOwed: number;
+        };
+        OverdueReportResponse: {
+            /** Format: date */
+            today: string;
+            totals: components["schemas"]["OverdueTotalsSummary"];
+            loans: components["schemas"]["OverdueLoanSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        OverdueTotalsSummary: {
+            /** Format: int64 */
+            total: number;
+            /** Format: int64 */
+            upToWeek: number;
+            /** Format: int64 */
+            upToMonth: number;
+            /** Format: int64 */
+            overMonth: number;
+            finesOwed: number;
+        };
         NotBorrowedReportResponse: {
             /** Format: date */
             since: string;
@@ -4447,6 +4519,42 @@ export interface components {
             checkouts: number;
             /** Format: int64 */
             borrowers: number;
+        };
+        FinePeriodSummary: {
+            /** Format: date */
+            start: string;
+            charged: number;
+            collectedCash: number;
+            collectedOnline: number;
+            refunded: number;
+            waived: number;
+            cancelled: number;
+        };
+        FineReportResponse: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** @enum {string} */
+            groupBy: "DAY" | "MONTH";
+            totals: components["schemas"]["FineTotalsSummary"];
+            periods: components["schemas"]["FinePeriodSummary"][];
+            byType: components["schemas"]["FineTypeSummary"][];
+        };
+        FineTotalsSummary: {
+            charged: number;
+            collectedCash: number;
+            collectedOnline: number;
+            refunded: number;
+            collected: number;
+            waived: number;
+            cancelled: number;
+        };
+        FineTypeSummary: {
+            type: string;
+            charged: number;
+            collected: number;
+            waived: number;
         };
         CirculationCategorySummary: {
             /** Format: uuid */
@@ -8777,6 +8885,30 @@ export interface operations {
             };
         };
     };
+    overdue: {
+        parameters: {
+            query?: {
+                minDays?: number;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OverdueReportResponse"];
+                };
+            };
+        };
+    };
     notBorrowed: {
         parameters: {
             query?: {
@@ -8823,6 +8955,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MostBorrowedSummary"][];
+                };
+            };
+        };
+    };
+    fines_1: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                groupBy?: "DAY" | "MONTH";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FineReportResponse"];
                 };
             };
         };
