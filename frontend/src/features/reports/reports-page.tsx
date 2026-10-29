@@ -12,6 +12,7 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useErrorMessage } from "@/features/auth/errors";
 import { dayAsDate } from "@/features/events/library-dates";
 import { Pager } from "@/features/staff/pager";
+import { useMoney } from "@/lib/formats";
 import { api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { BarList, ColumnChart, DataTable, NumbersTable, StatTile, TimeChart } from "./charts";
@@ -225,10 +226,11 @@ function Card({ title, children }: { title: string; children: ReactNode }) {
 
 function useLabels() {
   const format = useFormatter();
+  const money = useMoney();
   const locale = useLocale();
   return {
     n: (x: number) => format.number(x),
-    lkr: (x: number) => format.number(x, { style: "currency", currency: "LKR" }),
+    lkr: money,
     lkrShort: (x: number) => format.number(x, { maximumFractionDigits: 0 }),
     day: (d: string) => format.dateTime(dayAsDate(d), { day: "numeric", month: "short" }),
     month: (d: string) => format.dateTime(dayAsDate(d), { month: "short", year: "numeric" }),

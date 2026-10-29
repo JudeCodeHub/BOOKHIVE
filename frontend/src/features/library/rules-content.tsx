@@ -5,6 +5,7 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useMoney } from "@/lib/formats";
 import { api, type Schema } from "@/lib/api";
 
 type Rules = Schema<"RulesResponse">;
@@ -21,6 +22,7 @@ export function RulesContent() {
   const format = useFormatter();
   const locale = useLocale();
   const errorMessage = useAuthErrorMessage();
+  const money = useMoney();
   const rules = useQuery({
     queryKey: ["library", "rules"],
     queryFn: () => api.get<Rules>("/library/rules"),
@@ -35,7 +37,8 @@ export function RulesContent() {
   if (types.isError) return <FormAlert>{errorMessage(types.error)}</FormAlert>;
 
   const r = rules.data;
-  const lkr = (amount: number) => format.number(amount, { maximumFractionDigits: 2 });
+  // Sentences below carry their own currency word (LKR / රු. / ரூ.), so they take a plain number
+  const plain = (amount: number) => format.number(amount, { maximumFractionDigits: 2 });
   const typeName = (type: MembershipType) =>
     locale === "si" ? type.nameSi : locale === "ta" ? type.nameTa : type.nameEn;
   const ages = (type: MembershipType) =>
@@ -76,9 +79,7 @@ export function RulesContent() {
                   <td className="py-2 pr-3 text-right tabular-nums">{type.maxRenewals}</td>
                   <td className="py-2 pr-3 text-right tabular-nums">{type.maxHolds}</td>
                   <td className="py-2 text-right tabular-nums">
-                    {Number(type.annualFee) === 0
-                      ? t("free")
-                      : `LKR ${lkr(Number(type.annualFee))}`}
+                    {Number(type.annualFee) === 0 ? t("free") : money(type.annualFee)}
                   </td>
                 </tr>
               ))}
@@ -106,20 +107,20 @@ export function RulesContent() {
         <ul className="grid list-disc gap-1.5 pl-5">
           <li>
             {t("fineLate", {
-              perDay: lkr(Number(r.finePerDay)),
+              perDay: plain(Number(r.finePerDay)),
               grace: r.fineGraceDays,
-              max: lkr(Number(r.fineMaxPerItem)),
+              max: plain(Number(r.fineMaxPerItem)),
             })}
           </li>
           <li>
             {t("fineLost", {
-              defaultPrice: lkr(Number(r.lostDefaultPrice)),
-              processing: lkr(Number(r.lostProcessingFee)),
+              defaultPrice: plain(Number(r.lostDefaultPrice)),
+              processing: plain(Number(r.lostProcessingFee)),
             })}
           </li>
           <li>{t("fineDamaged")}</li>
           <li className="font-medium">
-            {t("fineBlock", { amount: lkr(Number(r.blockBorrowingAt)) })}
+            {t("fineBlock", { amount: plain(Number(r.blockBorrowingAt)) })}
           </li>
         </ul>
       </section>
