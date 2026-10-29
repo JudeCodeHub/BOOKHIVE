@@ -1932,5 +1932,116 @@
     "referenceOnly": "Read in the library only",
     "onShelf": "{count, plural, one {# on the shelf now} other {# on the shelf now}}",
     "allOut": "All on loan"
+  },
+  "AdminSettings": {
+    "title": "Library settings",
+    "description": "The rules that apply to everyone. Limits for each kind of member are under Membership types. Changes apply within 30 seconds and are recorded in the audit log.",
+    "groups": {
+      "loans": {
+        "title": "Loans",
+        "description": "Rules at the desk for all members."
+      },
+      "fines": {
+        "title": "Fines",
+        "description": "Amounts in Sri Lankan rupees."
+      },
+      "holds": {
+        "title": "Reservations",
+        "description": "How long a reserved book waits on the hold shelf."
+      },
+      "membership": {
+        "title": "Membership",
+        "description": "How long memberships last and how long personal data is kept."
+      },
+      "notifications": {
+        "title": "Reminders",
+        "description": "When reminder emails and SMS go out."
+      }
+    },
+    "fields": {
+      "maxItemsPerCheckout": {
+        "label": "Most books in one checkout",
+        "hint": "Staff can lend at most this many books at once (up to 50)."
+      },
+      "perDay": {
+        "label": "Fine per day late",
+        "hint": "Charged for each day a book is overdue."
+      },
+      "graceDays": {
+        "label": "Days before fines start",
+        "hint": "A book this many days late isn’t fined yet."
+      },
+      "maxPerItem": {
+        "label": "Highest fine per book",
+        "hint": "The late fine on one book stops growing here."
+      },
+      "lostDefaultPrice": {
+        "label": "Price of a lost book",
+        "hint": "Charged when a lost book has no price recorded."
+      },
+      "lostProcessingFee": {
+        "label": "Lost book processing fee",
+        "hint": "Added to the price of every lost book."
+      },
+      "blockBorrowingAt": {
+        "label": "Block borrowing from",
+        "hint": "Members who owe this much or more can’t borrow until they pay."
+      },
+      "librarianWaiveLimit": {
+        "label": "Largest waiver by a librarian",
+        "hint": "Librarians can waive fines up to this amount; admins any amount."
+      },
+      "pickupOpenDays": {
+        "label": "Days to pick up a reservation",
+        "hint": "Open days a reserved book waits before it goes to the next person."
+      },
+      "validityYears": {
+        "label": "Membership lasts",
+        "hint": "How long a new or renewed membership is valid."
+      },
+      "renewalWindowDays": {
+        "label": "Renewal opens",
+        "hint": "Members can renew this many days before their membership ends."
+      },
+      "documentRetentionDays": {
+        "label": "Keep ID scans for",
+        "hint": "Uploaded ID scans are deleted this long after an application is decided."
+      },
+      "historyAnonymiseDays": {
+        "label": "Forget reading history after",
+        "hint": "For members who turned reading history off: returned loans are anonymised after this long."
+      },
+      "dueSoonDaysBefore": {
+        "label": "Due-soon reminder",
+        "hint": "Sent this many days before a book is due (0 = on the due date)."
+      },
+      "holdExpiringDaysBefore": {
+        "label": "Pickup reminder",
+        "hint": "Sent this many days before a reserved book’s last pickup day."
+      },
+      "membershipExpiringDaysBefore": {
+        "label": "Membership ending reminder",
+        "hint": "Sent this many days before a membership ends."
+      }
+    },
+    "units": {
+      "items": "books",
+      "days": "days",
+      "years": "years"
+    },
+    "errors": {
+      "number": "Enter a number.",
+      "range": "Enter a value from {min} to {max}.",
+      "whole": "Enter a whole number.",
+      "cents": "Use at most 2 decimal places."
+    },
+    "save": "Save",
+    "saving": "Saving…",
+    "undo": "Undo changes",
+    "saved": "{group} settings saved.",
+    "stale": "Another admin changed these settings while you were editing. Load their version, then make your change again.",
+    "reload": "Load their version",
+    "lastChanged": "Last changed by {name}, {date}",
+    "neverChanged": "Still the original values"
   }
 }

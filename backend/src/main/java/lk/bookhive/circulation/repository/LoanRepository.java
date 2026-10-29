@@ -123,14 +123,14 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
       value =
           """
           SELECT
-              count(*) FILTER (WHERE checked_out_at >= :start AND checked_out_at < :end)
-                  AS checkedOut,
-              count(*) FILTER (WHERE returned_at >= :start AND returned_at < :end) AS returned,
-              count(*) FILTER (WHERE status IN ('ACTIVE', 'OVERDUE') AND due_date = :today)
-                  AS dueToday,
-              count(*) FILTER (WHERE status IN ('ACTIVE', 'OVERDUE') AND due_date < :today)
-                  AS overdue
-          FROM loans
+              (SELECT count(*) FROM loans
+               WHERE checked_out_at >= :start AND checked_out_at < :end) AS checkedOut,
+              (SELECT count(*) FROM loans
+               WHERE returned_at >= :start AND returned_at < :end) AS returned,
+              (SELECT count(*) FROM loans
+               WHERE status IN ('ACTIVE', 'OVERDUE') AND due_date = :today) AS dueToday,
+              (SELECT count(*) FROM loans
+               WHERE status IN ('ACTIVE', 'OVERDUE') AND due_date < :today) AS overdue
           """,
       nativeQuery = true)
   DeskCounts deskCounts(
