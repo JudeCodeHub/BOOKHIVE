@@ -191,16 +191,21 @@ public class OverdueFineReportQueries {
   public List<FineTypeRow> finesByType(Instant start, Instant end) {
     return jdbc.sql(
             """
-            SELECT k.type,
-                   COALESCE(SUM(t.amount) FILTER (WHERE t.kind = 'CHARGE'), 0) AS charged,
-                   COALESCE(SUM(t.amount) FILTER (WHERE t.kind = 'PAYMENT'), 0)
-                     - COALESCE(SUM(t.amount) FILTER (WHERE t.kind = 'REFUND'), 0) AS collected,
-                   COALESCE(SUM(t.amount) FILTER (WHERE t.kind = 'WAIVER'), 0) AS waived
+            SELECT k.type, COALESCE(x.charged, 0) AS charged,
+                   COALESCE(x.collected, 0) AS collected, COALESCE(x.waived, 0) AS waived
             FROM (VALUES ('OVERDUE'), ('LOST'), ('DAMAGE'), ('MEMBERSHIP_FEE')) AS k(type)
-            LEFT JOIN fines f ON f.type = k.type
-            LEFT JOIN fine_transactions t
-                   ON t.fine_id = f.id AND t.created_at >= :start AND t.created_at < :end
-            GROUP BY k.type
+            LEFT JOIN (
+                -- The range's ledger rows first (index on created_at), then their fines' kinds
+                SELECT f.type,
+                       SUM(t.amount) FILTER (WHERE t.kind = 'CHARGE') AS charged,
+                       COALESCE(SUM(t.amount) FILTER (WHERE t.kind = 'PAYMENT'), 0)
+                         - COALESCE(SUM(t.amount) FILTER (WHERE t.kind = 'REFUND'), 0)
+                           AS collected,
+                       SUM(t.amount) FILTER (WHERE t.kind = 'WAIVER') AS waived
+                FROM fine_transactions t JOIN fines f ON f.id = t.fine_id
+                WHERE t.created_at >= :start AND t.created_at < :end
+                GROUP BY f.type
+            ) x ON x.type = k.type
             ORDER BY charged DESC, k.type
             """)
         .param("start", utc(start))
