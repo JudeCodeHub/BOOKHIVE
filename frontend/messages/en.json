@@ -2212,5 +2212,108 @@
       "stocktake": "Stock-take",
       "suggestion": "Suggestions"
     }
+  },
+  "Reports": {
+    "title": "Reports",
+    "description": "How the library is used: loans, popular and unused books, overdue books, fines and membership. Every chart’s numbers are also in a table.",
+    "tabs": {
+      "circulation": "Circulation",
+      "popular": "Most borrowed",
+      "weeding": "Weeding list",
+      "overdue": "Overdue",
+      "fines": "Fines",
+      "membership": "Membership"
+    },
+    "range": "{from} – {to}",
+    "asOfToday": "Books overdue right now",
+    "notBorrowedSince": "Books not borrowed since {date}",
+    "groupBy": "Group by",
+    "groupings": {
+      "DAY": "Day",
+      "MONTH": "Month",
+      "CATEGORY": "Category"
+    },
+    "day": "Day",
+    "month": "Month",
+    "showNumbers": "Show the numbers",
+    "noLoans": "No loans in this period.",
+    "circ": {
+      "loans": "Loans",
+      "returns": "Returns",
+      "borrowers": "Borrowers",
+      "borrowersNote": "Different members, counted once",
+      "byCategory": "Loans by subject",
+      "overTime": "Loans and returns",
+      "category": "Subject",
+      "uncategorised": "{count, plural, one {# loan was of a book with no subject} other {# loans were of books with no subject}} (not shown).",
+      "categorySummary": "Loans by subject for {count} subjects, most borrowed first.",
+      "timeSummary": "Line chart of loans and returns: {loans} loans and {returns} returns in this period."
+    },
+    "popular": {
+      "top10": "Top 10",
+      "all": "{count, plural, one {# book} other {Top # books}}",
+      "readers": "Readers",
+      "summary": "Most borrowed books; first is {title} with {count} loans."
+    },
+    "book": {
+      "title": "Title",
+      "authors": "Authors",
+      "callNumber": "Call number",
+      "copies": "Copies"
+    },
+    "weeding": {
+      "count": "Books not borrowed",
+      "note": "On the shelf since before this date and not borrowed since. Never-borrowed books come first.",
+      "list": "Books to look at",
+      "onShelfSince": "On the shelf since",
+      "lastBorrowed": "Last borrowed",
+      "never": "Never"
+    },
+    "overdue": {
+      "upToWeek": "1–7 days late",
+      "upToMonth": "8–30 days late",
+      "overMonth": "Over 30 days late",
+      "owed": "Fines owed on them",
+      "none": "No books are overdue.",
+      "list": "{count, plural, one {# overdue book} other {# overdue books}}",
+      "member": "Member",
+      "contact": "Contact",
+      "due": "Due",
+      "daysLate": "Days late",
+      "fine": "Fine owed"
+    },
+    "fines": {
+      "charged": "Charged",
+      "collected": "Collected",
+      "collectedNote": "Cash {cash} · online {online}, minus refunds",
+      "waived": "Waived",
+      "refunded": "Refunded",
+      "cash": "Cash",
+      "online": "Online",
+      "overTime": "Fines over time",
+      "byType": "By kind of fine",
+      "type": "Kind",
+      "summary": "Line chart of fines: {charged} charged and {collected} collected in this period.",
+      "types": {
+        "OVERDUE": "Overdue",
+        "LOST": "Lost book",
+        "DAMAGE": "Damage",
+        "MEMBERSHIP_FEE": "Membership fee"
+      }
+    },
+    "members": {
+      "activeNow": "Active members now",
+      "newMembers": "New members",
+      "waiting": "Applications waiting",
+      "overTime": "Members over time",
+      "members": "Members",
+      "note": "Members at the end of each period, from each member’s current expiry date.",
+      "newPerPeriod": "New members",
+      "applications": "Applications",
+      "byType": "By membership type",
+      "type": "Membership type",
+      "summary": "Line chart of members: from {first} to {last} over this period.",
+      "newSummary": "Column chart of new members: {count} in this period."
+    }
   }
 }
