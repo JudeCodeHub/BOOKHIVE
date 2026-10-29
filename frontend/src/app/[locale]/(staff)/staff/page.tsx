@@ -1,12 +1,12 @@
-import { useTranslations } from "next-intl";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { StaffDashboard } from "@/features/dashboard/staff-dashboard";
 
-export default function StaffDashboard() {
-  const t = useTranslations("StaffHome");
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("StaffHome");
+  return { title: t("title") };
+}
 
-  return (
-    <>
-      <h1 className="text-xl font-semibold">{t("title")}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
-    </>
-  );
+export default function StaffDashboardPage() {
+  return <StaffDashboard />;
 }

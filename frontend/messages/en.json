@@ -358,7 +358,42 @@
   },
   "StaffHome": {
     "title": "Dashboard",
-    "description": "Today's checkouts, returns, overdue items and pending approvals will appear here."
+    "goToDesk": "Go to the desk",
+    "desk": {
+      "title": "Today at the desk",
+      "lent": "Books lent",
+      "returned": "Books returned",
+      "dueToday": "Due back today",
+      "overdue": "Overdue now"
+    },
+    "holds": {
+      "title": "Hold shelf",
+      "ready": "Waiting to be picked up",
+      "lastDay": "Last day to pick up",
+      "waiting": "Members in a queue"
+    },
+    "eventsToday": "Events today",
+    "toDo": {
+      "title": "Needs a decision",
+      "allClear": "Nothing is waiting. All clear.",
+      "applications": "{count, plural, =0 {No membership applications} one {# membership application} other {# membership applications}}",
+      "reviews": "{count, plural, =0 {No reviews to check} one {# review to check} other {# reviews to check}}",
+      "suggestions": "{count, plural, =0 {No new suggestions} one {# new suggestion} other {# new suggestions}}"
+    },
+    "fines": {
+      "title": "Fines today",
+      "collected": "Collected",
+      "waived": "Waived",
+      "outstanding": "Owed by members",
+      "outstandingNote": "All unpaid fines, not just today"
+    },
+    "chart": {
+      "title": "The last two weeks",
+      "loans": "Loans",
+      "returns": "Returns",
+      "day": "Day",
+      "summary": "Line chart of the last two weeks: {loans} loans and {returns} returns."
+    }
   },
   "AdminHome": {
     "title": "Overview",

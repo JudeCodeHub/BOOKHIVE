@@ -33,7 +33,7 @@ public class StaffDashboardController {
    * @param expiringToday of those, today is the last pickup day
    * @param waiting members queueing for a copy
    */
-  public record HoldShelfSummary(long ready, long expiringToday, long waiting) {}
+  public record HoldShelfCounts(long ready, long expiringToday, long waiting) {}
 
   public record ToDoSummary(long applications, long reviews, long suggestions) {}
 
@@ -49,7 +49,7 @@ public class StaffDashboardController {
   public record StaffDashboardResponse(
       LocalDate today,
       DeskSummary desk,
-      HoldShelfSummary holds,
+      HoldShelfCounts holds,
       ToDoSummary toDo,
       FineDaySummary fines,
       long eventsToday,
@@ -60,7 +60,7 @@ public class StaffDashboardController {
           d.today(),
           new DeskSummary(
               d.desk().checkedOut(), d.desk().returned(), d.desk().dueToday(), d.desk().overdue()),
-          new HoldShelfSummary(d.holds().ready(), d.holds().expiringToday(), d.holds().waiting()),
+          new HoldShelfCounts(d.holds().ready(), d.holds().expiringToday(), d.holds().waiting()),
           new ToDoSummary(d.toDo().applications(), d.toDo().reviews(), d.toDo().suggestions()),
           new FineDaySummary(d.fines().collected(), d.fines().waived(), d.fines().outstanding()),
           d.eventsToday(),
