@@ -1,6 +1,7 @@
 package lk.bookhive.admin.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -8,16 +9,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import lk.bookhive.admin.config.LibraryProperties;
 import lk.bookhive.admin.domain.Holiday;
+import lk.bookhive.admin.domain.LibraryInfo;
+import lk.bookhive.admin.domain.LibraryInfo.About;
+import lk.bookhive.admin.domain.LibraryInfo.Contact;
 import lk.bookhive.admin.domain.OpeningHours;
 import lk.bookhive.admin.service.LibraryHoursService;
 import lk.bookhive.admin.service.LibraryHoursService.Status;
+import lk.bookhive.admin.service.LibraryInfoService;
 import lk.bookhive.admin.settings.Settings.Fines;
 import lk.bookhive.admin.settings.Settings.Membership;
 import lk.bookhive.admin.settings.SettingsService;
 import lk.bookhive.common.domain.Language;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,19 +29,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/library")
 @Tag(name = "Library")
-@EnableConfigurationProperties(LibraryProperties.class)
 public class LibraryController {
 
   private static final int HOLIDAYS_AHEAD_DAYS = 60;
 
   private final LibraryHoursService hours;
-  private final LibraryProperties library;
+  private final LibraryInfoService libraryInfo;
   private final SettingsService settings;
 
   public LibraryController(
-      LibraryHoursService hours, LibraryProperties library, SettingsService settings) {
+      LibraryHoursService hours, LibraryInfoService libraryInfo, SettingsService settings) {
     this.hours = hours;
-    this.library = library;
+    this.libraryInfo = libraryInfo;
     this.settings = settings;
   }
 
@@ -105,15 +107,21 @@ public class LibraryController {
       List<DaySummary> week,
       List<HolidaySummary> upcomingHolidays) {}
 
+  /**
+   * @param aboutEn free text about the library (sanitised HTML); empty when not written yet
+   */
   public record LibraryInfoResponse(
       String name,
       String addressLine,
       String city,
-      String postalCode,
+      @Schema(nullable = true) String postalCode,
       String phone,
       String email,
       double latitude,
-      double longitude) {}
+      double longitude,
+      String aboutEn,
+      String aboutSi,
+      String aboutTa) {}
 
   @GetMapping("/hours")
   @Operation(summary = "Opening hours, upcoming holidays and whether the library is open now")
@@ -131,14 +139,20 @@ public class LibraryController {
   @GetMapping("/info")
   @Operation(summary = "Address, phone, email and map location")
   public LibraryInfoResponse info() {
+    LibraryInfo info = libraryInfo.current();
+    Contact c = info.getContact();
+    About about = info.getAbout();
     return new LibraryInfoResponse(
-        library.name(),
-        library.addressLine(),
-        library.city(),
-        library.postalCode(),
-        library.phone(),
-        library.email(),
-        library.latitude(),
-        library.longitude());
+        c.name(),
+        c.addressLine(),
+        c.city(),
+        c.postalCode(),
+        c.phone(),
+        c.email(),
+        c.latitude(),
+        c.longitude(),
+        about.en(),
+        about.si(),
+        about.ta());
   }
 }

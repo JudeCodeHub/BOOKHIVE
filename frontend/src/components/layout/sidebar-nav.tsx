@@ -42,7 +42,9 @@ function NavLinks({ items, label, dense = false, pathname }: Props & { pathname:
               href={item.href}
               aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
-                "flex items-center gap-2 rounded-md font-medium whitespace-nowrap transition-colors [&_svg]:size-4 [&_svg]:shrink-0",
+                // Phones scroll the row sideways, so labels stay on one line; the sidebar on wider
+                // screens is a fixed width, where long Sinhala and Tamil labels wrap instead
+                "flex items-center gap-2 rounded-md font-medium whitespace-nowrap transition-colors md:whitespace-normal [&_svg]:size-4 [&_svg]:shrink-0",
                 dense ? "px-2 py-1.5 text-sm" : "px-3 py-2",
                 isActive(item.href)
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"

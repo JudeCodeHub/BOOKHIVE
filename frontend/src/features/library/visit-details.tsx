@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Mail, MapPin, Navigation, Phone } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { RichText } from "@/components/common/rich-text";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { OpenNowBadge } from "@/features/library/open-now-badge";
 import { libraryWeekday, useHoursFormat, useLibraryHours } from "@/features/library/hours";
@@ -132,10 +133,34 @@ export function VisitDetails() {
             </address>
           </section>
         )}
+
+        <About info={info.data} />
       </div>
 
       {info.data && <LibraryMap info={info.data} />}
     </div>
+  );
+}
+
+/** What the library says about itself (Admin -> Library info); nothing when it's not written. */
+function About({ info }: { info: LibraryInfo | undefined }) {
+  const t = useTranslations("Library");
+  const locale = useLocale();
+  const html = !info
+    ? ""
+    : locale === "si"
+      ? info.aboutSi
+      : locale === "ta"
+        ? info.aboutTa
+        : info.aboutEn;
+  if (!html) return null;
+  return (
+    <section aria-labelledby="about" className="grid gap-3">
+      <h2 id="about" className="text-xl font-semibold">
+        {t("about")}
+      </h2>
+      <RichText html={html} />
+    </section>
   );
 }
 
