@@ -1,7 +1,7 @@
 package lk.bookhive.community.service;
 
 import java.util.Map;
-import lk.bookhive.admin.config.LibraryProperties;
+import lk.bookhive.admin.service.LibraryInfoService;
 import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.domain.Language;
 import lk.bookhive.community.domain.ContactMessage;
@@ -17,19 +17,19 @@ public class ContactService {
 
   private final ContactMessageRepository messages;
   private final TurnstileVerifier turnstile;
-  private final LibraryProperties library;
+  private final LibraryInfoService libraryInfo;
   private final ApplicationEventPublisher events;
   private final AuditService audit;
 
   public ContactService(
       ContactMessageRepository messages,
       TurnstileVerifier turnstile,
-      LibraryProperties library,
+      LibraryInfoService libraryInfo,
       ApplicationEventPublisher events,
       AuditService audit) {
     this.messages = messages;
     this.turnstile = turnstile;
-    this.library = library;
+    this.libraryInfo = libraryInfo;
     this.events = events;
     this.audit = audit;
   }
@@ -50,7 +50,7 @@ public class ContactService {
     events.publishEvent(
         new ContactMessageReceived(
             message.getId(),
-            library.email(),
+            libraryInfo.current().getEmail(),
             message.getName(),
             message.getEmail(),
             message.getSubject(),

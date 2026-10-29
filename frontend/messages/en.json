@@ -241,7 +241,8 @@
     "directions": "Get directions",
     "mapTitle": "Map showing where the library is",
     "contactForm": "Send us a message",
-    "todayRow": "Today"
+    "todayRow": "Today",
+    "about": "About the library"
   },
   "Contact": {
     "title": "Send us a message",
@@ -2453,5 +2454,36 @@
       "STOCKTAKE_CLOSED": "This stock-take has already finished.",
       "STOCKTAKE_NOT_FOUND": "This stock-take no longer exists."
     }
+  },
+  "AdminLibraryInfo": {
+    "title": "Library info",
+    "description": "The name, address, contact details, map pin and “about” text shown on the visit page.",
+    "contactTitle": "Name and contact",
+    "name": "Library name",
+    "addressLine": "Street address",
+    "city": "City",
+    "postalCode": "Postal code",
+    "phone": "Phone",
+    "phoneHint": "As people should dial it, e.g. +94 11 234 5678",
+    "email": "Email",
+    "emailHint": "Contact-form messages are sent here.",
+    "emailInvalid": "Enter a valid email address.",
+    "numberInvalid": "Enter a number.",
+    "mapTitle": "Map pin",
+    "mapHint": "Where the marker sits on the visit page.",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "mapPreview": "Map preview",
+    "findCoordinates": "Find the coordinates on OpenStreetMap",
+    "aboutTitle": "About the library",
+    "aboutHint": "Shown on the visit page. Write it in all three languages; a language left empty is simply not shown.",
+    "save": "Save",
+    "saving": "Saving…",
+    "undo": "Undo changes",
+    "saved": "Library info saved.",
+    "stale": "Another admin changed the library info while you were editing. Load their version, then make your change again.",
+    "reload": "Load their version",
+    "lastChanged": "Last changed by {name}, {date}",
+    "neverChanged": "Still the values from the server settings"
   }
 }

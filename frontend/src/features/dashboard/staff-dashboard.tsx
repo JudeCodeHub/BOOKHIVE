@@ -22,14 +22,7 @@ import { Link } from "@/i18n/navigation";
 import { api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-/**
- * Until `pnpm api:types` is run again, the generated StaffDashboardResponse.holds points at the
- * hold shelf list's row (both records were called HoldShelfSummary; the dashboard's is now
- * HoldShelfCounts). Overriding it here keeps this file right either way.
- */
-type Dashboard = Omit<Schema<"StaffDashboardResponse">, "holds"> & {
-  holds: { ready: number; expiringToday: number; waiting: number };
-};
+type Dashboard = Schema<"StaffDashboardResponse">;
 
 /** Today's numbers are read again this often, so a desk left open stays current. */
 const REFRESH_MS = 60_000;

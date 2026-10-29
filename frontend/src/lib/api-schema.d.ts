@@ -300,6 +300,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/library-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The library's details, with who changed them last */
+        get: operations["get_5"];
+        /** Save them (version: from the last read; 409 if someone else saved since) */
+        put: operations["update_9"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/hours": {
         parameters: {
             query?: never;
@@ -1552,14 +1570,14 @@ export interface paths {
             cookie?: never;
         };
         /** One copy */
-        get: operations["get_5"];
+        get: operations["get_6"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** Edit a copy's details (not its status: that changes through actions) */
-        patch: operations["update_9"];
+        patch: operations["update_10"];
         trace?: never;
     };
     "/api/v1/me": {
@@ -1605,7 +1623,7 @@ export interface paths {
             cookie?: never;
         };
         /** One stock-take with its counts */
-        get: operations["get_6"];
+        get: operations["get_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1979,7 +1997,7 @@ export interface paths {
             cookie?: never;
         };
         /** One application with its documents */
-        get: operations["get_7"];
+        get: operations["get_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2081,7 +2099,7 @@ export interface paths {
             cookie?: never;
         };
         /** One published post */
-        get: operations["get_8"];
+        get: operations["get_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2456,7 +2474,7 @@ export interface paths {
             cookie?: never;
         };
         /** One event with places left (cancelled ones show the reason) */
-        get: operations["get_9"];
+        get: operations["get_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2541,7 +2559,7 @@ export interface paths {
             cookie?: never;
         };
         /** One book with its authors, publisher and categories */
-        get: operations["get_10"];
+        get: operations["get_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2660,7 +2678,7 @@ export interface paths {
             cookie?: never;
         };
         /** An author's name, bio and number of books */
-        get: operations["get_11"];
+        get: operations["get_12"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3338,6 +3356,42 @@ export interface components {
             requiresGuardian: boolean;
             allowedSections: string[];
             active: boolean;
+        };
+        LibraryInfoRequest: {
+            name: string;
+            addressLine: string;
+            city: string;
+            postalCode?: string;
+            phone: string;
+            /** Format: email */
+            email: string;
+            /** Format: double */
+            latitude?: number;
+            /** Format: double */
+            longitude?: number;
+            aboutEn?: string;
+            aboutSi?: string;
+            aboutTa?: string;
+        };
+        AdminLibraryInfoResponse: {
+            name: string;
+            addressLine: string;
+            city: string;
+            postalCode: string | null;
+            phone: string;
+            email: string;
+            /** Format: double */
+            latitude: number;
+            /** Format: double */
+            longitude: number;
+            aboutEn: string;
+            aboutSi: string;
+            aboutTa: string;
+            /** Format: int64 */
+            version: number;
+            /** Format: date-time */
+            updatedAt: string;
+            updatedByName: string | null;
         };
         DayHoursRequest: {
             /** @enum {string} */
@@ -4319,6 +4373,14 @@ export interface components {
             donation: components["schemas"]["DonationResponse"];
             copies: components["schemas"]["DonatedCopySummary"][];
         };
+        DashboardHoldsSummary: {
+            /** Format: int64 */
+            ready: number;
+            /** Format: int64 */
+            expiringToday: number;
+            /** Format: int64 */
+            waiting: number;
+        };
         DayActivitySummary: {
             /** Format: date */
             day: string;
@@ -4346,7 +4408,7 @@ export interface components {
             /** Format: date */
             today: string;
             desk: components["schemas"]["DeskSummary"];
-            holds: components["schemas"]["HoldShelfSummary"];
+            holds: components["schemas"]["DashboardHoldsSummary"];
             toDo: components["schemas"]["ToDoSummary"];
             fines: components["schemas"]["FineDaySummary"];
             /** Format: int64 */
@@ -4636,13 +4698,16 @@ export interface components {
             name: string;
             addressLine: string;
             city: string;
-            postalCode: string;
+            postalCode: string | null;
             phone: string;
             email: string;
             /** Format: double */
             latitude: number;
             /** Format: double */
             longitude: number;
+            aboutEn: string;
+            aboutSi: string;
+            aboutTa: string;
         };
         HolidaySummary: {
             /** Format: date */
@@ -5724,6 +5789,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminMembershipTypeResponse"];
+                };
+            };
+        };
+    };
+    get_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminLibraryInfoResponse"];
+                };
+            };
+        };
+    };
+    update_9: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LibraryInfoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminLibraryInfoResponse"];
                 };
             };
         };
@@ -7879,7 +7990,7 @@ export interface operations {
             };
         };
     };
-    get_5: {
+    get_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -7901,7 +8012,7 @@ export interface operations {
             };
         };
     };
-    update_9: {
+    update_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -7995,7 +8106,7 @@ export interface operations {
             };
         };
     };
-    get_6: {
+    get_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -8492,7 +8603,7 @@ export interface operations {
             };
         };
     };
-    get_7: {
+    get_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -8637,7 +8748,7 @@ export interface operations {
             };
         };
     };
-    get_8: {
+    get_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -9121,7 +9232,7 @@ export interface operations {
             };
         };
     };
-    get_9: {
+    get_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -9236,7 +9347,7 @@ export interface operations {
             };
         };
     };
-    get_10: {
+    get_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -9394,7 +9505,7 @@ export interface operations {
             };
         };
     };
-    get_11: {
+    get_12: {
         parameters: {
             query?: never;
             header?: never;

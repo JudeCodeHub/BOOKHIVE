@@ -33,7 +33,9 @@ public class StaffDashboardController {
    * @param expiringToday of those, today is the last pickup day
    * @param waiting members queueing for a copy
    */
-  public record HoldShelfCounts(long ready, long expiringToday, long waiting) {}
+  // The name ends in "Summary" on purpose: OpenApiConfig only marks those fields as always
+  // present, and it must not clash with the hold shelf list's own HoldShelfSummary
+  public record DashboardHoldsSummary(long ready, long expiringToday, long waiting) {}
 
   public record ToDoSummary(long applications, long reviews, long suggestions) {}
 
@@ -49,7 +51,7 @@ public class StaffDashboardController {
   public record StaffDashboardResponse(
       LocalDate today,
       DeskSummary desk,
-      HoldShelfCounts holds,
+      DashboardHoldsSummary holds,
       ToDoSummary toDo,
       FineDaySummary fines,
       long eventsToday,
@@ -60,7 +62,8 @@ public class StaffDashboardController {
           d.today(),
           new DeskSummary(
               d.desk().checkedOut(), d.desk().returned(), d.desk().dueToday(), d.desk().overdue()),
-          new HoldShelfCounts(d.holds().ready(), d.holds().expiringToday(), d.holds().waiting()),
+          new DashboardHoldsSummary(
+              d.holds().ready(), d.holds().expiringToday(), d.holds().waiting()),
           new ToDoSummary(d.toDo().applications(), d.toDo().reviews(), d.toDo().suggestions()),
           new FineDaySummary(d.fines().collected(), d.fines().waived(), d.fines().outstanding()),
           d.eventsToday(),
