@@ -37,10 +37,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useErrorMessage } from "@/features/auth/errors";
+import { useErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { useSession } from "@/features/auth/use-session";
 import { api, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 type Staff = Schema<"StaffSummary">;
 type StaffRole = "LIBRARIAN" | "ADMIN";
@@ -297,6 +296,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
   const { errors, isSubmitting } = form.formState;
   const selectClass = "h-8 rounded-lg border bg-transparent px-2.5 text-sm";
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     try {
@@ -308,7 +308,7 @@ function InviteForm({ onDone }: { onDone: () => void }) {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       onDone();
     } catch (error) {
-      if (!applyServerErrors(error, form.setError)) setFormError(errorText(error));
+      if (!applyFieldErrors(error, form.setError)) setFormError(errorText(error));
     }
   });
 

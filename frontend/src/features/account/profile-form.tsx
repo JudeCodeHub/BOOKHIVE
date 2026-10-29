@@ -12,13 +12,12 @@ import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { updateSessionUser } from "@/features/auth/session";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { LANGUAGES } from "@/i18n/languages";
 import { routing } from "@/i18n/routing";
 import { api, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 export type Profile = Schema<"ProfileResponse">;
 export const PROFILE_QUERY_KEY = ["me"] as const;
@@ -90,6 +89,7 @@ function ProfileFields({ profile }: { profile: Profile }) {
   });
   const { errors, isSubmitting, isDirty } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     try {
@@ -106,7 +106,7 @@ function ProfileFields({ profile }: { profile: Profile }) {
         router.replace(pathname, { locale: saved.preferredLanguage });
       }
     } catch (error) {
-      if (!applyServerErrors(error, form.setError)) {
+      if (!applyFieldErrors(error, form.setError)) {
         setFormError(errorMessage(error));
       }
     }

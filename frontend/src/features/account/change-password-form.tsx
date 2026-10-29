@@ -10,11 +10,11 @@ import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { fromResponse, setSession, type AuthResponse } from "@/features/auth/session";
 import { useRouter } from "@/i18n/navigation";
 import { ApiError, api } from "@/lib/api";
-import { applyServerErrors, utf8Length } from "@/lib/forms";
+import { utf8Length } from "@/lib/forms";
 
 /**
  * Change password while logged in (checklist step 118): POST /me/password with the current one.
@@ -49,6 +49,7 @@ export function ChangePasswordForm() {
   });
   const { errors, isSubmitting } = form.formState;
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async ({ currentPassword, newPassword }) => {
     setFormError(null);
     try {
@@ -70,7 +71,7 @@ export function ChangePasswordForm() {
       }
       const translate = ({ code }: { code: string }) =>
         errorsT.has(code as never) ? errorsT(code as never) : undefined;
-      if (!applyServerErrors(error, form.setError, translate)) {
+      if (!applyFieldErrors(error, form.setError, translate)) {
         setFormError(errorMessage(error));
       }
     }

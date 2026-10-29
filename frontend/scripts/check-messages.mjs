@@ -55,7 +55,11 @@ for (const [locale, entries] of Object.entries(messages)) {
   }
 }
 
+/** Each language's own letters: a translation of real words should use them. */
+const SCRIPTS = { si: /[\u0d80-\u0dff]/, ta: /[\u0b80-\u0bff]/ };
+
 const sameAsEnglish = [];
+const notTranslated = [];
 for (const locale of OTHERS) {
   for (const key of Object.keys(messages[BASE])) {
     if (!(key in messages[locale])) {
@@ -70,6 +74,12 @@ for (const locale of OTHERS) {
     if (messages[locale][key] === messages[BASE][key] && /[A-Za-z]{3,}/.test(messages[BASE][key])) {
       sameAsEnglish.push(`${locale} ${key} = ${JSON.stringify(messages[BASE][key])}`);
     }
+    // English has real words here, so the translation should be in that language's own letters
+    // (names, abbreviations like ISBN and "{count} / {capacity}" patterns are the exceptions)
+    const script = SCRIPTS[locale];
+    if (script && /[A-Za-z]{4,}/.test(messages[BASE][key]) && !script.test(messages[locale][key])) {
+      notTranslated.push(`${locale} ${key} = ${JSON.stringify(messages[locale][key])}`);
+    }
   }
   for (const key of Object.keys(messages[locale])) {
     if (!(key in messages[BASE])) problems.push(`${locale} ${key}: not in English (left over?)`);
@@ -79,6 +89,10 @@ for (const locale of OTHERS) {
 console.log(`${Object.keys(messages[BASE]).length} messages in ${[BASE, ...OTHERS].join(", ")}`);
 if (sameAsEnglish.length > 0) {
   console.log(`\nSame as English (usually fine, check new ones):\n  ${sameAsEnglish.join("\n  ")}`);
+}
+if (notTranslated.length > 0) {
+  console.log(`\nNo ${OTHERS.join("/")} letters (fine for names and patterns, check new ones):`);
+  console.log(`  ${notTranslated.join("\n  ")}`);
 }
 if (problems.length > 0) {
   console.error(`\n${problems.length} problem(s):\n  ${problems.join("\n  ")}`);

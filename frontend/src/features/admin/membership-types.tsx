@@ -29,9 +29,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useFieldErrors } from "@/features/auth/errors";
 import { ApiError, api, type Schema } from "@/lib/api";
-import { applyServerErrors } from "@/lib/forms";
 
 type MembershipType = Schema<"AdminMembershipTypeResponse">;
 type Request = Schema<"MembershipTypeRequest">;
@@ -225,6 +224,7 @@ function TypeForm({ type, onDone }: { type: MembershipType | null; onDone: () =>
     },
   });
 
+  const applyFieldErrors = useFieldErrors();
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
     const body: Request = {
@@ -247,7 +247,7 @@ function TypeForm({ type, onDone }: { type: MembershipType | null; onDone: () =>
           : undefined;
       if (code === "MEMBERSHIP_TYPE_EXISTS") {
         form.setError("code", { message: t("errors.MEMBERSHIP_TYPE_EXISTS") });
-      } else if (!applyServerErrors(error, form.setError, translate)) {
+      } else if (!applyFieldErrors(error, form.setError, translate)) {
         setFormError(errorMessage(error));
       }
     }
