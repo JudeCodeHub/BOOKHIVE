@@ -30,6 +30,13 @@ public class EventQueryService {
   private final EventRegistrationService signUps;
   private final LibraryTime time;
 
+  /** Published events starting between {@code from} and {@code to} (staff dashboard). */
+  @Transactional(readOnly = true)
+  public long countStarting(Instant from, Instant to) {
+    return events.countByStatusAndStartsAtGreaterThanEqualAndStartsAtLessThan(
+        EventStatus.PUBLISHED, from, to);
+  }
+
   public EventQueryService(
       LibraryEventRepository events,
       EventRegistrationRepository registrations,

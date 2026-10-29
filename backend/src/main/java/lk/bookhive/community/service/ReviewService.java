@@ -51,6 +51,12 @@ public class ReviewService {
   private final AuditService audit;
   private final LibraryTime time;
 
+  /** Reviews waiting for moderation (staff dashboard, step 360). */
+  @Transactional(readOnly = true)
+  public long pendingCount() {
+    return reviews.countByStatus(ReviewStatus.PENDING);
+  }
+
   public ReviewService(
       ReviewRepository reviews,
       LoanLookupService loans,

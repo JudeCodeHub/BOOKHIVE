@@ -1732,6 +1732,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Today's numbers: desk, hold shelf, things to do, fines, events, last 14 days */
+        get: operations["today"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/copies/{id}/history": {
         parameters: {
             query?: never;
@@ -3894,6 +3911,48 @@ export interface components {
         DonationDetailResponse: {
             donation: components["schemas"]["DonationResponse"];
             copies: components["schemas"]["DonatedCopySummary"][];
+        };
+        DayActivitySummary: {
+            /** Format: date */
+            day: string;
+            /** Format: int64 */
+            checkouts: number;
+            /** Format: int64 */
+            returns: number;
+        };
+        DeskSummary: {
+            /** Format: int64 */
+            checkedOut: number;
+            /** Format: int64 */
+            returned: number;
+            /** Format: int64 */
+            dueToday: number;
+            /** Format: int64 */
+            overdue: number;
+        };
+        FineDaySummary: {
+            collected: number;
+            waived: number;
+            outstanding: number;
+        };
+        StaffDashboardResponse: {
+            /** Format: date */
+            today: string;
+            desk: components["schemas"]["DeskSummary"];
+            holds: components["schemas"]["HoldShelfSummary"];
+            toDo: components["schemas"]["ToDoSummary"];
+            fines: components["schemas"]["FineDaySummary"];
+            /** Format: int64 */
+            eventsToday: number;
+            lastTwoWeeks: components["schemas"]["DayActivitySummary"][];
+        };
+        ToDoSummary: {
+            /** Format: int64 */
+            applications: number;
+            /** Format: int64 */
+            reviews: number;
+            /** Format: int64 */
+            suggestions: number;
         };
         CopyHistoryResponse: {
             /** @enum {string} */
@@ -7482,6 +7541,26 @@ export interface operations {
                 };
                 content: {
                     "text/csv": string;
+                };
+            };
+        };
+    };
+    today: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffDashboardResponse"];
                 };
             };
         };

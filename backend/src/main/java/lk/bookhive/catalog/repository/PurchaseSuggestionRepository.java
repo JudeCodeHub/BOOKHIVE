@@ -26,6 +26,8 @@ public interface PurchaseSuggestionRepository extends JpaRepository<PurchaseSugg
   @EntityGraph(attributePaths = "book")
   Page<PurchaseSuggestion> findByStatus(SuggestionStatus status, Pageable pageable);
 
+  long countByStatus(SuggestionStatus status);
+
   /** How many members asked for the same ISBN: popular requests matter more. */
   long countByIsbn13(String isbn13);
 }

@@ -31,6 +31,8 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
   @EntityGraph(attributePaths = {"membershipType", "guardian"})
   Page<Member> findByStatus(MemberStatus status, Pageable pageable);
 
+  long countByStatus(MemberStatus status);
+
   /**
    * Staff member search (MEM-8): exact member number, NIC (by its hash), phone or email, or part of
    * the name. Members only (not open or rejected applications). Joins the users table in SQL

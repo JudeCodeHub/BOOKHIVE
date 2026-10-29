@@ -1,5 +1,7 @@
 package lk.bookhive.fine.service;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lk.bookhive.admin.settings.SettingsService;
@@ -33,6 +35,21 @@ public class FineQueryService implements OutstandingBalance {
 
   private final FineRepository fines;
   private final SettingsService settings;
+
+  /**
+   * Money on the staff dashboard (step 360), in LKR.
+   *
+   * @param collected payments minus refunds between start and end
+   * @param waived waived between start and end
+   * @param outstanding still owed on all open fines
+   */
+  public record MoneyTotals(BigDecimal collected, BigDecimal waived, BigDecimal outstanding) {}
+
+  @Transactional(readOnly = true)
+  public MoneyTotals moneyTotals(Instant start, Instant end) {
+    FineRepository.MoneyTotals t = fines.moneyTotals(start, end);
+    return new MoneyTotals(t.getCollected(), t.getWaived(), t.getOutstanding());
+  }
 
   public FineQueryService(FineRepository fines, SettingsService settings) {
     this.fines = fines;

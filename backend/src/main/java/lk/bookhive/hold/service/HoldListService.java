@@ -35,6 +35,15 @@ public class HoldListService {
   public record HoldRow(HoldView view, HoldableTitle title, LendableCopy copy) {}
 
   /**
+   * The hold shelf on the staff dashboard (step 360).
+   *
+   * @param ready set aside, waiting to be picked up
+   * @param expiringToday of those, today is the last day
+   * @param waiting members in a queue for a copy
+   */
+  public record ShelfCounts(long ready, long expiringToday, long waiting) {}
+
+  /**
    * One copy on the hold shelf, for staff.
    *
    * @param pastDeadline its last pickup day has passed (the nightly job expires it)
@@ -53,6 +62,14 @@ public class HoldListService {
   private final BorrowerService borrowers;
   private final AuthService authService;
   private final LibraryTime time;
+
+  @Transactional(readOnly = true)
+  public ShelfCounts shelfCounts() {
+    return new ShelfCounts(
+        holds.countByStatus(HoldStatus.READY),
+        holds.countByStatusAndExpiresAt(HoldStatus.READY, time.today()),
+        holds.countByStatus(HoldStatus.WAITING));
+  }
 
   public HoldListService(
       HoldRepository holds,

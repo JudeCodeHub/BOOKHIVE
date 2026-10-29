@@ -22,6 +22,8 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
   /** The moderation queue: oldest first. */
   Page<Review> findByStatusOrderByUpdatedAtAsc(ReviewStatus status, Pageable pageable);
 
+  long countByStatus(ReviewStatus status);
+
   /** Average rating and count of a book's approved reviews. */
   interface RatingSummary {
     Double getAverage();
