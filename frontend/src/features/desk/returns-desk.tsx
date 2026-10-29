@@ -3,11 +3,12 @@
 import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { BookCheck, BookmarkCheck, CircleAlert, Info, PartyPopper } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { ScanInput } from "@/features/desk/scan-input";
 import { playSound } from "@/features/desk/sounds";
+import { useMoney } from "@/lib/formats";
 import { ApiError, api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,6 @@ const MAX_ROWS = 30;
  */
 export function ReturnsDesk() {
   const t = useTranslations("Desk");
-  const format = useFormatter();
   const errorMessage = useAuthErrorMessage();
   const queryClient = useQueryClient();
   const nextId = useRef(0);
@@ -69,8 +69,7 @@ export function ReturnsDesk() {
   };
 
   const returned = rows.filter((row) => row.state === "done").length;
-  const money = (amount: number) =>
-    format.number(amount, { style: "currency", currency: "LKR", currencyDisplay: "code" });
+  const money = useMoney();
 
   return (
     <div className="grid gap-6">

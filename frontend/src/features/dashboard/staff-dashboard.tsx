@@ -19,6 +19,7 @@ import { useAuthErrorMessage } from "@/features/auth/errors";
 import { dayAsDate } from "@/features/events/library-dates";
 import { NumbersTable, TimeChart } from "@/features/reports/charts";
 import { Link } from "@/i18n/navigation";
+import { useMoney } from "@/lib/formats";
 import { api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +38,7 @@ export function StaffDashboard() {
   const tCommon = useTranslations("Common");
   const format = useFormatter();
   const errorMessage = useAuthErrorMessage();
+  const money = useMoney();
 
   const query = useQuery({
     queryKey: ["staff", "dashboard"],
@@ -55,7 +57,6 @@ export function StaffDashboard() {
 
   const d = query.data;
   const n = (x: number) => format.number(x);
-  const lkr = (x: number) => format.number(x, { style: "currency", currency: "LKR" });
   const toDo = d.toDo.applications + d.toDo.reviews + d.toDo.suggestions;
 
   return (
@@ -144,11 +145,11 @@ export function StaffDashboard() {
       </section>
 
       <Section title={t("fines.title")}>
-        <Tile label={t("fines.collected")} value={lkr(d.fines.collected)} />
-        <Tile label={t("fines.waived")} value={lkr(d.fines.waived)} />
+        <Tile label={t("fines.collected")} value={money(d.fines.collected)} />
+        <Tile label={t("fines.waived")} value={money(d.fines.waived)} />
         <Tile
           label={t("fines.outstanding")}
-          value={lkr(d.fines.outstanding)}
+          value={money(d.fines.outstanding)}
           note={t("fines.outstandingNote")}
         />
       </Section>

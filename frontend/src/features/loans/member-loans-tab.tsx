@@ -19,6 +19,7 @@ import {
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { useStaffRenew } from "@/features/loans/use-staff-renew";
+import { useMoney } from "@/lib/formats";
 import { api, type Schema } from "@/lib/api";
 
 type LoanSummary = Schema<"LoanSummary">;
@@ -54,9 +55,7 @@ export function MemberLoansTab({ memberId }: { memberId: string }) {
     },
     onError: (error) => toast.error(errorMessage(error)),
   });
-
-  const money = (amount: number) =>
-    format.number(amount, { style: "currency", currency: "LKR", currencyDisplay: "code" });
+  const money = useMoney();
   const date = (iso: string) => format.dateTime(new Date(iso), { dateStyle: "medium" });
 
   if (loans.isPending) {
