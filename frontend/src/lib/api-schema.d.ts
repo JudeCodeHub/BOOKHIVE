@@ -283,6 +283,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/hours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The weekly opening hours, Monday first */
+        get: operations["week"];
+        /** Replace the weekly hours (all 7 days; loans due on days that become closed move to the next open day) */
+        put: operations["updateWeek"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/holidays/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change a holiday's date or names */
+        put: operations["updateHoliday"];
+        post?: never;
+        /** Remove a holiday (the library opens that day after all) */
+        delete: operations["deleteHoliday"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/reviews/{id}/reject": {
         parameters: {
             query?: never;
@@ -1329,6 +1365,24 @@ export interface paths {
         put?: never;
         /** Create a membership type */
         post: operations["create_7"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/holidays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One year's holidays, in date order */
+        get: operations["holidays"];
+        put?: never;
+        /** Add a closed day (today or later; one per date) */
+        post: operations["addHoliday"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2823,6 +2877,50 @@ export interface components {
             allowedSections: string[];
             active: boolean;
         };
+        DayHoursRequest: {
+            /** @enum {string} */
+            day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+            /**
+             * Format: time-local
+             * @example 08:00
+             */
+            opensAt?: string | null;
+            /**
+             * Format: time-local
+             * @example 17:00
+             */
+            closesAt?: string | null;
+        };
+        WeekRequest: {
+            week: components["schemas"]["DayHoursRequest"][];
+        };
+        DaySummary: {
+            /** @enum {string} */
+            day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+            /** Format: time-local */
+            opensAt: string;
+            /** Format: time-local */
+            closesAt: string;
+        };
+        WeekResponse: {
+            week: components["schemas"]["DaySummary"][];
+        };
+        HolidayRequest: {
+            /** Format: date */
+            date: string;
+            nameEn: string;
+            nameSi: string;
+            nameTa: string;
+        };
+        AdminHolidaySummary: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            date: string;
+            nameEn: string;
+            nameSi: string;
+            nameTa: string;
+        };
         RejectReviewRequest: {
             reason: string;
         };
@@ -3968,14 +4066,6 @@ export interface components {
             /** Format: double */
             longitude: number;
         };
-        DaySummary: {
-            /** @enum {string} */
-            day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
-            /** Format: time-local */
-            opensAt: string;
-            /** Format: time-local */
-            closesAt: string;
-        };
         HolidaySummary: {
             /** Format: date */
             date: string;
@@ -4803,6 +4893,96 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["AdminMembershipTypeResponse"];
                 };
+            };
+        };
+    };
+    week: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WeekResponse"];
+                };
+            };
+        };
+    };
+    updateWeek: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WeekRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WeekResponse"];
+                };
+            };
+        };
+    };
+    updateHoliday: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HolidayRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminHolidaySummary"];
+                };
+            };
+        };
+    };
+    deleteHoliday: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -6588,6 +6768,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminMembershipTypeResponse"];
+                };
+            };
+        };
+    };
+    holidays: {
+        parameters: {
+            query: {
+                year: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminHolidaySummary"][];
+                };
+            };
+        };
+    };
+    addHoliday: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HolidayRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminHolidaySummary"];
                 };
             };
         };

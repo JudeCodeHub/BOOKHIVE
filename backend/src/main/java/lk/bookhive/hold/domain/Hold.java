@@ -84,6 +84,16 @@ public class Hold extends BaseEntity {
     this.expiresAt = pickUpBy;
   }
 
+  /**
+   * The library is now closed on the last pickup day (step 357): the copy waits until the next open
+   * day instead.
+   */
+  public void extendPickup(LocalDate nextOpenDay) {
+    if (status == HoldStatus.READY) {
+      this.expiresAt = nextOpenDay;
+    }
+  }
+
   /** The member borrowed the copy set aside for them. */
   public void fulfil(UUID loanId, Instant now) {
     if (status != HoldStatus.READY) {

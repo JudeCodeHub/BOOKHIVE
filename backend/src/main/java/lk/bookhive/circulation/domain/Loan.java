@@ -81,6 +81,15 @@ public class Loan extends BaseEntity {
     this.status = LoanStatus.ACTIVE;
   }
 
+  /**
+   * The library is now closed on the due date (a new holiday, shorter weekly hours: step 357): the
+   * book is due on the next open day instead. Not a renewal.
+   */
+  public void moveDueDate(LocalDate nextOpenDay) {
+    requireOpen();
+    this.dueDate = nextOpenDay;
+  }
+
   /** The due date has passed (nightly job, checklist step 233). */
   public void markOverdue() {
     if (status == LoanStatus.ACTIVE) {
