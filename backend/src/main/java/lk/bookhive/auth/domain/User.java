@@ -108,6 +108,35 @@ public class User extends BaseEntity {
     return user;
   }
 
+  /** Librarian <-> admin (step 358). Any other role the person has (e.g. MEMBER) stays. */
+  public void changeStaffRole(Role role) {
+    if (role != Role.LIBRARIAN && role != Role.ADMIN) {
+      throw new IllegalArgumentException("Staff role must be LIBRARIAN or ADMIN, not " + role);
+    }
+    roles.remove(Role.LIBRARIAN);
+    roles.remove(Role.ADMIN);
+    roles.add(role);
+  }
+
+  /** Switched off by an admin (e.g. left the library): can't log in any more. */
+  public void disable() {
+    status = UserStatus.DISABLED;
+  }
+
+  /** Switched back on: active again, or still waiting for the invite to be accepted. */
+  public void enable() {
+    if (status == UserStatus.DISABLED) {
+      status = emailVerifiedAt != null ? UserStatus.ACTIVE : UserStatus.PENDING_VERIFICATION;
+    }
+  }
+
+  /** The staff role: ADMIN or LIBRARIAN, or null for someone who isn't staff. */
+  public Role getStaffRole() {
+    return roles.contains(Role.ADMIN)
+        ? Role.ADMIN
+        : roles.contains(Role.LIBRARIAN) ? Role.LIBRARIAN : null;
+  }
+
   /** " Nimali@Mail.LK " -> "nimali@mail.lk". Use it for every email lookup too. */
   public static String normalizeEmail(String email) {
     return Objects.requireNonNull(email, "email").strip().toLowerCase(Locale.ROOT);
