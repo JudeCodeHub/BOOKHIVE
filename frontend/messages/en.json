@@ -2376,7 +2376,12 @@
     },
     "downloadCSV": "Download CSV",
     "downloadPDF": "Download PDF",
-    "downloading": "Preparing…"
+    "downloading": "Preparing…",
+    "errors": {
+      "RANGE_INVALID": "The end date is before the start date.",
+      "RANGE_TOO_LONG": "That range is too long. Choose a shorter one, or group by month.",
+      "DATE_NOT_PAST": "Choose a day in the past."
+    }
   },
   "Stocktake": {
     "title": "Title",
