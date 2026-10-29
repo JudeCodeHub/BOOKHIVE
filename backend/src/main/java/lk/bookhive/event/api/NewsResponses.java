@@ -2,6 +2,7 @@ package lk.bookhive.event.api;
 
 import java.time.Instant;
 import java.util.UUID;
+import lk.bookhive.common.storage.Pictures;
 import lk.bookhive.event.domain.NewsPost;
 import lk.bookhive.event.domain.NewsStatus;
 
@@ -64,13 +65,8 @@ public final class NewsResponses {
     }
   }
 
-  /** "news/<id>/<random>.jpg" -> "<random>": changes with every new picture; null = none. */
+  /** Changes with every new picture; null when there's none. */
   static String version(NewsPost post) {
-    String key = post.getImageKey();
-    if (key == null) {
-      return null;
-    }
-    String file = key.substring(key.lastIndexOf('/') + 1);
-    return file.endsWith(".jpg") ? file.substring(0, file.length() - 4) : file;
+    return Pictures.version(post.getImageKey());
   }
 }

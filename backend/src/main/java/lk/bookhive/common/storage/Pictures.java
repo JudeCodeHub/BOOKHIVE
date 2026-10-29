@@ -61,4 +61,16 @@ public final class Pictures {
       throw new UncheckedIOException(e);
     }
   }
+
+  /**
+   * The changing part of a picture's storage key ("events/<id>/<random>.jpg" -> "<random>"), used
+   * as ?v= in public picture URLs so a new picture gets a new URL; null when there's none.
+   */
+  public static String version(String key) {
+    if (key == null) {
+      return null;
+    }
+    String file = key.substring(key.lastIndexOf('/') + 1);
+    return file.endsWith(".jpg") ? file.substring(0, file.length() - 4) : file;
+  }
 }

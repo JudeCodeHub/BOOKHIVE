@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
-import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.hold.api.HoldResponses.HoldCheckResponse;
 import lk.bookhive.hold.api.HoldResponses.HoldProblemSummary;
 import lk.bookhive.hold.api.HoldResponses.HoldSummary;
@@ -87,10 +86,6 @@ public class MyHoldController {
   }
 
   private UUID memberId(Jwt jwt) {
-    return borrowers
-        .byUserId(UUID.fromString(jwt.getSubject()))
-        .orElseThrow(
-            () -> new NotFoundException("MEMBER_NOT_FOUND", "You are not a library member yet."))
-        .memberId();
+    return borrowers.memberIdOfUser(UUID.fromString(jwt.getSubject()));
   }
 }

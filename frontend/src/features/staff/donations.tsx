@@ -1,9 +1,10 @@
 "use client";
 
+import { BackLink } from "@/components/layout/back-link";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Pencil, Plus, Search } from "lucide-react";
+import { Pencil, Plus, Search } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
@@ -250,13 +251,7 @@ export function DonationPage() {
   const { donation, copies } = query.data;
   return (
     <div className="grid gap-4">
-      <Link
-        href="/staff/donations"
-        className="inline-flex items-center gap-1 justify-self-start text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("back")}
-      </Link>
+      <BackLink href="/staff/donations">{t("back")}</BackLink>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">{donation.donorName}</h1>
         <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>

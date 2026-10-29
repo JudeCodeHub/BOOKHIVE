@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
-import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.event.api.EventResponses.RegistrationSummary;
 import lk.bookhive.event.service.EventRegistrationService;
 import lk.bookhive.member.service.BorrowerService;
@@ -68,10 +67,6 @@ public class MyEventController {
   }
 
   private UUID memberId(Jwt jwt) {
-    return borrowers
-        .byUserId(UUID.fromString(jwt.getSubject()))
-        .orElseThrow(
-            () -> new NotFoundException("MEMBER_NOT_FOUND", "You are not a library member yet."))
-        .memberId();
+    return borrowers.memberIdOfUser(UUID.fromString(jwt.getSubject()));
   }
 }

@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { DateTile } from "./date-tile";
 import { libraryDay, plainText, posterUrl, type LibraryEvent } from "./library-dates";
 
 /**
@@ -37,7 +38,7 @@ export function EventCard({ event, className }: { event: LibraryEvent; className
           className="aspect-video w-full object-cover sm:aspect-auto sm:h-full"
         />
       ) : (
-        <DateTile date={start} />
+        <DateTile date={start} size="large" />
       )}
       <div className="grid content-start gap-2 p-4">
         <h3 className="font-heading text-lg font-semibold">
@@ -73,24 +74,6 @@ export function EventCard({ event, className }: { event: LibraryEvent; className
         </div>
       </div>
     </article>
-  );
-}
-
-/** A big date (day + month) in place of a poster. */
-function DateTile({ date }: { date: Date }) {
-  const format = useFormatter();
-  return (
-    <div
-      aria-hidden
-      className="flex items-center justify-center gap-2 bg-primary/10 p-4 text-primary sm:flex-col"
-    >
-      <span className="font-heading text-4xl leading-none font-semibold">
-        {format.dateTime(date, { day: "numeric" })}
-      </span>
-      <span className="text-sm font-medium uppercase">
-        {format.dateTime(date, { month: "short" })}
-      </span>
-    </div>
   );
 }
 

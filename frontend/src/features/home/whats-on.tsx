@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Pin } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
+import { DateTile } from "@/features/events/date-tile";
 import { PlacesBadge } from "@/features/events/event-card";
 import type { LibraryEvent } from "@/features/events/library-dates";
 import { Link } from "@/i18n/navigation";
@@ -99,17 +100,7 @@ function EventItem({ event }: { event: LibraryEvent }) {
   const start = new Date(event.startsAt);
   return (
     <article className="group relative flex gap-3 rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
-      <div
-        aria-hidden
-        className="flex w-14 shrink-0 flex-col items-center justify-center rounded-md bg-primary/10 py-2 text-primary"
-      >
-        <span className="font-heading text-2xl leading-none font-semibold">
-          {format.dateTime(start, { day: "numeric" })}
-        </span>
-        <span className="text-xs font-medium uppercase">
-          {format.dateTime(start, { month: "short" })}
-        </span>
-      </div>
+      <DateTile date={start} className="w-14 shrink-0" />
       <div className="grid min-w-0 content-start gap-1">
         <h4 className="line-clamp-2 font-semibold">
           <Link

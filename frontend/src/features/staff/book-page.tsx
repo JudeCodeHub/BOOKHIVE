@@ -1,7 +1,7 @@
 "use client";
 
+import { BackLink } from "@/components/layout/back-link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
@@ -11,7 +11,7 @@ import { useAuthErrorMessage } from "@/features/auth/errors";
 import { BookForm } from "@/features/staff/book-form";
 import { CopiesTab } from "@/features/staff/copies-tab";
 import { CoverUpload } from "@/features/staff/cover-upload";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { api, type Schema } from "@/lib/api";
 
 type Book = Schema<"BookResponse">;
@@ -52,13 +52,7 @@ export function BookPage() {
   const book = query.data;
   return (
     <div className="grid gap-4">
-      <Link
-        href="/staff/catalog"
-        className="inline-flex items-center gap-1 justify-self-start text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("back")}
-      </Link>
+      <BackLink href="/staff/catalog">{t("back")}</BackLink>
       <div>
         <h1 className="text-xl font-semibold">{book.title}</h1>
         <p className="text-sm text-muted-foreground">
