@@ -2161,5 +2161,56 @@
       "STAFF_NOT_FOUND": "This staff account no longer exists.",
       "EMAIL_ALREADY_REGISTERED": "Someone already has an account with this email."
     }
+  },
+  "AdminAudit": {
+    "title": "Audit log",
+    "description": "Who did what, and when. Entries can’t be changed or removed. Click a person or an item to see only their entries.",
+    "action": "Action",
+    "anyAction": "Any action",
+    "wholeArea": "All of {area}",
+    "person": "Person",
+    "anyone": "Anyone",
+    "chosenPerson": "The chosen person",
+    "from": "From",
+    "to": "To",
+    "onItem": "On: {type} {id}",
+    "clearFilters": "Clear filters",
+    "count": "{count, plural, one {# entry} other {# entries}}",
+    "empty": "No entries match these filters.",
+    "when": "When",
+    "item": "On what",
+    "details": "Details",
+    "system": "System (no one logged in)",
+    "deletedAccount": "Account no longer exists",
+    "onlyThisPerson": "Show only this person’s entries",
+    "onlyThisItem": "Show only entries about this item",
+    "errors": {
+      "RANGE_INVALID": "The end date is before the start date."
+    },
+    "areas": {
+      "auth": "Accounts & logins",
+      "author": "Authors",
+      "book": "Books",
+      "catalog": "Catalogue",
+      "category": "Categories",
+      "contact": "Contact form",
+      "copy": "Copies",
+      "donation": "Donations",
+      "event": "Events",
+      "fine": "Fines",
+      "hold": "Reservations",
+      "library": "Hours & holidays",
+      "loan": "Loans",
+      "member": "Members",
+      "news": "News",
+      "notification": "Notifications",
+      "payment": "Payments",
+      "publisher": "Publishers",
+      "report": "Reports",
+      "review": "Reviews",
+      "settings": "Settings",
+      "stocktake": "Stock-take",
+      "suggestion": "Suggestions"
+    }
   }
 }
