@@ -12,9 +12,11 @@ import lk.bookhive.admin.repository.LibrarySettingRepository;
 import lk.bookhive.admin.settings.Settings.Fines;
 import lk.bookhive.admin.settings.Settings.Group;
 import lk.bookhive.admin.settings.Settings.Holds;
+import lk.bookhive.admin.settings.Settings.Loans;
 import lk.bookhive.admin.settings.Settings.Membership;
 import lk.bookhive.admin.settings.Settings.Notifications;
 import lk.bookhive.common.audit.AuditService;
+import lk.bookhive.common.exception.ConflictException;
 import lk.bookhive.common.exception.FieldValidationException;
 import lk.bookhive.common.exception.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,16 @@ public class SettingsService {
     this.clock = clock;
   }
 
+  /**
+   * A group as stored, for the admin settings page: always read from the database (not the cache),
+   * with who changed it last and the version to send back when saving.
+   */
+  public record Stored<T extends Group>(T value, long version, Instant updatedAt, UUID updatedBy) {}
+
+  public Loans loans() {
+    return get("loans", Loans.class);
+  }
+
   public Fines fines() {
     return get("fines", Fines.class);
   }
@@ -69,12 +81,29 @@ public class SettingsService {
     return get("notifications", Notifications.class);
   }
 
+  /** A group as stored (admin settings page, step 356). */
+  @Transactional(readOnly = true)
+  public <T extends Group> Stored<T> stored(String key, Class<T> type) {
+    LibrarySetting row =
+        settings
+            .findById(key)
+            .orElseThrow(() -> new NotFoundException("SETTING_NOT_FOUND", "Unknown setting."));
+    return new Stored<>(
+        json.readValue(row.getValue(), type),
+        row.getVersion(),
+        row.getUpdatedAt(),
+        row.getUpdatedBy());
+  }
+
   /**
-   * Saves a whole group (admin settings page, step 406). Values are checked first; a bad one is
+   * Saves a whole group (admin settings page, step 356). Values are checked first; a bad one is
    * reported on its field.
+   *
+   * @param expectedVersion the version the admin started editing from: if someone else saved the
+   *     group since, nothing is saved (SETTINGS_CHANGED) instead of overwriting their change
    */
   @Transactional
-  public <T extends Group> T update(T group, UUID adminId) {
+  public <T extends Group> T update(T group, long expectedVersion, UUID adminId) {
     try {
       group.check();
     } catch (IllegalArgumentException e) {
@@ -85,6 +114,11 @@ public class SettingsService {
         settings
             .findById(group.key())
             .orElseThrow(() -> new NotFoundException("SETTING_NOT_FOUND", "Unknown setting."));
+    if (row.getVersion() != expectedVersion) {
+      throw new ConflictException(
+          "SETTINGS_CHANGED",
+          "Someone else changed these settings in the meantime. Reload to see their change.");
+    }
     row.change(json.writeValueAsString(group), adminId);
     audit.record(
         "settings.updated",
