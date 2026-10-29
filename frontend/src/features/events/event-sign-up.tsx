@@ -215,7 +215,7 @@ export function EventSignUp({ initial }: { initial: LibraryEvent }) {
           {notMember
             ? t.rich("notMember", {
                 link: (chunks) => (
-                  <Link href="/account/membership" className="font-medium text-primary underline">
+                  <Link href="/account/membership" className="font-medium text-link underline">
                     {chunks}
                   </Link>
                 ),

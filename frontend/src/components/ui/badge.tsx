@@ -14,7 +14,7 @@ const badgeVariants = cva(
           "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
         outline: "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
         ghost: "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-link underline-offset-4 hover:underline",
         // BookHive copy/loan status (PRD §11): tinted background + darker text for contrast
         available: "bg-available/10 text-available-foreground dark:bg-available/20",
         "on-loan": "bg-on-loan/10 text-on-loan-foreground dark:bg-on-loan/20",

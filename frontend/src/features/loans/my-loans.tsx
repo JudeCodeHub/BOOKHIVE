@@ -59,7 +59,7 @@ export function MyLoans() {
         <p className="rounded-lg border p-6 text-center text-muted-foreground">
           {t.rich("notMember", {
             link: (chunks) => (
-              <Link href="/account/membership" className="font-medium text-primary underline">
+              <Link href="/account/membership" className="font-medium text-link underline">
                 {chunks}
               </Link>
             ),
@@ -74,7 +74,7 @@ export function MyLoans() {
       <p className="rounded-lg border p-6 text-center text-muted-foreground">
         {t.rich("empty", {
           link: (chunks) => (
-            <Link href="/search" className="font-medium text-primary underline">
+            <Link href="/search" className="font-medium text-link underline">
               {chunks}
             </Link>
           ),

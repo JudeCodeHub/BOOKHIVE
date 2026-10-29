@@ -134,7 +134,7 @@ function MyReviewBox({ bookId }: { bookId: string }) {
           link: (chunks) => (
             <Link
               href={`/login?next=${encodeURIComponent(`/books/${bookId}`)}`}
-              className="font-medium text-primary underline"
+              className="font-medium text-link underline"
             >
               {chunks}
             </Link>

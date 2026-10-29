@@ -14,7 +14,7 @@ export function RichText({ html, className }: { html: string; className?: string
         "[&_h3]:mt-1 [&_h3]:font-heading [&_h3]:text-lg [&_h3]:font-semibold",
         "[&_li]:mt-1 [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6",
         "[&_blockquote]:border-l-4 [&_blockquote]:pl-4 [&_blockquote]:text-muted-foreground [&_blockquote]:italic",
-        "[&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4",
+        "[&_a]:font-medium [&_a]:text-link [&_a]:underline [&_a]:underline-offset-4",
         className,
       )}
       dangerouslySetInnerHTML={{ __html: html }}

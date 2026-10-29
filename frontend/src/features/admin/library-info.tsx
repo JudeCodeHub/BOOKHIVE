@@ -240,6 +240,7 @@ function InfoForm({ info }: { info: LibraryInfo }) {
                 render={({ field: { value, onChange } }) => (
                   <RichTextEditor
                     id={`about-${l.code}`}
+                    label={`${t("aboutTitle")} (${l.name})`}
                     value={(value as string) ?? ""}
                     onChange={onChange}
                   />

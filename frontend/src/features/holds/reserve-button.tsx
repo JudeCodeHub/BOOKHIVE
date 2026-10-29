@@ -86,7 +86,7 @@ export function ReserveButton({ bookId }: { bookId: string }) {
         <p className="text-sm">
           {t.rich("notMember", {
             link: (chunks) => (
-              <Link href="/account/membership" className="font-medium text-primary underline">
+              <Link href="/account/membership" className="font-medium text-link underline">
                 {chunks}
               </Link>
             ),
@@ -105,7 +105,7 @@ export function ReserveButton({ bookId }: { bookId: string }) {
       <p className="text-sm">
         {t.rich("alreadyHeld", {
           link: (chunks) => (
-            <Link href="/account/holds" className="font-medium text-primary underline">
+            <Link href="/account/holds" className="font-medium text-link underline">
               {chunks}
             </Link>
           ),

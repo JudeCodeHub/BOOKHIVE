@@ -76,7 +76,7 @@ export function MyEvents() {
         <p className="rounded-lg border p-6 text-center text-muted-foreground">
           {t.rich("notMember", {
             link: (chunks) => (
-              <Link href="/account/membership" className="font-medium text-primary underline">
+              <Link href="/account/membership" className="font-medium text-link underline">
                 {chunks}
               </Link>
             ),
@@ -97,7 +97,7 @@ export function MyEvents() {
       <p className="rounded-lg border p-6 text-center text-muted-foreground">
         {t.rich("empty", {
           link: (chunks) => (
-            <Link href="/events" className="font-medium text-primary underline">
+            <Link href="/events" className="font-medium text-link underline">
               {chunks}
             </Link>
           ),
@@ -116,7 +116,7 @@ export function MyEvents() {
           <p className="text-muted-foreground">
             {t.rich("noneComingUp", {
               link: (chunks) => (
-                <Link href="/events" className="font-medium text-primary underline">
+                <Link href="/events" className="font-medium text-link underline">
                   {chunks}
                 </Link>
               ),

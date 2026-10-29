@@ -66,7 +66,8 @@ export function SubjectGrid() {
             <li key={ddc}>
               <Link
                 href={node ? `/categories/${node.id}` : "/search"}
-                aria-label={t("subjectBooks", { name: label })}
+                // The card shows the code and the name, and both must be in the link's name (WCAG 2.5.3)
+                aria-label={t("subjectBooks", { name: `${ddc} ${label}` })}
                 className="group flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-colors hover:border-primary hover:bg-accent"
               >
                 <span className="flex items-center justify-between">
