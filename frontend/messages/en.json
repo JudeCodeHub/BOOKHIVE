@@ -1631,8 +1631,7 @@
       "MEMBER_NOT_FOUND": "Only library members can sign up.",
       "EVENT_ALREADY_STARTED": "The event has already started.",
       "REGISTRATION_NOT_FOUND": "You aren’t signed up for this event.",
-      "EVENT_NOT_FOUND": "This event no longer exists.",
-      "generic": "Something went wrong. Please try again."
+      "EVENT_NOT_FOUND": "This event no longer exists."
     }
   },
   "MyEvents": {

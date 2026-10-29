@@ -1,8 +1,9 @@
 "use client";
 
+import { BackLink } from "@/components/layout/back-link";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Ban, Download, ExternalLink, ScanQrCode, Send } from "lucide-react";
+import { Ban, Download, ExternalLink, ScanQrCode, Send } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -29,9 +30,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useErrorMessage } from "@/features/auth/errors";
 import { Link } from "@/i18n/navigation";
-import { ApiError, api, type Schema } from "@/lib/api";
+import { api, type Schema } from "@/lib/api";
 import { libraryDay } from "./library-dates";
 import { StaffEventForm } from "./staff-event-form";
 import { STAFF_EVENTS_KEY, StaffEventStatus, type StaffEvent } from "./staff-events";
@@ -61,13 +62,7 @@ export function StaffEventPage() {
   const event = query.data;
   return (
     <div className="grid gap-4">
-      <Link
-        href="/staff/events"
-        className="inline-flex items-center gap-1 justify-self-start text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("back")}
-      </Link>
+      <BackLink href="/staff/events">{t("back")}</BackLink>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">{event.title}</h1>
         <StaffEventStatus event={event} now={now} />
@@ -118,7 +113,6 @@ export function StaffEventPage() {
 /** Publish (drafts), cancel (with a reason; everyone signed up is told), view, check-in. */
 function EventActions({ event, now }: { event: StaffEvent; now: number }) {
   const t = useTranslations("StaffEvents");
-  const errorMessage = useAuthErrorMessage();
   const queryClient = useQueryClient();
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
@@ -127,12 +121,8 @@ function EventActions({ event, now }: { event: StaffEvent; now: number }) {
     queryClient.setQueryData([...STAFF_EVENTS_KEY, "detail", event.id], saved);
     void queryClient.invalidateQueries({ queryKey: STAFF_EVENTS_KEY });
   };
-  const fail = (error: unknown) => {
-    const code = error instanceof ApiError ? error.code : undefined;
-    toast.error(
-      code && t.has(`errors.${code}` as never) ? t(`errors.${code}` as never) : errorMessage(error),
-    );
-  };
+  const errorText = useErrorMessage("StaffEvents");
+  const fail = (error: unknown) => toast.error(errorText(error));
 
   const publish = useMutation({
     mutationFn: () => api.post<StaffEvent>(`/staff/events/${event.id}/publish`),

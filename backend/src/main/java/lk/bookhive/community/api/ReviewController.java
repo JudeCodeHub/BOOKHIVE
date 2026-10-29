@@ -12,7 +12,6 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
-import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.web.PageResponse;
 import lk.bookhive.community.domain.Review;
 import lk.bookhive.community.domain.ReviewStatus;
@@ -206,10 +205,6 @@ public class ReviewController {
   }
 
   private UUID memberId(Jwt jwt) {
-    return borrowers
-        .byUserId(UUID.fromString(jwt.getSubject()))
-        .orElseThrow(
-            () -> new NotFoundException("MEMBER_NOT_FOUND", "You are not a library member yet."))
-        .memberId();
+    return borrowers.memberIdOfUser(UUID.fromString(jwt.getSubject()));
   }
 }

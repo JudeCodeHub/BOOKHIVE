@@ -1,8 +1,9 @@
 "use client";
 
+import { BackLink } from "@/components/layout/back-link";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink, FileText } from "lucide-react";
+import { ExternalLink, FileText } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -22,7 +23,7 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { APPLICATIONS_QUERY_KEY, yearsSince } from "@/features/staff/applications-queue";
 import { MemberStatusBadge } from "@/features/staff/member-status-badge";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { ApiError, api, type Schema } from "@/lib/api";
 
 type Application = Schema<"ApplicationDetailResponse">;
@@ -100,13 +101,7 @@ export function ApplicationReview() {
 
   return (
     <div className="grid gap-6">
-      <Link
-        href="/staff/applications"
-        className="inline-flex items-center gap-1 justify-self-start text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("back")}
-      </Link>
+      <BackLink href="/staff/applications">{t("back")}</BackLink>
 
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">{application.fullName}</h1>

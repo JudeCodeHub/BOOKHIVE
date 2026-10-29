@@ -21,6 +21,7 @@ import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { Link } from "@/i18n/navigation";
 import { ApiError, api, type Schema } from "@/lib/api";
+import { DateTile } from "./date-tile";
 import { posterUrl } from "./library-dates";
 
 type Registration = Schema<"RegistrationSummary">;
@@ -237,17 +238,7 @@ function EventRow({
           className="hidden aspect-video w-32 shrink-0 rounded object-cover sm:block"
         />
       ) : (
-        <div
-          aria-hidden
-          className="hidden w-20 shrink-0 flex-col items-center justify-center rounded bg-primary/10 text-primary sm:flex"
-        >
-          <span className="font-heading text-2xl leading-none font-semibold">
-            {format.dateTime(start, { day: "numeric" })}
-          </span>
-          <span className="text-xs font-medium uppercase">
-            {format.dateTime(start, { month: "short" })}
-          </span>
-        </div>
+        <DateTile date={start} className="hidden w-20 shrink-0 rounded sm:flex" />
       )}
       <div className="grid min-w-0 flex-1 content-start gap-1.5">
         <h3 className="font-heading font-semibold">

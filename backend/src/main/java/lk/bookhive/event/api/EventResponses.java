@@ -2,6 +2,7 @@ package lk.bookhive.event.api;
 
 import java.time.Instant;
 import java.util.UUID;
+import lk.bookhive.common.storage.Pictures;
 import lk.bookhive.event.domain.EventAudience;
 import lk.bookhive.event.domain.EventStatus;
 import lk.bookhive.event.domain.LibraryEvent;
@@ -100,13 +101,8 @@ public final class EventResponses {
     }
   }
 
-  /** "events/<id>/<random>.jpg" -> "<random>": changes with every new poster. */
+  /** Changes with every new poster; null when there's none. */
   static String posterVersion(LibraryEvent event) {
-    String key = event.getImageKey();
-    if (key == null) {
-      return null;
-    }
-    String file = key.substring(key.lastIndexOf('/') + 1);
-    return file.endsWith(".jpg") ? file.substring(0, file.length() - 4) : file;
+    return Pictures.version(event.getImageKey());
   }
 }

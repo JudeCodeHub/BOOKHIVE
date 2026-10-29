@@ -11,7 +11,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
-import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.common.web.PageResponse;
 import lk.bookhive.community.service.WishlistService;
 import lk.bookhive.community.service.WishlistService.WishlistEntry;
@@ -106,10 +105,6 @@ public class WishlistController {
   }
 
   private UUID memberId(Jwt jwt) {
-    return borrowers
-        .byUserId(UUID.fromString(jwt.getSubject()))
-        .orElseThrow(
-            () -> new NotFoundException("MEMBER_NOT_FOUND", "You are not a library member yet."))
-        .memberId();
+    return borrowers.memberIdOfUser(UUID.fromString(jwt.getSubject()));
   }
 }

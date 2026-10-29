@@ -1,18 +1,18 @@
 "use client";
 
+import { BackLink } from "@/components/layout/back-link";
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Camera, CameraOff, CircleAlert, CircleCheck } from "lucide-react";
+import { Camera, CameraOff, CircleAlert, CircleCheck } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormAlert } from "@/features/auth/auth-card";
-import { useAuthErrorMessage } from "@/features/auth/errors";
+import { useAuthErrorMessage, useErrorMessage } from "@/features/auth/errors";
 import { CameraView } from "@/features/desk/camera-scanner";
 import { playSound } from "@/features/desk/sounds";
-import { Link } from "@/i18n/navigation";
 import { ApiError, api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { STAFF_EVENTS_KEY, type StaffEvent } from "./staff-events";
@@ -38,6 +38,7 @@ export function EventCheckIn() {
   const tCommon = useTranslations("Common");
   const format = useFormatter();
   const errorMessage = useAuthErrorMessage();
+  const errorText = useErrorMessage("CheckIn");
   const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const [cameraOn, setCameraOn] = useState(true);
@@ -69,10 +70,7 @@ export function EventCheckIn() {
       setOutcome({
         kind: "problem",
         code,
-        message:
-          code && t.has(`errors.${code}` as never)
-            ? t(`errors.${code}` as never)
-            : errorMessage(error),
+        message: errorText(error),
       });
     },
     onSettled: () => {
@@ -96,13 +94,7 @@ export function EventCheckIn() {
 
   return (
     <div className="grid gap-4">
-      <Link
-        href={`/staff/events/${id}`}
-        className="inline-flex items-center gap-1 justify-self-start text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("back")}
-      </Link>
+      <BackLink href={`/staff/events/${id}`}>{t("back")}</BackLink>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold">{t("title")}</h1>

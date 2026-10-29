@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lk.bookhive.common.exception.NotFoundException;
 import lk.bookhive.member.domain.Member;
 import lk.bookhive.member.domain.MemberStatus;
 import lk.bookhive.member.domain.MembershipType;
@@ -68,6 +69,20 @@ public class BorrowerService {
     return members
         .findByMemberNo(memberNo.strip().toUpperCase(Locale.ROOT))
         .map(BorrowerService::borrower);
+  }
+
+  /**
+   * The member id of a logged-in user, for the member's own pages (/me/...).
+   *
+   * @throws NotFoundException MEMBER_NOT_FOUND when the user isn't a library member (e.g. staff)
+   */
+  @Transactional(readOnly = true)
+  public UUID memberIdOfUser(UUID userId) {
+    return members
+        .findByUserId(userId)
+        .orElseThrow(
+            () -> new NotFoundException("MEMBER_NOT_FOUND", "You are not a library member yet."))
+        .getId();
   }
 
   /** The logged-in member's own record (member renewals). */

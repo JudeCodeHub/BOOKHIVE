@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useErrorMessage } from "@/features/auth/errors";
 import { useSession } from "@/features/auth/use-session";
 import { Link } from "@/i18n/navigation";
 import { ApiError, api, type Schema } from "@/lib/api";
@@ -60,12 +61,7 @@ export function EventSignUp({ initial }: { initial: LibraryEvent }) {
     void queryClient.invalidateQueries({ queryKey: ["events"] });
     void queryClient.invalidateQueries({ queryKey: ["me", "events"] });
   };
-  const errorText = (error: unknown) => {
-    const code = error instanceof ApiError ? error.code : undefined;
-    return code && t.has(`errors.${code}` as never)
-      ? t(`errors.${code}` as never)
-      : t("errors.generic");
-  };
+  const errorText = useErrorMessage("EventPage");
 
   const register = useMutation({
     mutationFn: () => api.post<Registration>(`/me/events/${initial.id}/register`),

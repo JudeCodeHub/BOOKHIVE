@@ -16,3 +16,25 @@ export function useAuthErrorMessage() {
     return code && t.has(code as never) ? t(code as never) : t("generic");
   };
 }
+
+/**
+ * Like useAuthErrorMessage, but a page's own `errors.<CODE>` texts come first (e.g. "Sign-up for
+ * this event has closed." in EventPage.errors); codes the page doesn't have fall back to the
+ * shared ones above.
+ *
+ *   const errorText = useErrorMessage("EventPage");
+ *   onError: (error) => toast.error(errorText(error))
+ */
+export function useErrorMessage(namespace: string) {
+  // The namespace is chosen by the caller, so the typed key check can't help here either
+  const t = useTranslations(namespace as never) as unknown as {
+    (key: string): string;
+    has: (key: string) => boolean;
+  };
+  const shared = useAuthErrorMessage();
+
+  return (error: unknown): string => {
+    const code = error instanceof ApiError ? error.code : undefined;
+    return code && t.has(`errors.${code}`) ? t(`errors.${code}`) : shared(error);
+  };
+}

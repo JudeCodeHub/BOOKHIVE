@@ -1,8 +1,9 @@
 "use client";
 
+import { BackLink } from "@/components/layout/back-link";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, EyeOff, ExternalLink, Send, Trash2 } from "lucide-react";
+import { EyeOff, ExternalLink, Send, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -75,13 +76,7 @@ export function StaffNewsPage() {
   const isPublished = post.status === "PUBLISHED";
   return (
     <div className="grid gap-4">
-      <Link
-        href="/staff/news"
-        className="inline-flex items-center gap-1 justify-self-start text-sm text-muted-foreground underline-offset-4 hover:underline"
-      >
-        <ArrowLeft aria-hidden className="size-4" />
-        {t("back")}
-      </Link>
+      <BackLink href="/staff/news">{t("back")}</BackLink>
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">{post.title}</h1>
         <NewsStatusBadge status={post.status} />
