@@ -125,7 +125,13 @@ export function StaffEventForm({ event }: { event?: StaffEvent }) {
               control={form.control}
               name="description"
               render={({ field: { value, onChange } }) => (
-                <RichTextEditor {...field} value={value} onChange={onChange} disabled={locked} />
+                <RichTextEditor
+                  {...field}
+                  label={t("description")}
+                  value={value}
+                  onChange={onChange}
+                  disabled={locked}
+                />
               )}
             />
           )}

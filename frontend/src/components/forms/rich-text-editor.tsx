@@ -29,6 +29,7 @@ export function RichTextEditor({
   value,
   onChange,
   disabled,
+  label,
   id,
   "aria-invalid": invalid,
   "aria-describedby": describedBy,
@@ -36,6 +37,8 @@ export function RichTextEditor({
   value: string;
   onChange: (html: string) => void;
   disabled?: boolean;
+  /** What this box is, for screen readers: a <label for> can't name a contenteditable box */
+  label: string;
 }) {
   const t = useTranslations("RichTextEditor");
   const editor = useEditor({
@@ -62,6 +65,7 @@ export function RichTextEditor({
       attributes: {
         id,
         role: "textbox",
+        "aria-label": label,
         "aria-multiline": "true",
         ...(invalid ? { "aria-invalid": "true" } : {}),
         ...(describedBy ? { "aria-describedby": describedBy } : {}),
@@ -70,7 +74,7 @@ export function RichTextEditor({
           "[&_p]:my-2 [&_h2]:mt-3 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:font-semibold",
           "[&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6",
           "[&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground",
-          "[&_a]:text-primary [&_a]:underline",
+          "[&_a]:text-link [&_a]:underline",
         ),
       },
     },

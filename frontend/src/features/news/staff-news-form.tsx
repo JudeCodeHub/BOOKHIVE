@@ -88,7 +88,7 @@ export function StaffNewsForm({ post }: { post?: StaffNewsPost }) {
               control={form.control}
               name="bodyHtml"
               render={({ field: { value, onChange } }) => (
-                <RichTextEditor {...field} value={value} onChange={onChange} />
+                <RichTextEditor {...field} label={t("body")} value={value} onChange={onChange} />
               )}
             />
           )}

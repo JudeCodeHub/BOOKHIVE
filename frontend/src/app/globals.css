@@ -24,6 +24,9 @@
   --popover-foreground: #1c1917;
 
   --primary: #f59e0b; /* Honey */
+  /* Honey is a background colour: as text on white it only reaches 2:1, so links use this
+     darker honey (amber-800), which passes AA at normal text sizes (checklist step 384) */
+  --link: #92400e;
   --primary-foreground: #1f2937; /* Deep Hive text on Honey: 7:1 contrast */
   --secondary: #1f2937; /* Deep Hive */
   --secondary-foreground: #fafaf9;
@@ -74,6 +77,7 @@
 
   --primary: #f59e0b;
   --primary-foreground: #1c1917;
+  --link: #fcd34d; /* amber-300: the same role on dark surfaces */
   --secondary: #44403c; /* stone-700 */
   --secondary-foreground: #fafaf9;
   --muted: #292524;
@@ -128,6 +132,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-link: var(--link);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

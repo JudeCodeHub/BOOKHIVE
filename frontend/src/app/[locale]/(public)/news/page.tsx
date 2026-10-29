@@ -55,7 +55,7 @@ async function NewsList({ searchParams }: PageProps<"/[locale]/news">) {
         <Newspaper aria-hidden className="size-10" />
         <p>{page === 0 ? t("empty") : t("noSuchPage")}</p>
         {page > 0 && (
-          <Link href="/news" className="font-medium text-primary underline">
+          <Link href="/news" className="font-medium text-link underline">
             {t("firstPage")}
           </Link>
         )}

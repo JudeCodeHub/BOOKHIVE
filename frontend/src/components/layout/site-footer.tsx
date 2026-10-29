@@ -23,7 +23,11 @@ export function SiteFooter() {
             <LogoMark className="size-6" />
             <span className="font-heading font-semibold">BookHive</span>
           </div>
-          <OpenNowBadge />
+          {/* The footer is a dark surface, so the status colours inside it use their dark
+              values: the green "Open now" badge was dark green on dark navy (1.6:1) */}
+          <div className="dark">
+            <OpenNowBadge />
+          </div>
         </div>
         <nav aria-label={t("label")}>
           <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">

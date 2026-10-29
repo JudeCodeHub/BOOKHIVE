@@ -64,42 +64,36 @@ export function TextSizeToggle({ className }: { className?: string }) {
         variant="ghost"
         size="icon"
         className="text-inherit"
-        aria-label={t("smaller")}
         title={t("smaller")}
         disabled={index === 0}
         onClick={() => step(-1)}
       >
-        <span aria-hidden className="text-xs font-semibold">
-          A−
-        </span>
+        <span className="text-xs font-semibold">A−</span>
+        <span className="sr-only">{t("smaller")}</span>
       </Button>
       <Button
         type="button"
         variant="ghost"
         size="icon"
         className="text-inherit"
-        aria-label={t("reset")}
         title={t("reset")}
         disabled={size === DEFAULT_TEXT_SIZE}
         onClick={() => setSize(DEFAULT_TEXT_SIZE)}
       >
-        <span aria-hidden className="text-sm font-semibold">
-          A
-        </span>
+        <span className="text-sm font-semibold">A</span>
+        <span className="sr-only">{t("reset")}</span>
       </Button>
       <Button
         type="button"
         variant="ghost"
         size="icon"
         className="text-inherit"
-        aria-label={t("bigger")}
         title={t("bigger")}
         disabled={index === TEXT_SIZES.length - 1}
         onClick={() => step(1)}
       >
-        <span aria-hidden className="text-base font-semibold">
-          A+
-        </span>
+        <span className="text-base font-semibold">A+</span>
+        <span className="sr-only">{t("bigger")}</span>
       </Button>
       {/* Tells a screen reader what changed, since the buttons' own labels stay the same */}
       <span role="status" aria-live="polite" className="sr-only">
