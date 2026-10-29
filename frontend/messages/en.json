@@ -2093,5 +2093,73 @@
       "HOLIDAY_DATE_TAKEN": "There’s already a holiday on this day.",
       "HOLIDAY_NOT_FOUND": "This holiday no longer exists."
     }
+  },
+  "AdminStaff": {
+    "title": "Staff accounts",
+    "description": "Invite librarians and admins, change roles, and switch accounts off when someone leaves. You can’t change your own account here: another admin has to.",
+    "invite": "Invite staff",
+    "person": "Person",
+    "role": "Role",
+    "status": "Status",
+    "since": "Since",
+    "actions": "Actions",
+    "actionsFor": "Actions for {name}",
+    "you": "You",
+    "notYourself": "Your account",
+    "roles": {
+      "LIBRARIAN": "Librarian",
+      "ADMIN": "Admin"
+    },
+    "statuses": {
+      "PENDING_VERIFICATION": "Waiting for invite",
+      "ACTIVE": "Active",
+      "DISABLED": "Deactivated"
+    },
+    "joined": "Joined {date}",
+    "invited": "Invited {date}",
+    "makeRole": {
+      "ADMIN": "Make admin",
+      "LIBRARIAN": "Make librarian"
+    },
+    "resendInvite": "Send the invite again",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "confirm": {
+      "roleTitle": "Make {name} {role}?",
+      "roleADMIN": "Admins can change library settings, staff accounts and see reports, as well as everything a librarian does. They’re logged out so the new role applies straight away.",
+      "roleLIBRARIAN": "They keep the desk, catalogue and member work, but lose settings, staff accounts and reports. They’re logged out so the change applies straight away.",
+      "deactivateTitle": "Deactivate {name}?",
+      "deactivateText": "They’re logged out everywhere and can’t log in. Their past work (loans, notes, audit log) is kept. You can reactivate them later.",
+      "reactivateTitle": "Reactivate {name}?",
+      "reactivateText": "They can log in again with their own password."
+    },
+    "done": {
+      "role": "{name} is now {role}.",
+      "deactivate": "{name} is deactivated.",
+      "reactivate": "{name} can log in again.",
+      "resent": "A new invite was sent to {email}.",
+      "invited": "Invite sent to {email}."
+    },
+    "inviteTitle": "Invite a staff member",
+    "inviteText": "They get an email with a link to choose their own password. The link works for 72 hours.",
+    "fullName": "Full name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "phoneHint": "Sri Lankan number, e.g. 0771234567",
+    "roleHint": "Admins can also change settings and staff accounts.",
+    "language": "Email language",
+    "languageHint": "The invite is written in this language.",
+    "emailInvalid": "Enter a valid email address.",
+    "phoneInvalid": "Enter a Sri Lankan number like 0771234567 or +94771234567.",
+    "cancel": "Cancel",
+    "sendInvite": "Send invite",
+    "sending": "Sending…",
+    "errors": {
+      "CANNOT_CHANGE_SELF": "You can’t change your own account. Ask another admin.",
+      "LAST_ADMIN": "This is the only active admin. Make someone else an admin first.",
+      "INVITE_ALREADY_ACCEPTED": "They’ve already set up their account.",
+      "STAFF_NOT_FOUND": "This staff account no longer exists.",
+      "EMAIL_ALREADY_REGISTERED": "Someone already has an account with this email."
+    }
   }
 }
