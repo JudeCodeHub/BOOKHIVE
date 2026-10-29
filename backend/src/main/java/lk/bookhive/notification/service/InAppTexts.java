@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import lk.bookhive.common.domain.Language;
+import lk.bookhive.common.text.MessageBundles;
 import lk.bookhive.notification.domain.NotificationType;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;

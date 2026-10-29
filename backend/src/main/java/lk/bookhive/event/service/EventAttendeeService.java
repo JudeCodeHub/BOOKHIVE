@@ -14,6 +14,7 @@ import lk.bookhive.auth.domain.User;
 import lk.bookhive.auth.service.AuthService;
 import lk.bookhive.common.audit.AuditService;
 import lk.bookhive.common.exception.NotFoundException;
+import lk.bookhive.common.text.SpreadsheetCells;
 import lk.bookhive.common.time.LibraryTime;
 import lk.bookhive.event.domain.EventRegistration;
 import lk.bookhive.event.domain.LibraryEvent;
@@ -138,10 +139,10 @@ public class EventAttendeeService {
                 .get())) {
       for (AttendeeSummary a : attendees) {
         csv.printRecord(
-            cell(a.memberNo()),
-            cell(a.fullName()),
-            cell(a.email()),
-            cell(a.phone()),
+            SpreadsheetCells.safe(a.memberNo()),
+            SpreadsheetCells.safe(a.fullName()),
+            SpreadsheetCells.safe(a.email()),
+            SpreadsheetCells.safe(a.phone()),
             a.status(),
             a.waitlistPosition(),
             CSV_TIME.format(a.registeredAt()),
@@ -167,17 +168,6 @@ public class EventAttendeeService {
         + day
         + (slug.isEmpty() ? "" : "-" + slug.substring(0, Math.min(40, slug.length())))
         + ".csv";
-  }
-
-  /**
-   * Spreadsheet programs run cells starting with = + - @ as formulas; a name or email typed by a
-   * member must never do that, so such values get a leading apostrophe.
-   */
-  static String cell(String value) {
-    if (value == null) {
-      return "";
-    }
-    return !value.isEmpty() && "=+-@\t\r".indexOf(value.charAt(0)) >= 0 ? "'" + value : value;
   }
 
   private LibraryEvent require(UUID eventId) {

@@ -1,7 +1,7 @@
 package lk.bookhive.notification.config;
 
 import java.nio.charset.StandardCharsets;
-import lk.bookhive.notification.service.MessageBundles;
+import lk.bookhive.common.text.MessageBundles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;

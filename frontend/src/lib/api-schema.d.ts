@@ -2703,6 +2703,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/overdue/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the overdue list (with members' contact details) as CSV or PDF */
+        get: operations["overdue_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/not-borrowed": {
         parameters: {
             query?: never;
@@ -2712,6 +2729,23 @@ export interface paths {
         };
         /** Weeding list: lendable books on the shelf since before `since` (default 2 years ago) that nobody borrowed since; never-borrowed first, then in shelf order */
         get: operations["notBorrowed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/not-borrowed/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the weeding list (not borrowed since) as CSV or PDF */
+        get: operations["notBorrowed_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2737,6 +2771,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/most-borrowed/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the most borrowed list as CSV or PDF */
+        get: operations["mostBorrowed_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/membership": {
         parameters: {
             query?: never;
@@ -2746,6 +2797,23 @@ export interface paths {
         };
         /** Membership growth per day (up to 366 days) or month: applications, new members, members at the end of each period; and per membership type */
         get: operations["membership_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/membership/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the membership growth report as CSV or PDF */
+        get: operations["membership_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2771,6 +2839,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/fines/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the fines report as CSV or PDF */
+        get: operations["fines_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/circulation": {
         parameters: {
             query?: never;
@@ -2780,6 +2865,23 @@ export interface paths {
         };
         /** Loans and returns per day (up to 366 days), per month, or per top-level category (up to 5 years) */
         get: operations["circulation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/circulation/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the circulation report as CSV or PDF */
+        get: operations["circulation_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -9358,6 +9460,30 @@ export interface operations {
             };
         };
     };
+    overdue_1: {
+        parameters: {
+            query?: {
+                minDays?: number;
+                format?: "CSV" | "PDF";
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     notBorrowed: {
         parameters: {
             query?: {
@@ -9379,6 +9505,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["NotBorrowedReportResponse"];
+                };
+            };
+        };
+    };
+    notBorrowed_1: {
+        parameters: {
+            query?: {
+                since?: string;
+                categoryId?: string;
+                format?: "CSV" | "PDF";
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -9408,6 +9559,33 @@ export interface operations {
             };
         };
     };
+    mostBorrowed_1: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                categoryId?: string;
+                limit?: number;
+                format?: "CSV" | "PDF";
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     membership_1: {
         parameters: {
             query: {
@@ -9428,6 +9606,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MembershipReportResponse"];
+                };
+            };
+        };
+    };
+    membership_2: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                groupBy?: "DAY" | "MONTH";
+                format?: "CSV" | "PDF";
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -9456,6 +9660,32 @@ export interface operations {
             };
         };
     };
+    fines_2: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                groupBy?: "DAY" | "MONTH";
+                format?: "CSV" | "PDF";
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     circulation: {
         parameters: {
             query: {
@@ -9476,6 +9706,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CirculationReportResponse"];
+                };
+            };
+        };
+    };
+    circulation_1: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                groupBy?: "DAY" | "MONTH" | "CATEGORY";
+                format?: "CSV" | "PDF";
+                lang?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };

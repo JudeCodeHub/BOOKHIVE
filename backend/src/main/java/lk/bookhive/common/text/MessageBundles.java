@@ -1,4 +1,4 @@
-package lk.bookhive.notification.service;
+package lk.bookhive.common.text;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -6,8 +6,8 @@ import lk.bookhive.common.domain.Language;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 /**
- * The shared rules for message wording in three languages (emails, SMS, in-app): one place for how
- * bundles are read and which locale each language uses.
+ * The shared rules for wording in three languages (emails, SMS, in-app, report exports): one place
+ * for how bundles are read and which locale each language uses.
  */
 public final class MessageBundles {
 
