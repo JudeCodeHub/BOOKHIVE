@@ -2566,6 +2566,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/reports/not-borrowed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Weeding list: lendable books on the shelf since before `since` (default 2 years ago) that nobody borrowed since; never-borrowed first, then in shelf order */
+        get: operations["notBorrowed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/reports/most-borrowed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The most borrowed titles between two days, optionally in one category */
+        get: operations["mostBorrowed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/reports/circulation": {
         parameters: {
             query?: never;
@@ -4374,6 +4408,45 @@ export interface components {
             bio: string;
             /** Format: int64 */
             bookCount: number;
+        };
+        NotBorrowedReportResponse: {
+            /** Format: date */
+            since: string;
+            books: components["schemas"]["NotBorrowedSummary"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalElements: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        NotBorrowedSummary: {
+            /** Format: uuid */
+            bookId: string;
+            title: string;
+            authors: string | null;
+            callNumber: string | null;
+            /** Format: int64 */
+            copies: number;
+            /** Format: date */
+            inStockSince: string;
+            /** Format: date */
+            lastBorrowedOn: string | null;
+        };
+        MostBorrowedSummary: {
+            /** Format: uuid */
+            bookId: string;
+            title: string;
+            authors: string | null;
+            callNumber: string | null;
+            /** Format: int64 */
+            copies: number;
+            /** Format: int64 */
+            checkouts: number;
+            /** Format: int64 */
+            borrowers: number;
         };
         CirculationCategorySummary: {
             /** Format: uuid */
@@ -8700,6 +8773,56 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SettingsResponse"];
+                };
+            };
+        };
+    };
+    notBorrowed: {
+        parameters: {
+            query?: {
+                since?: string;
+                categoryId?: string;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NotBorrowedReportResponse"];
+                };
+            };
+        };
+    };
+    mostBorrowed: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                categoryId?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MostBorrowedSummary"][];
                 };
             };
         };
