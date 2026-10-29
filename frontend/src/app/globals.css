@@ -179,6 +179,18 @@
   }
   html {
     @apply font-sans;
+    /* Text size (A- / A / A+): everything is sized in rem, so the whole page scales with this.
+       Set on <html> before the page is painted (text-size.ts), and remembered per device. */
+    font-size: 100%;
+  }
+  html[data-text-size="small"] {
+    font-size: 93.75%; /* 15px */
+  }
+  html[data-text-size="large"] {
+    font-size: 112.5%; /* 18px */
+  }
+  html[data-text-size="larger"] {
+    font-size: 125%; /* 20px */
   }
   body {
     @apply bg-background text-foreground;
