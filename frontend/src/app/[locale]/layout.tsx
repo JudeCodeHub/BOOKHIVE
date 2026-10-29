@@ -9,6 +9,7 @@ import { SessionProvider } from "@/components/providers/session-provider";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
+import { TEXT_SIZE_SCRIPT } from "@/lib/text-size";
 import { cn } from "@/lib/utils";
 import "../globals.css";
 
@@ -75,6 +76,10 @@ export default async function LocaleLayout({ children }: LayoutProps<"/[locale]"
       // next-themes adds class="dark" before React loads; this stops React warning about it
       suppressHydrationWarning
     >
+      <head>
+        {/* Applies a bigger/smaller reading size before the page is painted, so it never jumps */}
+        <script dangerouslySetInnerHTML={{ __html: TEXT_SIZE_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         {/* Passes the language and messages on to client components (useTranslations) */}
         <NextIntlClientProvider>

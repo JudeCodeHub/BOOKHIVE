@@ -4,6 +4,7 @@ import { LogoMark } from "@/components/brand/logo";
 import { AccountMenu } from "@/components/layout/account-menu";
 import { NotificationBell } from "@/components/layout/notification-bell";
 import { SidebarNav, type NavItem } from "@/components/layout/sidebar-nav";
+import { TextSizeToggle } from "@/components/theme/text-size-toggle";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 /**
@@ -39,6 +40,7 @@ export function ConsoleShell({
         </Link>
         <div className="ml-auto flex min-w-0 items-center gap-3">
           {headerActions}
+          <TextSizeToggle className="hidden sm:flex" />
           <ThemeToggle className="hover:bg-white/10 hover:text-secondary-foreground" />
           <NotificationBell className="hover:bg-white/10 hover:text-secondary-foreground" />
           <AccountMenu className="h-8 bg-white/10 text-secondary-foreground hover:bg-white/20" />

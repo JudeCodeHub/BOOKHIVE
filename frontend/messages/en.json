@@ -2561,5 +2561,17 @@
     "USER_NOT_FOUND": "This account no longer exists.",
     "WAIVER_OVER_LIMIT": "That waiver is above your limit. Ask an admin.",
     "WISHLIST_FULL": "Your wishlist is full. Remove some books to save more."
+  },
+  "TextSize": {
+    "label": "Text size",
+    "smaller": "Smaller text",
+    "bigger": "Bigger text",
+    "reset": "Normal text size",
+    "sizes": {
+      "small": "Small text",
+      "normal": "Normal text size",
+      "large": "Big text",
+      "larger": "Biggest text"
+    }
   }
 }
