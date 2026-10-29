@@ -2224,9 +2224,7 @@
       "fines": "Fines",
       "membership": "Membership"
     },
-    "range": "{from} – {to}",
     "asOfToday": "Books overdue right now",
-    "notBorrowedSince": "Books not borrowed since {date}",
     "groupBy": "Group by",
     "groupings": {
       "DAY": "Day",
@@ -2314,6 +2312,34 @@
       "type": "Membership type",
       "summary": "Line chart of members: from {first} to {last} over this period.",
       "newSummary": "Column chart of new members: {count} in this period."
-    }
+    },
+    "picker": {
+      "change": "Change the dates",
+      "changeSince": "Change the date",
+      "presets": {
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "last90": "Last 90 days",
+        "thisMonth": "This month",
+        "lastMonth": "Last month",
+        "thisYear": "This year",
+        "last12Months": "Last 12 months"
+      },
+      "custom": "Custom range",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply",
+      "since": "Not borrowed since {date}",
+      "customDay": "Or choose a day",
+      "ago": {
+        "months6": "6 months ago",
+        "year1": "1 year ago",
+        "years2": "2 years ago",
+        "years3": "3 years ago"
+      }
+    },
+    "downloadCSV": "Download CSV",
+    "downloadPDF": "Download PDF",
+    "downloading": "Preparing…"
   }
 }

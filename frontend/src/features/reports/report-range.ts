@@ -64,9 +64,22 @@ export function useReportRange() {
     today,
     /** Another report starts from its own default range */
     setReport: (r: ReportName) => set({ report: r, from: null, to: null, groupBy: null }),
-    setRange: (f: string, t: string) => set({ from: f, to: t }),
+    /** Over a year can't be shown day by day (the API's limit): such a range switches to months */
+    setRange: (f: string, t: string) =>
+      set({
+        from: f,
+        to: t,
+        groupBy: groupBy === "DAY" && daysBetween(f, t) > MAX_DAYS_BY_DAY ? "MONTH" : groupBy,
+      }),
     setGroupBy: (value: GroupBy) => set({ groupBy: value }),
   };
+}
+
+/** The API shows at most this many days one by one (CirculationReportService). */
+const MAX_DAYS_BY_DAY = 366;
+
+function daysBetween(from: string, to: string) {
+  return Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000) + 1;
 }
 
 /** Circulation: the last 30 days by day; money and members: by month over a year or two. */
