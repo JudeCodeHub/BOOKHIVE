@@ -2,7 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { Download } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +15,7 @@ import { Pager } from "@/features/staff/pager";
 import { api, type Schema } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { BarList, ColumnChart, DataTable, NumbersTable, StatTile, TimeChart } from "./charts";
+import { DateRangePicker, SincePicker } from "./date-range-picker";
 import { REPORTS, useReportRange, type GroupBy, type ReportName } from "./report-range";
 
 type Circulation = Schema<"CirculationReportResponse">;
@@ -46,7 +49,13 @@ export function ReportsPage() {
         </TabsList>
       </Tabs>
 
-      <ReportFilters report={r.report} range={range} onGroupBy={r.setGroupBy} />
+      <ReportFilters
+        report={r.report}
+        range={range}
+        today={r.today}
+        onRange={r.setRange}
+        onGroupBy={r.setGroupBy}
+      />
 
       {r.report === "circulation" && <CirculationReport range={range} />}
       {r.report === "popular" && <PopularReport range={range} />}
@@ -58,19 +67,24 @@ export function ReportsPage() {
   );
 }
 
-/** One row above the report: what it covers, and how it's grouped. */
+/**
+ * One row above the report (checklist step 374): its dates, how it's grouped, and downloads.
+ * Every chart, number and table below follows it.
+ */
 function ReportFilters({
   report,
   range,
+  today,
+  onRange,
   onGroupBy,
 }: {
   report: ReportName;
   range: Range;
+  today: string;
+  onRange: (from: string, to: string) => void;
   onGroupBy: (g: GroupBy) => void;
 }) {
   const t = useTranslations("Reports");
-  const format = useFormatter();
-  const day = (d: string) => format.dateTime(dayAsDate(d), { dateStyle: "medium" });
   const groupings: GroupBy[] =
     report === "circulation"
       ? ["DAY", "MONTH", "CATEGORY"]
@@ -80,13 +94,13 @@ function ReportFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      <p className="text-muted-foreground">
-        {report === "overdue"
-          ? t("asOfToday")
-          : report === "weeding"
-            ? t("notBorrowedSince", { date: day(range.from) })
-            : t("range", { from: day(range.from), to: day(range.to) })}
-      </p>
+      {report === "overdue" ? (
+        <p className="text-muted-foreground">{t("asOfToday")}</p>
+      ) : report === "weeding" ? (
+        <SincePicker since={range.from} today={today} onChange={(d) => onRange(d, range.to)} />
+      ) : (
+        <DateRangePicker from={range.from} to={range.to} today={today} onChange={onRange} />
+      )}
       {groupings.length > 0 && (
         <div role="group" aria-label={t("groupBy")} className="flex rounded-md border p-0.5">
           {groupings.map((g) => (
@@ -102,6 +116,68 @@ function ReportFilters({
           ))}
         </div>
       )}
+      <ExportButtons report={report} range={range} />
+    </div>
+  );
+}
+
+/** The API's name for each report's download. */
+const EXPORT_PATHS: Record<ReportName, string> = {
+  circulation: "circulation",
+  popular: "most-borrowed",
+  weeding: "not-borrowed",
+  overdue: "overdue",
+  fines: "fines",
+  membership: "membership",
+};
+
+/** CSV for spreadsheets, PDF to print or send; headings in the language the admin is using. */
+function ExportButtons({ report, range }: { report: ReportName; range: Range }) {
+  const t = useTranslations("Reports");
+  const locale = useLocale();
+  const errorText = useErrorMessage("Reports");
+  const [busy, setBusy] = useState<"CSV" | "PDF" | null>(null);
+
+  async function download(format: "CSV" | "PDF") {
+    const query: Record<string, string | number> = { format, lang: locale };
+    if (report === "weeding") query.since = range.from;
+    else if (report !== "overdue") {
+      query.from = range.from;
+      query.to = range.to;
+      if (report !== "popular") {
+        query.groupBy =
+          report === "circulation" ? range.groupBy : range.groupBy === "DAY" ? "DAY" : "MONTH";
+      }
+    }
+    setBusy(format);
+    try {
+      const blob = await api.getBlob(`/admin/reports/${EXPORT_PATHS[report]}/export`, { query });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `bookhive-${EXPORT_PATHS[report]}-${report === "overdue" ? "now" : `${range.from}-${range.to}`}.${format.toLowerCase()}`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      toast.error(errorText(error));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="ml-auto flex gap-2">
+      {(["CSV", "PDF"] as const).map((format) => (
+        <Button
+          key={format}
+          variant="outline"
+          size="sm"
+          disabled={busy !== null}
+          onClick={() => void download(format)}
+        >
+          <Download aria-hidden />
+          {busy === format ? t("downloading") : t(`download${format}`)}
+        </Button>
+      ))}
     </div>
   );
 }
