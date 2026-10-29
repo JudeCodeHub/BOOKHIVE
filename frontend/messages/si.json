@@ -2376,7 +2376,12 @@
     },
     "downloadCSV": "CSV බාගන්න",
     "downloadPDF": "PDF බාගන්න",
-    "downloading": "සකසමින්…"
+    "downloading": "සකසමින්…",
+    "errors": {
+      "RANGE_INVALID": "අවසන් දිනය ආරම්භක දිනයට පෙර ය.",
+      "RANGE_TOO_LONG": "එම කාලය දිගු වැඩියි. කෙටි කාලයක් තෝරන්න, නැතහොත් මාසය අනුව කාණ්ඩ කරන්න.",
+      "DATE_NOT_PAST": "අතීත දිනයක් තෝරන්න."
+    }
   },
   "Stocktake": {
     "title": "මාතෘකාව",
