@@ -6,14 +6,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import lk.bookhive.common.config.OpenApiConfig;
+import lk.bookhive.report.repository.CirculationReportQueries.Period;
 import lk.bookhive.report.service.BookUsageReportService;
 import lk.bookhive.report.service.CirculationReportService;
 import lk.bookhive.report.service.CirculationReportService.CirculationReport;
 import lk.bookhive.report.service.CirculationReportService.GroupBy;
+import lk.bookhive.report.service.OverdueFineReportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -133,12 +136,90 @@ public class AdminReportController {
       long totalElements,
       int totalPages) {}
 
+  /**
+   * @param daysOverdue days past the due date today
+   * @param fineOwed still owed on this loan's overdue fine (LKR)
+   */
+  public record OverdueLoanSummary(
+      UUID loanId,
+      String memberNo,
+      String memberName,
+      String email,
+      @Schema(nullable = true) String phone,
+      String title,
+      String barcode,
+      LocalDate dueDate,
+      long daysOverdue,
+      BigDecimal fineOwed) {}
+
+  /**
+   * @param upToWeek 1-7 days late
+   * @param upToMonth 8-30 days late
+   * @param overMonth more than 30 days late
+   * @param finesOwed still owed on all of them (LKR)
+   */
+  public record OverdueTotalsSummary(
+      long total, long upToWeek, long upToMonth, long overMonth, BigDecimal finesOwed) {}
+
+  /**
+   * @param loans most overdue first
+   */
+  public record OverdueReportResponse(
+      LocalDate today,
+      OverdueTotalsSummary totals,
+      List<OverdueLoanSummary> loans,
+      int page,
+      int size,
+      int totalPages) {}
+
+  /** Amounts in LKR; collected = cash + online - refunded. */
+  public record FineTotalsSummary(
+      BigDecimal charged,
+      BigDecimal collectedCash,
+      BigDecimal collectedOnline,
+      BigDecimal refunded,
+      BigDecimal collected,
+      BigDecimal waived,
+      BigDecimal cancelled) {}
+
+  public record FinePeriodSummary(
+      LocalDate start,
+      BigDecimal charged,
+      BigDecimal collectedCash,
+      BigDecimal collectedOnline,
+      BigDecimal refunded,
+      BigDecimal waived,
+      BigDecimal cancelled) {}
+
+  /**
+   * @param type OVERDUE, LOST, DAMAGE or MEMBERSHIP_FEE
+   */
+  public record FineTypeSummary(
+      String type, BigDecimal charged, BigDecimal collected, BigDecimal waived) {}
+
+  /**
+   * @param periods every day or month in the range, oldest first
+   * @param byType every kind of fine, most charged first
+   */
+  public record FineReportResponse(
+      LocalDate from,
+      LocalDate to,
+      Period groupBy,
+      FineTotalsSummary totals,
+      List<FinePeriodSummary> periods,
+      List<FineTypeSummary> byType) {}
+
   private final CirculationReportService circulation;
   private final BookUsageReportService usage;
+  private final OverdueFineReportService money;
 
-  public AdminReportController(CirculationReportService circulation, BookUsageReportService usage) {
+  public AdminReportController(
+      CirculationReportService circulation,
+      BookUsageReportService usage,
+      OverdueFineReportService money) {
     this.circulation = circulation;
     this.usage = usage;
+    this.money = money;
   }
 
   @GetMapping("/circulation")
@@ -204,5 +285,80 @@ public class AdminReportController {
         size,
         result.total(),
         (int) ((result.total() + size - 1) / size));
+  }
+
+  @GetMapping("/overdue")
+  @Operation(
+      summary =
+          "Books still out past their due date, most overdue first, with the member's contact"
+              + " details and what's owed")
+  public OverdueReportResponse overdue(
+      @RequestParam(defaultValue = "1") @Min(1) @Max(3650) int minDays,
+      @RequestParam(defaultValue = "0") @Min(0) int page,
+      @RequestParam(defaultValue = "50") @Min(1) @Max(200) int size) {
+    var result = money.overdue(minDays, page, size);
+    var s = result.summary();
+    return new OverdueReportResponse(
+        result.today(),
+        new OverdueTotalsSummary(
+            s.total(), s.upToWeek(), s.upToMonth(), s.overMonth(), s.finesOwed()),
+        result.loans().stream()
+            .map(
+                r ->
+                    new OverdueLoanSummary(
+                        r.loanId(),
+                        r.memberNo(),
+                        r.memberName(),
+                        r.email(),
+                        r.phone(),
+                        r.title(),
+                        r.barcode(),
+                        r.dueDate(),
+                        r.daysOverdue(),
+                        r.fineOwed()))
+            .toList(),
+        page,
+        size,
+        (int) ((s.total() + size - 1) / size));
+  }
+
+  @GetMapping("/fines")
+  @Operation(
+      summary =
+          "Money from fines per day (up to 366 days) or month: charged, collected (cash/online),"
+              + " refunded, waived, cancelled; and per kind of fine")
+  public FineReportResponse fines(
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+      @RequestParam(defaultValue = "MONTH") Period groupBy) {
+    var r = money.fines(from, to, groupBy);
+    var t = r.totals();
+    return new FineReportResponse(
+        r.from(),
+        r.to(),
+        r.groupBy(),
+        new FineTotalsSummary(
+            t.charged(),
+            t.collectedCash(),
+            t.collectedOnline(),
+            t.refunded(),
+            t.collected(),
+            t.waived(),
+            t.cancelled()),
+        r.periods().stream()
+            .map(
+                p ->
+                    new FinePeriodSummary(
+                        p.start(),
+                        p.charged(),
+                        p.collectedCash(),
+                        p.collectedOnline(),
+                        p.refunded(),
+                        p.waived(),
+                        p.cancelled()))
+            .toList(),
+        r.byType().stream()
+            .map(x -> new FineTypeSummary(x.type(), x.charged(), x.collected(), x.waived()))
+            .toList());
   }
 }
