@@ -1,9 +1,11 @@
 package lk.bookhive.circulation.service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import lk.bookhive.circulation.repository.LoanRepository;
+import lk.bookhive.common.time.LibraryTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,34 @@ public class LoanLookupService {
   public List<UUID> alsoBorrowed(UUID bookId, int minReaders, int limit) {
     return loans.alsoBorrowed(bookId, minReaders, limit).stream()
         .map(LoanRepository.CoBorrow::getBookId)
+        .toList();
+  }
+
+  /**
+   * Today at the desk (staff dashboard, step 360).
+   *
+   * @param overdue open loans past their due date (whether or not the nightly job ran yet)
+   */
+  public record DeskDay(long checkedOut, long returned, long dueToday, long overdue) {}
+
+  /** Loans and returns on one library day. */
+  public record DayActivity(LocalDate day, long checkouts, long returns) {}
+
+  /** {@code start}/{@code end} bound today in library time. */
+  @Transactional(readOnly = true)
+  public DeskDay deskDay(Instant start, Instant end, LocalDate today) {
+    LoanRepository.DeskCounts c = loans.deskCounts(start, end, today);
+    return new DeskDay(c.getCheckedOut(), c.getReturned(), c.getDueToday(), c.getOverdue());
+  }
+
+  /** Loans and returns per day from {@code from} to {@code to} (library days, both included). */
+  @Transactional(readOnly = true)
+  public List<DayActivity> dailyActivity(LocalDate from, LocalDate to) {
+    return loans
+        .dailyActivity(
+            from, to, from.atStartOfDay(LibraryTime.ZONE).toInstant(), LibraryTime.ZONE.getId())
+        .stream()
+        .map(d -> new DayActivity(LocalDate.parse(d.getDay()), d.getCheckouts(), d.getReturns()))
         .toList();
   }
 

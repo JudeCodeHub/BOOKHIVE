@@ -48,6 +48,12 @@ public class ApplicationReviewService {
   private final AuditService audit;
   private final LibraryTime time;
 
+  /** Applications waiting for a decision (staff dashboard, step 360). */
+  @Transactional(readOnly = true)
+  public long pendingCount() {
+    return members.countByStatus(MemberStatus.PENDING);
+  }
+
   public ApplicationReviewService(
       MemberRepository members,
       MemberDocumentRepository documents,

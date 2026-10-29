@@ -1,5 +1,6 @@
 package lk.bookhive.circulation.repository;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -106,6 +107,67 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
 
   /** Loans still to come back from {@code from} on (due dates to move off new closed days). */
   List<Loan> findByStatusAndDueDateGreaterThanEqual(LoanStatus status, LocalDate from);
+
+  /** The desk's day on the staff dashboard (step 360). */
+  interface DeskCounts {
+    long getCheckedOut();
+
+    long getReturned();
+
+    long getDueToday();
+
+    long getOverdue();
+  }
+
+  @Query(
+      value =
+          """
+          SELECT
+              count(*) FILTER (WHERE checked_out_at >= :start AND checked_out_at < :end)
+                  AS checkedOut,
+              count(*) FILTER (WHERE returned_at >= :start AND returned_at < :end) AS returned,
+              count(*) FILTER (WHERE status IN ('ACTIVE', 'OVERDUE') AND due_date = :today)
+                  AS dueToday,
+              count(*) FILTER (WHERE status IN ('ACTIVE', 'OVERDUE') AND due_date < :today)
+                  AS overdue
+          FROM loans
+          """,
+      nativeQuery = true)
+  DeskCounts deskCounts(
+      @Param("start") Instant start, @Param("end") Instant end, @Param("today") LocalDate today);
+
+  /** Loans and returns per library day (staff dashboard chart); days without any are 0. */
+  interface DayActivity {
+    String getDay();
+
+    long getCheckouts();
+
+    long getReturns();
+  }
+
+  @Query(
+      value =
+          """
+          WITH days AS (
+              SELECT generate_series(CAST(:from AS date), CAST(:to AS date), interval '1 day')::date
+                  AS day
+          )
+          SELECT to_char(days.day, 'YYYY-MM-DD') AS day,
+                 COALESCE(c.n, 0) AS checkouts,
+                 COALESCE(r.n, 0) AS returns
+          FROM days
+          LEFT JOIN (SELECT (checked_out_at AT TIME ZONE :zone)::date AS day, count(*) AS n
+                     FROM loans WHERE checked_out_at >= :start GROUP BY 1) c ON c.day = days.day
+          LEFT JOIN (SELECT (returned_at AT TIME ZONE :zone)::date AS day, count(*) AS n
+                     FROM loans WHERE returned_at >= :start GROUP BY 1) r ON r.day = days.day
+          ORDER BY days.day
+          """,
+      nativeQuery = true)
+  List<DayActivity> dailyActivity(
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to,
+      @Param("start") Instant start,
+      @Param("zone") String zone);
 
   /** Fine accrual job: every open loan past its due date. */
   List<Loan> findByStatusInAndDueDateBefore(Collection<LoanStatus> statuses, LocalDate today);

@@ -41,6 +41,12 @@ public class PurchaseSuggestionService {
   private final AuditService audit;
   private final LibraryTime time;
 
+  /** Suggestions nobody has looked at yet (staff dashboard, step 360). */
+  @Transactional(readOnly = true)
+  public long newCount() {
+    return suggestions.countByStatus(SuggestionStatus.SUBMITTED);
+  }
+
   public PurchaseSuggestionService(
       PurchaseSuggestionRepository suggestions,
       BookRepository books,

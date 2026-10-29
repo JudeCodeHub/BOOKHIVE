@@ -38,4 +38,8 @@ public interface LibraryEventRepository extends JpaRepository<LibraryEvent, UUID
 
   /** Staff list: every event, newest start first. */
   Page<LibraryEvent> findAllByOrderByStartsAtDesc(Pageable pageable);
+
+  /** Published events starting in this window (staff dashboard: events today). */
+  long countByStatusAndStartsAtGreaterThanEqualAndStartsAtLessThan(
+      EventStatus status, Instant from, Instant to);
 }

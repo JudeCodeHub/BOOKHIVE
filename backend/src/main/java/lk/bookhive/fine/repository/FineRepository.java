@@ -1,6 +1,7 @@
 package lk.bookhive.fine.repository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -38,4 +39,36 @@ public interface FineRepository extends JpaRepository<Fine, UUID> {
           """,
       nativeQuery = true)
   BigDecimal outstandingFor(@Param("memberId") UUID memberId);
+
+  /** Money on the staff dashboard (step 360), in LKR. */
+  interface MoneyTotals {
+    BigDecimal getCollected();
+
+    BigDecimal getWaived();
+
+    BigDecimal getOutstanding();
+  }
+
+  /**
+   * Collected (payments minus refunds) and waived between {@code start} and {@code end}, and
+   * everything still owed on open fines.
+   */
+  @Query(
+      value =
+          """
+          SELECT
+              (SELECT COALESCE(SUM(CASE WHEN kind = 'PAYMENT' THEN amount ELSE -amount END), 0)
+               FROM fine_transactions
+               WHERE kind IN ('PAYMENT', 'REFUND') AND created_at >= :start AND created_at < :end)
+                  AS collected,
+              (SELECT COALESCE(SUM(amount), 0)
+               FROM fine_transactions
+               WHERE kind = 'WAIVER' AND created_at >= :start AND created_at < :end) AS waived,
+              (SELECT COALESCE(SUM(CASE WHEN t.kind IN ('CHARGE', 'REFUND') THEN t.amount
+                                        ELSE -t.amount END), 0)
+               FROM fine_transactions t JOIN fines f ON f.id = t.fine_id
+               WHERE f.status = 'OPEN') AS outstanding
+          """,
+      nativeQuery = true)
+  MoneyTotals moneyTotals(@Param("start") Instant start, @Param("end") Instant end);
 }
