@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented, SegmentedItem } from "@/components/ui/segmented";
 import { Textarea } from "@/components/ui/textarea";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
@@ -82,21 +82,20 @@ export function SuggestionsQueue() {
 
   return (
     <div className="grid gap-4">
-      <Tabs
+      <Segmented
         value={status}
+        label={t("tabs")}
         onValueChange={(value) => {
           setStatus(value as Status);
           setPage(0);
         }}
       >
-        <TabsList aria-label={t("tabs")}>
-          {STATUSES.map((value) => (
-            <TabsTrigger key={value} value={value}>
-              {t(`statuses.${value}`)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+        {STATUSES.map((value) => (
+          <SegmentedItem key={value} value={value}>
+            {t(`statuses.${value}`)}
+          </SegmentedItem>
+        ))}
+      </Segmented>
 
       {query.isPending && <HexLoader label={tCommon("loading")} />}
       {query.isError && <FormAlert>{errorMessage(query.error)}</FormAlert>}

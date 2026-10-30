@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented, SegmentedItem } from "@/components/ui/segmented";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { useStaffRenew } from "@/features/loans/use-staff-renew";
@@ -79,13 +79,15 @@ export function StaffLoans() {
 
   return (
     <div className="grid gap-4">
-      <Tabs value={view} onValueChange={(next) => go({ view: next as View })}>
-        <TabsList aria-label={t("views")}>
-          <TabsTrigger value="all">{t("all")}</TabsTrigger>
-          <TabsTrigger value="dueSoon">{t("dueSoon", { days: DUE_SOON_DAYS })}</TabsTrigger>
-          <TabsTrigger value="overdue">{t("overdue")}</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <Segmented
+        value={view}
+        label={t("views")}
+        onValueChange={(next) => go({ view: next as View })}
+      >
+        <SegmentedItem value="all">{t("all")}</SegmentedItem>
+        <SegmentedItem value="dueSoon">{t("dueSoon", { days: DUE_SOON_DAYS })}</SegmentedItem>
+        <SegmentedItem value="overdue">{t("overdue")}</SegmentedItem>
+      </Segmented>
 
       {loans.isPending && (
         <div className="flex justify-center py-8">

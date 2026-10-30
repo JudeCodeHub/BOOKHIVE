@@ -4,7 +4,7 @@ import { Volume2, VolumeX } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented, SegmentedItem } from "@/components/ui/segmented";
 import { CheckoutDesk } from "@/features/desk/checkout-desk";
 import { Kbd } from "@/features/desk/kbd";
 import { ReturnsDesk } from "@/features/desk/returns-desk";
@@ -52,16 +52,14 @@ export function DeskMode() {
       }}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs value={mode} onValueChange={(next) => switchTo(next as Mode)}>
-          <TabsList aria-label={t("modes")}>
-            <TabsTrigger value="checkout">
-              {t("checkout")} <Kbd>F2</Kbd>
-            </TabsTrigger>
-            <TabsTrigger value="returns">
-              {t("returns")} <Kbd>F3</Kbd>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <Segmented value={mode} label={t("modes")} onValueChange={(next) => switchTo(next as Mode)}>
+          <SegmentedItem value="checkout">
+            {t("checkout")} <Kbd>F2</Kbd>
+          </SegmentedItem>
+          <SegmentedItem value="returns">
+            {t("returns")} <Kbd>F3</Kbd>
+          </SegmentedItem>
+        </Segmented>
         <Button variant="ghost" size="sm" aria-pressed={!muted} onClick={() => setMuted(!muted)}>
           {muted ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}
           {muted ? t("soundOff") : t("soundOn")} <Kbd>F7</Kbd>
