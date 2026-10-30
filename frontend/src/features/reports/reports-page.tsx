@@ -7,7 +7,7 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { HexLoader } from "@/components/brand/hex-loader";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented, SegmentedItem } from "@/components/ui/segmented";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useErrorMessage } from "@/features/auth/errors";
 import { dayAsDate } from "@/features/events/library-dates";
@@ -40,15 +40,18 @@ export function ReportsPage() {
 
   return (
     <div className="grid gap-4">
-      <Tabs value={r.report} onValueChange={(v) => r.setReport(v as ReportName)}>
-        <TabsList className="h-auto flex-wrap">
-          {REPORTS.map((name) => (
-            <TabsTrigger key={name} value={name}>
-              {t(`tabs.${name}`)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <Segmented
+        value={r.report}
+        label={t("chooseReport")}
+        onValueChange={(v) => r.setReport(v as ReportName)}
+        className="h-auto flex-wrap"
+      >
+        {REPORTS.map((name) => (
+          <SegmentedItem key={name} value={name}>
+            {t(`tabs.${name}`)}
+          </SegmentedItem>
+        ))}
+      </Segmented>
 
       <ReportFilters
         report={r.report}

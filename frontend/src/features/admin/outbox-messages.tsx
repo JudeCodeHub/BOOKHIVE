@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Segmented, SegmentedItem } from "@/components/ui/segmented";
 import { FormAlert } from "@/features/auth/auth-card";
 import { useAuthErrorMessage } from "@/features/auth/errors";
 import { Pager } from "@/features/staff/pager";
@@ -98,19 +98,18 @@ export function OutboxMessages() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs
+        <Segmented
           value={status}
+          label={t("statuses")}
           onValueChange={(next) => {
             setStatus(next as Status);
             setPage(0);
           }}
         >
-          <TabsList aria-label={t("statuses")}>
-            <TabsTrigger value="FAILED">{t("status.FAILED")}</TabsTrigger>
-            <TabsTrigger value="PENDING">{t("status.PENDING")}</TabsTrigger>
-            <TabsTrigger value="SENT">{t("status.SENT")}</TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <SegmentedItem value="FAILED">{t("status.FAILED")}</SegmentedItem>
+          <SegmentedItem value="PENDING">{t("status.PENDING")}</SegmentedItem>
+          <SegmentedItem value="SENT">{t("status.SENT")}</SegmentedItem>
+        </Segmented>
         {status === "FAILED" && (counts.data?.failed ?? 0) > 0 && (
           <Button
             variant="outline"
